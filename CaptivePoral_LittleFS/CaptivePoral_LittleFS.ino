@@ -445,7 +445,7 @@ void loop()
     {
     case monitoring:
     {
-        Serial.println("Monitoring");
+        Serial.println("Monitoring %d", tpm);
         // Melakukan monitoring per INTERVAL_READING
         if (millis() >= time_1 + INTERVAL_READING)
         {
@@ -466,10 +466,10 @@ void loop()
         // display.display();
         WiFi.mode(WIFI_OFF);
         WiFi.mode(WIFI_AP_STA);
-        int rand_pass = random(10000000, 999999999);
+        int rand_pass = random(1000000, 99999999);
 
         // Untuk debug
-        // rand_pass = 12345678;
+        rand_pass = 12345678;
         Serial.println(F("SSID : "));
         Serial.println(config.seri_infus);
         Serial.println(F("PASS : "));
@@ -492,6 +492,7 @@ void loop()
         delay(2000);
         break;
     }
+
     case waiting_conn:
     {
         // waiting request
