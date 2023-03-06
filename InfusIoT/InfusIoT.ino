@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <DNSServer.h>
 #include <WiFi.h>
 #include "ESPAsyncWebServer.h"
@@ -55,8 +57,12 @@ String avail_wifi;
 //}
 
 // GPIO Setting
-const int set_pin = 23;  // GPIO pin setting
+const int set_pin = 23; // GPIO pin setting
+Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &Wire, -1);
 const int sens_pin = 21; // Pin Sensor
+const int I2C_SDA = 19, I2C_SCL = 18;
+
+bool isrun = 0;
 
 // State
 const int loadconfig = 10;
@@ -109,79 +115,79 @@ void printconfig()
 // Loads the configuration from a file
 void load_config(fs::FS &fs, const char *filename, Config &config)
 {
-  // Open file for reading
-  File file = fs.open(filename);
+    // Open file for reading
+    File file = fs.open(filename);
 
-  // Allocate a temporary JsonDocument
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/v6/assistant to compute the capacity.
-  StaticJsonDocument<384> doc;
+    // Allocate a temporary JsonDocument
+    // Don't forget to change the capacity to match your requirements.
+    // Use arduinojson.org/v6/assistant to compute the capacity.
+    StaticJsonDocument<384> doc;
 
-  DeserializationError error = deserializeJson(doc, file);
-  if (error)
-  {
-    Serial.print("Gagal load");
-    Serial.println(error.c_str());
-    state = error_state;
-    return;
-  }
+    DeserializationError error = deserializeJson(doc, file);
+    if (error)
+    {
+        Serial.print("Gagal load");
+        Serial.println(error.c_str());
+        state = error_state;
+        return;
+    }
 
-  config.seri_infus = (const char*)doc["seri_infus"];
-  config.nama_pasien = (const char*)doc["nama_pasien"];
-  config.kode_kamar = (const char*)doc["kode_kamar"];
-  config.kode_bed = (const char*)doc["kode_bed"];
-  config.koneksi = (const char*)doc["koneksi"];
-  config.wifi_ssid =  (const char*)doc["wifi_ssid"];
-  config.wifi_pass =  (const char*)doc["wifi_pass"];
-  config.sim_ssid = (const char*)doc["sim_ssid"];
-  config.sim_pass =  (const char*)doc["sim_pass"];
+    config.seri_infus = (const char *)doc["seri_infus"];
+    config.nama_pasien = (const char *)doc["nama_pasien"];
+    config.kode_kamar = (const char *)doc["kode_kamar"];
+    config.kode_bed = (const char *)doc["kode_bed"];
+    config.koneksi = (const char *)doc["koneksi"];
+    config.wifi_ssid = (const char *)doc["wifi_ssid"];
+    config.wifi_pass = (const char *)doc["wifi_pass"];
+    config.sim_ssid = (const char *)doc["sim_ssid"];
+    config.sim_pass = (const char *)doc["sim_pass"];
 
-  file.close();
+    file.close();
 }
 //
 // Write the configuration to a file
 void write_config(fs::FS &fs, const char *filename, Config &config)
 {
-  // Delete existing file, otherwise the configuration is appended to the file
-  fs.remove(filename);
+    // Delete existing file, otherwise the configuration is appended to the file
+    fs.remove(filename);
 
-  // Open file for writing
-  File file = fs.open(filename, FILE_WRITE);
-  if (!file)
-  {
-    Serial.println(F("Failed to create file"));
-    state = error_state;
-    return;
-  }
+    // Open file for writing
+    File file = fs.open(filename, FILE_WRITE);
+    if (!file)
+    {
+        Serial.println(F("Failed to create file"));
+        state = error_state;
+        return;
+    }
 
-  // Allocate a temporary JsonDocument
-  // Don't forget to change the capacity to match your requirements.
-  // Use arduinojson.org/assistant to compute the capacity.
-  StaticJsonDocument<256> doc;
+    // Allocate a temporary JsonDocument
+    // Don't forget to change the capacity to match your requirements.
+    // Use arduinojson.org/assistant to compute the capacity.
+    StaticJsonDocument<256> doc;
 
-  doc["seri_infus"] = config.seri_infus;
-  doc["nama_pasien"] = config.nama_pasien;
-  doc["kode_kamar"] = config.kode_kamar;
-  doc["kode_bed"] = config.kode_bed;
-  doc["koneksi"] = config.koneksi;
-  doc["wifi_ssid"] = config.wifi_ssid;
-  doc["wifi_pass"] = config.wifi_pass;
-  doc["sim_ssid"] = config.sim_ssid;
-  doc["sim_pass"] = config.sim_pass;
+    doc["seri_infus"] = config.seri_infus;
+    doc["nama_pasien"] = config.nama_pasien;
+    doc["kode_kamar"] = config.kode_kamar;
+    doc["kode_bed"] = config.kode_bed;
+    doc["koneksi"] = config.koneksi;
+    doc["wifi_ssid"] = config.wifi_ssid;
+    doc["wifi_pass"] = config.wifi_pass;
+    doc["sim_ssid"] = config.sim_ssid;
+    doc["sim_pass"] = config.sim_pass;
 
-  serializeJson(doc, file);
+    serializeJson(doc, file);
 
-  // Serialize JSON to file
-  if (serializeJson(doc, file) == 0)
-  {
-    Serial.println(F("Failed to write to file"));
-    state = error_state;
-  }
+    // Serialize JSON to file
+    if (serializeJson(doc, file) == 0)
+    {
+        Serial.println(F("Failed to write to file"));
+        state = error_state;
+    }
 
-  Serial.println("Config Saved");
-  printconfig();
-  // Close the file
-  file.close();
+    Serial.println("Config Saved");
+    printconfig();
+    // Close the file
+    file.close();
 }
 
 void checkavailnetwork()
@@ -223,7 +229,7 @@ String processor(const String &var)
     }
     else if (var == "saved_koneksi")
     {
-        return  config.koneksi;
+        return config.koneksi;
     }
     else if (var == "saved_ssid")
     {
@@ -276,14 +282,13 @@ void setupServer()
 {
     checkavailnetwork();
     server.on(
-        "/", 
-        HTTP_GET, 
+        "/",
+        HTTP_GET,
         [](AsyncWebServerRequest *request)
         {
             request->send(LittleFS, "/start.htm", String(), false, processor);
-            Serial.println("Client Connected"); 
-        }
-    );
+            Serial.println("Client Connected");
+        });
 
     server.on(
         "/exit",
@@ -317,7 +322,7 @@ void setupServer()
         {
             if (request->hasParam("nama_pasien"))
             {
-                config.nama_pasien  = request->getParam("nama_pasien")->value();
+                config.nama_pasien = request->getParam("nama_pasien")->value();
                 Serial.println(config.nama_pasien);
             }
 
@@ -367,8 +372,7 @@ void setupServer()
             }
             // Mulai koneksi
             request->send(LittleFS, "/start.htm", String(), false, processor);
-        }
-    );
+        });
 }
 
 void setup()
@@ -380,23 +384,44 @@ void setup()
     Serial.println(F("Starting"));
     delay(1000);
 
+    // Init Display
+    Wire.begin(I2C_SDA, I2C_SCL); // SDA, SCL
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.display();
+
     // Pertama diaktifkan : Load n Show Config
     // Init LittleFS Lib
     if (!LittleFS.begin(FORMAT_LITTLEFS_IF_FAILED))
     {
         Serial.println(F("LITTLEFS Mount Failed"));
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Mount Failed"));
+        display.display();
+        state = error_state;
         return;
     }
 
     // Load Default config
     Serial.println(F("Load config"));
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.print(F("Load Config"));
+    display.display();
+
     load_config(LittleFS, config_dir, config);
     Serial.println(F("Config Loaded"));
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.print(F("Config Loaded"));
+    display.display();
 
     // Debug informasi yang ada
     printconfig();
 
-    Serial.println(F("Melakukan pengaturan ?"));
     // Tunggu trigger pengaturan
     // Apakah perlu pengaturan?
     pinMode(set_pin, INPUT_PULLUP);
@@ -410,20 +435,27 @@ void setup()
 
     while (!isSetting && cnt < del_limit)
     {
-      cnt++;
-      delay(del_itvl);
+
+        Serial.println(F("Melakukan pengaturan ?"));
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Edit Data?"));
+        display.println((del_time - cnt) / 1000);
+        display.display();
+
+        cnt++;
+        delay(del_itvl);
     }
 
     if (isSetting)
     {
-      Serial.println(F("Masuk mode pengaturan"));
-      state = setting;
+        // Melakukan pengaturan
+        state = setting;
     }
     else
     {
-      // Jika tidak, masuk ke state connecting
-      Serial.println(F("Mulai koneksi"));
-      state = connecting;
+        // Jika tidak, masuk ke state connecting
+        state = connecting;
     }
 
     // // Create configuration file
@@ -445,7 +477,13 @@ void loop()
     {
     case monitoring:
     {
-        Serial.println("Monitoring");
+        Serial.print("Monitoring");
+        Serial.println(tpm);
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("TPM : "));
+        display.print(tpm);
+        display.display();
         // Melakukan monitoring per INTERVAL_READING
         if (millis() >= time_1 + INTERVAL_READING)
         {
@@ -459,6 +497,10 @@ void loop()
     {
         // Melakukan pengaturan
         Serial.println("Mode Pengaturan");
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Mengaktifkan Web"));
+        display.display();
         // display.clearDisplay();
         // display.setCursor(0, 0);
         // display.println("Patient");
@@ -466,10 +508,10 @@ void loop()
         // display.display();
         WiFi.mode(WIFI_OFF);
         WiFi.mode(WIFI_AP_STA);
-        int rand_pass = random(10000000, 999999999);
+        int rand_pass = random(1000000, 99999999);
 
         // Untuk debug
-        // rand_pass = 12345678;
+        rand_pass = 12345678;
         Serial.println(F("SSID : "));
         Serial.println(config.seri_infus);
         Serial.println(F("PASS : "));
@@ -488,13 +530,27 @@ void loop()
         server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER); // only when requested from AP
         // more handlers...
         server.begin();
+
+        // Menampilkan SSID dan PASS Infus
+
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(config.seri_infus);
+        display.println(rand_pass);
+        display.display();
         state = waiting_conn;
         delay(2000);
         break;
     }
+
     case waiting_conn:
     {
         // waiting request
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        
+        display.printf(F("Menunggu\nKonfirmasi"));
+        display.display();
         dnsServer.processNextRequest();
         delay(200);
         break;
@@ -509,6 +565,10 @@ void loop()
 #ifdef ESP8266
         configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
         client.setTrustAnchors(&cert);    // Add root certificate for api.telegram.org
+#endif
+
+#ifdef ESP32
+        client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
 #endif
 
         WiFi.mode(WIFI_OFF);
@@ -532,17 +592,30 @@ void loop()
             WiFi.begin(config.sim_ssid.c_str(), config.sim_pass.c_str());
         }
 
-#ifdef ESP32
-        client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
-#endif
-
-        Serial.print("Connecting to WiFi ..");
+        Serial.print("Connecting");
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Mulai koneksi"));
+        display.display();
 
         int cnt = 0, cnt_lim = 10;
+        bool isblink;
         while (WiFi.status() != WL_CONNECTED && cnt < cnt_lim)
         {
             cnt++;
             Serial.print('.');
+
+            display.clearDisplay();
+            if (isblink)
+            {
+                display.setCursor(0, 0);
+                display.print(F("Koneksi"));
+            }
+            else
+            {
+            }
+            isblink = !isblink;
+            display.display();
             delay(1000);
         }
 
@@ -550,19 +623,31 @@ void loop()
         {
             Serial.println(WiFi.localIP());
             Serial.println("SETUP BERHASIL");
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print(F("Koneksi berhasil"));
+            display.display();
+
             return_monitor();
         }
         else
         {
             Serial.println("Koneksi gagal, ke pengaturan");
-            Serial.println();
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print(F("Koneksi gagal, ke pengaturan"));
+            display.display();
             state = setting;
         }
-
+        delay(4000);
         break;
     }
     case error_state:
     {
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Error: Hubungi Alkes"));
+        display.display();
         Serial.println("Error");
         break;
     }
@@ -579,6 +664,7 @@ void loop()
 
 void ICACHE_RAM_ATTR sens_v()
 {
+    isrun = 1;
     time_drop = millis() - time_drop_prev;
     time_drop_prev = millis();
     tpm = time_drop * 0.06;
@@ -601,7 +687,7 @@ void sensor_read()
 {
     // delay dengan millis agar tidak terblock
     // setelah delay, cek jumlah tetesan per Interval Read
-    if (tpm == 0)
+    if (tpm == 0 || !isrun)
     {
         Serial.println("INFUSION LOW");
 
@@ -611,4 +697,5 @@ void sensor_read()
     {
         Serial.println("INFUSION RUNNING");
     }
+    isrun = 0;
 }
