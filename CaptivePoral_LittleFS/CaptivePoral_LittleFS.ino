@@ -58,6 +58,8 @@ String avail_wifi;
 const int set_pin = 23;  // GPIO pin setting
 const int sens_pin = 21; // Pin Sensor
 
+bool isrun = 0;
+
 // State
 const int loadconfig = 10;
 const int setting = 11;
@@ -451,6 +453,7 @@ void loop()
         {
             time_1 += INTERVAL_READING;
             sensor_read();
+            isrun = 0;
         }
         break;
     }
@@ -581,6 +584,7 @@ void loop()
 
 void ICACHE_RAM_ATTR sens_v()
 {
+    isrun = 1;
     time_drop = millis() - time_drop_prev;
     time_drop_prev = millis();
     tpm = time_drop * 0.06;
@@ -603,7 +607,7 @@ void sensor_read()
 {
     // delay dengan millis agar tidak terblock
     // setelah delay, cek jumlah tetesan per Interval Read
-    if (tpm == 0)
+    if (tpm == 0 || !isrun)
     {
         Serial.println("INFUSION LOW");
 
