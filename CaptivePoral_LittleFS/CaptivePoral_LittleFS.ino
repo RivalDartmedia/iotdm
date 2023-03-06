@@ -29,8 +29,8 @@ AsyncWebServer server(80);
 // Our configuration structure.
 struct Config
 {
-    char *seri_infus, *nama_pasien, *kode_kamar, *kode_bed,
-        *koneksi, *wifi_ssid, *wifi_pass, *sim_ssid, *sim_pass;
+    String seri_infus, nama_pasien, kode_kamar, kode_bed,
+        koneksi, wifi_ssid, wifi_pass, sim_ssid, sim_pass;
 };
 
 bool isWiFi;
@@ -38,7 +38,7 @@ bool patient_info_received = false;
 
 bool isSetting;
 const char *config_dir = "/config.txt";
-Config config, config_buff; // <- global configuration object
+Config config; // <- global configuration object
 String avail_wifi;
 
 // Bentuk json config
@@ -106,6 +106,84 @@ void printconfig()
     Serial.println();
 }
 
+// Loads the configuration from a file
+void load_config(fs::FS &fs, const char *filename, Config &config)
+{
+  // Open file for reading
+  File file = fs.open(filename);
+
+  // Allocate a temporary JsonDocument
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/v6/assistant to compute the capacity.
+  StaticJsonDocument<384> doc;
+
+  DeserializationError error = deserializeJson(doc, file);
+  if (error)
+  {
+    Serial.print("Gagal load");
+    Serial.println(error.c_str());
+    state = error_state;
+    return;
+  }
+
+  config.seri_infus = (const char*)doc["seri_infus"];
+  config.nama_pasien = (const char*)doc["nama_pasien"];
+  config.kode_kamar = (const char*)doc["kode_kamar"];
+  config.kode_bed = (const char*)doc["kode_bed"];
+  config.koneksi = (const char*)doc["koneksi"];
+  config.wifi_ssid =  (const char*)doc["wifi_ssid"];
+  config.wifi_pass =  (const char*)doc["wifi_pass"];
+  config.sim_ssid = (const char*)doc["sim_ssid"];
+  config.sim_pass =  (const char*)doc["sim_pass"];
+
+  file.close();
+}
+//
+// Write the configuration to a file
+void write_config(fs::FS &fs, const char *filename, Config &config)
+{
+  // Delete existing file, otherwise the configuration is appended to the file
+  fs.remove(filename);
+
+  // Open file for writing
+  File file = fs.open(filename, FILE_WRITE);
+  if (!file)
+  {
+    Serial.println(F("Failed to create file"));
+    state = error_state;
+    return;
+  }
+
+  // Allocate a temporary JsonDocument
+  // Don't forget to change the capacity to match your requirements.
+  // Use arduinojson.org/assistant to compute the capacity.
+  StaticJsonDocument<256> doc;
+
+  doc["seri_infus"] = config.seri_infus;
+  doc["nama_pasien"] = config.nama_pasien;
+  doc["kode_kamar"] = config.kode_kamar;
+  doc["kode_bed"] = config.kode_bed;
+  doc["koneksi"] = config.koneksi;
+  doc["wifi_ssid"] = config.wifi_ssid;
+  doc["wifi_pass"] = config.wifi_pass;
+  doc["sim_ssid"] = config.sim_ssid;
+  doc["sim_pass"] = config.sim_pass;
+
+  serializeJson(doc, file);
+
+  // Serialize JSON to file
+  if (serializeJson(doc, file) == 0)
+  {
+    Serial.println(F("Failed to write to file"));
+    state = error_state;
+  }
+
+  Serial.println("Config Saved");
+  printconfig();
+  // Close the file
+  file.close();
+}
+
 void checkavailnetwork()
 {
     avail_wifi = "SSID: <select name = wifi_ssid>";
@@ -133,40 +211,40 @@ String processor(const String &var)
 
     if (var == "saved_nama_pasien")
     {
-        return String(config.nama_pasien);
+        return config.nama_pasien;
     }
     else if (var == "saved_kode_kamar")
     {
-        return String(config.kode_kamar);
+        return config.kode_kamar;
     }
     else if (var == "saved_kode_bed")
     {
-        return String(config.kode_bed);
+        return config.kode_bed;
     }
     else if (var == "saved_koneksi")
     {
-        return String(config.koneksi);
+        return  config.koneksi;
     }
     else if (var == "saved_ssid")
     {
         if (config.koneksi == "SIM")
         {
-            return String(config.sim_ssid);
+            return config.sim_ssid;
         }
         else
         {
-            return String(config.wifi_ssid);
+            return config.wifi_ssid;
         }
     }
     else if (var == "saved_pass")
     {
         if (config.koneksi == "SIM")
         {
-            return String(config.sim_pass);
+            return config.sim_pass;
         }
         else
         {
-            return String(config.wifi_pass);
+            return config.wifi_pass;
         }
     }
     else if (var == "wifi_selection")
@@ -237,45 +315,31 @@ void setupServer()
         HTTP_GET,
         [](AsyncWebServerRequest *request)
         {
-            String inputMessage;
-            char message[100];
             if (request->hasParam("nama_pasien"))
             {
-                inputMessage = request->getParam("nama_pasien")->value();
-                Serial.println(inputMessage.c_str());
-                free(config.nama_pasien);
-                config.nama_pasien = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.nama_pasien, inputMessage.c_str());
+                config.nama_pasien  = request->getParam("nama_pasien")->value();
+                Serial.println(config.nama_pasien);
             }
 
             if (request->hasParam("kode_kamar"))
             {
-                inputMessage = request->getParam("kode_kamar")->value();
-                Serial.println(inputMessage.c_str());
-                free(config.kode_kamar);
-                config.kode_kamar = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.kode_kamar, inputMessage.c_str());
+                config.kode_kamar = request->getParam("kode_kamar")->value();
+                Serial.println(config.kode_kamar);
             }
 
             if (request->hasParam("kode_bed"))
             {
-                inputMessage = request->getParam("kode_bed")->value();
-                Serial.println(inputMessage.c_str());
-                free(config.kode_bed);
-                config.kode_bed = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.kode_bed, inputMessage.c_str());
+                config.kode_bed = request->getParam("kode_bed")->value();
+                Serial.println(config.kode_bed);
             }
 
             if (request->hasParam("mode_koneksi"))
             {
-                inputMessage = request->getParam("mode_koneksi")->value();
-                Serial.println(inputMessage.c_str());
-                free(config.koneksi);
-                config.koneksi = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.koneksi, inputMessage.c_str());
+                config.koneksi = request->getParam("mode_koneksi")->value();
+                Serial.println(config.koneksi);
             }
 
-            if (strcmp(config.koneksi, "SIM"))
+            if (config.koneksi == "SIM")
             {
                 request->send(LittleFS, "/start.htm", String(), false, processor);
             }
@@ -292,22 +356,14 @@ void setupServer()
         HTTP_GET,
         [](AsyncWebServerRequest *request)
         {
-            String inputMessage;
-
             if (request->hasParam("wifi_ssid"))
             {
-                inputMessage = request->getParam("wifi_ssid")->value();
-                free(config.wifi_ssid);
-                config.wifi_ssid = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.wifi_ssid, inputMessage.c_str());
+                config.wifi_ssid = request->getParam("wifi_ssid")->value();
                 Serial.println(config.wifi_ssid);
             }
             if (request->hasParam("wifi_pass"))
             {
-                inputMessage = request->getParam("wifi_pass")->value();
-                free(config.wifi_pass);
-                config.wifi_pass = (char *)malloc(sizeof(char) * inputMessage.length());
-                strcpy(config.wifi_pass, inputMessage.c_str());
+                config.wifi_pass = request->getParam("wifi_pass")->value();
                 Serial.println(config.wifi_pass);
             }
             // Mulai koneksi
@@ -460,21 +516,21 @@ void loop()
         WiFi.mode(WIFI_STA);
 
         delay(500);
-        Serial.println(strcmp(config.koneksi, "WiFi"));
+        Serial.println(config.koneksi == "WiFi");
         Serial.println(config.koneksi);
-        if (strcmp(config.koneksi, "WiFi"))
+        if (config.koneksi == "WiFi")
         {
             Serial.println("WiFi");
             Serial.println(config.wifi_ssid);
             Serial.println(config.wifi_pass);
-            WiFi.begin(config.wifi_ssid, config.wifi_pass);
+            WiFi.begin(config.wifi_ssid.c_str(), config.wifi_pass.c_str());
         }
         else
         {
             Serial.println("SIM");
             Serial.println(config.sim_ssid);
             Serial.println(config.sim_pass);
-            WiFi.begin(config.sim_ssid, config.sim_pass);
+            WiFi.begin(config.sim_ssid.c_str(), config.sim_pass.c_str());
         }
 
 #ifdef ESP32
