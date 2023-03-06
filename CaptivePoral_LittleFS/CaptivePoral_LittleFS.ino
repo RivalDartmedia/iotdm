@@ -433,15 +433,6 @@ void setup()
     // Mulai monitoring
     pinMode(sens_pin, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(sens_pin), sens_v, RISING);
-    
-    #ifdef ESP8266
-    configTime(0, 0, "pool.ntp.org");      // get UTC time via NTP
-    client.setTrustAnchors(&cert); // Add root certificate for api.telegram.org
-    #endif
-    
-    #ifdef ESP32
-    client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
-    #endif
 
     // Demo state setting
     state = setting;
@@ -520,6 +511,10 @@ void loop()
         client.setTrustAnchors(&cert);    // Add root certificate for api.telegram.org
 #endif
 
+#ifdef ESP32
+        client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+#endif
+
         WiFi.mode(WIFI_OFF);
         WiFi.mode(WIFI_STA);
 
@@ -541,9 +536,6 @@ void loop()
             WiFi.begin(config.sim_ssid.c_str(), config.sim_pass.c_str());
         }
 
-#ifdef ESP32
-        client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
-#endif
 
         Serial.print("Connecting to WiFi ..");
 
