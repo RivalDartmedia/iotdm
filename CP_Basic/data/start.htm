@@ -1,0 +1,21 @@
+<!DOCTYPE HTML><html><head>
+    <title>Homepage Infus Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head><body>
+    <h3>Informasi Pasien Tersimpan</h3>
+      <p>Nama Pasien   :   %saved_nama_pasien%</p>
+      <p>Kode Kamar    :   %saved_kode_kamar%</p>
+      <p>Kode Bed      :   %saved_kode_bed%</p>
+    <h3>Informasi Konektifitas</h3>
+      <p>Konektifitas  :   %saved_koneksi%</p>
+      <p>SSID  :   %saved_ssid%</p>
+      <p>PASS  :   %saved_pass%</p>
+    <form action="/exit" method='get'>
+      <input type="submit" value="Konfirmasi">
+    </form>
+    <br>
+    <form action="/edit_patt" method='get'>
+      <input type="submit" value="Edit Data">
+    </form>
+  </body>
+</html>
