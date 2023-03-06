@@ -274,6 +274,7 @@ public:
 
 void setupServer()
 {
+    checkavailnetwork();
     server.on(
         "/", 
         HTTP_GET, 
@@ -296,7 +297,6 @@ void setupServer()
             printconfig();
             Serial.println("Saving configuration...");
             write_config(LittleFS, config_dir, config);
-            delay(5000);
             // Memulai koneksi
             state = connecting;
             Serial.println("Server closing");
@@ -346,7 +346,6 @@ void setupServer()
             else
             {
                 // Mode WiFi
-                checkavailnetwork();
                 request->send(LittleFS, "/edit_wifi.htm", String(), false, processor);
             }
         });
