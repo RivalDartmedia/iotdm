@@ -1,5 +1,5 @@
 {
-  "seri_infus": " I5111",
+  "seri_infus": "I5111",
   "nama_pasien": "Default Test Pertama Kedua",
   "kode_kamar": "AK421",
   "kode_bed": "4",

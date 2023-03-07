@@ -62,7 +62,8 @@ Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &Wire, -1);
 const int sens_pin = 21; // Pin Sensor
 const int I2C_SDA = 19, I2C_SCL = 18;
 
-bool isrun = 0;
+bool isrun = 0, show_tpm = 0, isdrop;
+int rand_pass;
 
 // State
 const int loadconfig = 10;
@@ -75,9 +76,9 @@ int state = loadconfig;
 
 // State Monitor
 // delay dengan millis agar tidak terblock
-#define INTERVAL_READING 5000                    // 5000ms : Interval membaca tetesan
-unsigned long time_1, time_drop, time_drop_prev; // Variabel pewaktu
-int tpm;                                         // Tetes per menit
+#define INTERVAL_READING 5000 // 5000ms : Interval membaca tetesan
+unsigned long time_1;         // Variabel pewaktu
+float tpm;                    // Tetes per menit
 
 #define BOTtoken "6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4"
 #define CHAT_ID "-894765173"
@@ -90,7 +91,7 @@ UniversalTelegramBot bot(BOTtoken, client);
 void send_alert_tele()
 {
     Serial.println("Alert terkirim");
-    char message[100];
+    char message[200];
     sprintf(message, "ALERT!, INFUS HABIS/MAMPET. Pasien %s, Kamar %s, Bed %s", config.nama_pasien, config.kode_kamar, config.kode_bed);
     bot.sendMessage(CHAT_ID, message, "");
 
@@ -377,22 +378,39 @@ void setupServer()
 
 void ICACHE_RAM_ATTR sens_v()
 {
-    static unsigned long last_bounce_t;
-    const unsigned long bounce_itvl = 5; // cek _ms kemudian
-    if(millis() >= last_bounce_t - bounce_itvl){
+    isdrop = 1;
+}
+
+void checkdrop(){
+    static unsigned long last_bounce_t,  time_drop_prev;
+    unsigned long now_t, time_drop;
+    const unsigned long bounce_itvl = 50; // cek _ms kemudian
+    now_t = millis();
+    if (now_t - bounce_itvl >= last_bounce_t)
+    {
         isrun = 1;
-        time_drop = millis() - time_drop_prev;
-        time_drop_prev = millis();
-        tpm = time_drop * 0.06;
-        last_bounce_t = millis();
+        show_tpm = 1;
+        time_drop = now_t - time_drop_prev;
+        time_drop_prev = now_t;
+        if (time_drop > 0)
+        {
+            tpm = 60000 / time_drop;
+        }
+        else
+        {
+            tpm = 0;
+        }
     }
+    last_bounce_t = now_t;
+    isdrop = 0;
 }
 
 void ICACHE_RAM_ATTR sett_v()
 {
     static unsigned long last_bounce_t;
-    const unsigned long bounce_itvl = 5; // cek _ms kemudian
-    if(millis() >= last_bounce_t - bounce_itvl){
+    const unsigned long bounce_itvl = 10; // cek _ms kemudian
+    if (millis() - bounce_itvl >= last_bounce_t)
+    {
         isSetting = 1;
         last_bounce_t = millis();
     }
@@ -403,17 +421,20 @@ void return_monitor()
     // Selesai pengaturan, kembali ke monitoring
     state = monitoring;
     time_1 = millis() + INTERVAL_READING;
-    time_drop_prev = millis();
 }
 
 void sensor_read()
 {
     // delay dengan millis agar tidak terblock
     // setelah delay, cek jumlah tetesan per Interval Read
-    if (tpm == 0 || !isrun)
+    if (tpm <= 0 || !isrun)
     {
+        tpm = 0;
         Serial.println("INFUSION LOW");
-
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Infus Low"));
+        display.display();
         send_alert_tele();
     }
     else
@@ -473,24 +494,24 @@ void setup()
     // Tunggu trigger pengaturan
     // Apakah perlu pengaturan?
     pinMode(set_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, RISING);
+    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, FALLING);
 
     isSetting = 0;
     const int del_itvl = 100;  // ms
     const int del_time = 5000; // ms
     const int del_limit = del_time / del_itvl;
-    int cnt = 0;
+    int cnt_sett = 0;
 
-    while (!isSetting && cnt < del_limit)
+    while (!isSetting && cnt_sett < del_limit)
     {
         Serial.println(F("Melakukan pengaturan ?"));
         display.clearDisplay();
         display.setCursor(0, 0);
         display.print(F("Edit Data?"));
-        display.println((del_time - cnt) / 1000);
+        display.println((float)(del_time - cnt_sett * del_itvl) / 1000);
         display.display();
 
-        cnt++;
+        cnt_sett++;
         delay(del_itvl);
     }
 
@@ -507,7 +528,7 @@ void setup()
 
     // Mulai monitoring
     pinMode(sens_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(sens_pin), sens_v, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(sens_pin), sens_v, RISING);
 }
 
 void loop()
@@ -515,186 +536,187 @@ void loop()
     // Finite State Machine
     switch (state)
     {
-    case monitoring:
-    {
-        Serial.print("Monitoring");
-        Serial.println(tpm);
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(F("TPM : "));
-        display.print(tpm);
-        display.display();
-        // Melakukan monitoring per INTERVAL_READING
-        if (millis() >= time_1 + INTERVAL_READING)
+        case monitoring:
         {
-            time_1 += INTERVAL_READING;
-            sensor_read();
-        }
-        break;
-    }
-
-    case setting:
-    {
-        // Melakukan pengaturan
-        Serial.println("Mode Pengaturan");
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(F("Mengaktifkan Web"));
-        display.display();
-        // display.clearDisplay();
-        // display.setCursor(0, 0);
-        // display.println("Patient");
-        // display.println("Input");
-        // display.display();
-        WiFi.mode(WIFI_OFF);
-        WiFi.mode(WIFI_AP_STA);
-        int rand_pass = random(1000000, 99999999);
-
-        // Untuk debug
-        rand_pass = 12345678;
-        Serial.println(F("SSID : "));
-        Serial.println(config.seri_infus);
-        Serial.println(F("PASS : "));
-        Serial.println(rand_pass);
-
-        WiFi.softAP(config.seri_infus, String(rand_pass));
-        Serial.print("AP IP address: ");
-        Serial.println(WiFi.softAPIP());
-        Serial.println("Setting up Async WebServer");
-        setupServer();
-        Serial.println("Starting DNS Server");
-
-        dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
-        dnsServer.start(53, "*", WiFi.softAPIP());
-
-        server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER); // only when requested from AP
-        // more handlers...
-        server.begin();
-
-        // Menampilkan SSID dan PASS Infus
-
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(config.seri_infus);
-        display.println(rand_pass);
-        display.display();
-        state = waiting_conn;
-        delay(2000);
-        break;
-    }
-
-    case waiting_conn:
-    {
-        // waiting request
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        
-        display.print(F("Menunggu\nKonfirmasi"));
-        display.display();
-        dnsServer.processNextRequest();
-        delay(200);
-        break;
-    }
-    case connecting:
-    {
-        server.end();
-        // Melakukan pengaturan konektifitas
-        Serial.println("Mencoba koneksi");
-
-        printconfig();
-#ifdef ESP8266
-        configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
-        client.setTrustAnchors(&cert);    // Add root certificate for api.telegram.org
-#endif
-
-#ifdef ESP32
-        client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
-#endif
-
-        WiFi.mode(WIFI_OFF);
-        WiFi.mode(WIFI_STA);
-
-        delay(500);
-        Serial.println(config.koneksi == "WiFi");
-        Serial.println(config.koneksi);
-        if (config.koneksi == "WiFi")
-        {
-            Serial.println("WiFi");
-            Serial.println(config.wifi_ssid);
-            Serial.println(config.wifi_pass);
-            WiFi.begin(config.wifi_ssid.c_str(), config.wifi_pass.c_str());
-        }
-        else
-        {
-            Serial.println("SIM");
-            Serial.println(config.sim_ssid);
-            Serial.println(config.sim_pass);
-            WiFi.begin(config.sim_ssid.c_str(), config.sim_pass.c_str());
-        }
-
-        Serial.print("Connecting");
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(F("Mulai koneksi"));
-        display.display();
-
-        int cnt = 0, cnt_lim = 10;
-        bool isblink;
-        while (WiFi.status() != WL_CONNECTED && cnt < cnt_lim)
-        {
-            cnt++;
-            Serial.print('.');
-
-            display.clearDisplay();
-            if (isblink)
+            if (isdrop) checkdrop();
+            Serial.print("Monitor ");
+            Serial.println(tpm);
+            if (show_tpm)
             {
+                display.clearDisplay();
                 display.setCursor(0, 0);
-                display.print(F("Koneksi"));
+                display.print(tpm);
+                display.print("\nTPM");
+                display.display();
+                show_tpm = 0;
+            }
+            // Melakukan monitoring per INTERVAL_READING
+            if (millis() >= time_1 + INTERVAL_READING)
+            {
+                time_1 += INTERVAL_READING;
+                sensor_read();
+            }
+            break;
+        }
+
+        case setting:
+        {
+            // Melakukan pengaturan
+            Serial.println("Mode Pengaturan");
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print(F("Web Aktif"));
+            display.display();
+            // display.clearDisplay();
+            // display.setCursor(0, 0);
+            // display.println("Patient");
+            // display.println("Input");
+            // display.display();
+            WiFi.mode(WIFI_OFF);
+            WiFi.mode(WIFI_AP_STA);
+            rand_pass = random(1000000, 99999999);
+
+            // Untuk debug
+            rand_pass = 12345678;
+            Serial.println(F("SSID : "));
+            Serial.println(config.seri_infus);
+            Serial.println(F("PASS : "));
+            Serial.println(rand_pass);
+
+            WiFi.softAP(config.seri_infus, String(rand_pass));
+            Serial.print("AP IP address: ");
+            Serial.println(WiFi.softAPIP());
+            Serial.println("Setting up Async WebServer");
+            setupServer();
+            Serial.println("Starting DNS Server");
+
+            dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+            dnsServer.start(53, "*", WiFi.softAPIP());
+
+            server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER); // only when requested from AP
+            // more handlers...
+            server.begin();
+
+            state = waiting_conn;
+            delay(2000);
+            break;
+        }
+
+        case waiting_conn:
+        {
+            // waiting request
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            // Menampilkan SSID dan PASS Infus
+            display.print(F("SSID:\n"));
+            display.print(config.seri_infus);
+            display.print(F("\nPASS:\n"));
+            display.print(rand_pass);
+            display.display();
+            dnsServer.processNextRequest();
+            delay(200);
+            break;
+        }
+
+        case connecting:
+        {
+            server.end();
+            // Melakukan pengaturan konektifitas
+            Serial.println("Mencoba koneksi");
+
+            printconfig();
+    #ifdef ESP8266
+            configTime(0, 0, "pool.ntp.org"); // get UTC time via NTP
+            client.setTrustAnchors(&cert);    // Add root certificate for api.telegram.org
+    #endif
+
+    #ifdef ESP32
+            client.setCACert(TELEGRAM_CERTIFICATE_ROOT); // Add root certificate for api.telegram.org
+    #endif
+
+            WiFi.mode(WIFI_OFF);
+            WiFi.mode(WIFI_STA);
+
+            delay(500);
+            Serial.println(config.koneksi == "WiFi");
+            Serial.println(config.koneksi);
+            if (config.koneksi == "WiFi")
+            {
+                Serial.println("WiFi");
+                Serial.println(config.wifi_ssid);
+                Serial.println(config.wifi_pass);
+                WiFi.begin(config.wifi_ssid.c_str(), config.wifi_pass.c_str());
             }
             else
             {
+                Serial.println("SIM");
+                Serial.println(config.sim_ssid);
+                Serial.println(config.sim_pass);
+                WiFi.begin(config.sim_ssid.c_str(), config.sim_pass.c_str());
             }
-            isblink = !isblink;
+
+            Serial.print("Connecting");
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print(F("Mulai\nkoneksi"));
             display.display();
+
+            int cnt = 0, cnt_lim = 10;
+            bool isblink;
+            while (WiFi.status() != WL_CONNECTED && cnt < cnt_lim)
+            {
+                cnt++;
+                Serial.print('.');
+
+                display.clearDisplay();
+                if (isblink)
+                {
+                    display.setCursor(0, 0);
+                    display.print(F("Koneksi"));
+                }
+                else
+                {
+                }
+                isblink = !isblink;
+                display.display();
+                delay(500);
+            }
+
+            if (cnt < cnt_lim)
+            {
+                Serial.println(WiFi.localIP());
+                Serial.println("SETUP BERHASIL");
+                display.clearDisplay();
+                display.setCursor(0, 0);
+                display.print(F("Koneksi\nberhasil"));
+                display.display();
+
+                return_monitor();
+            }
+            else
+            {
+                Serial.print(F("\nKoneksi gagal, ke pengaturan"));
+                display.clearDisplay();
+                display.setCursor(0, 0);
+                display.print(F("Koneksi gagal, ke pengaturan"));
+                display.display();
+                state = setting;
+            }
+            delay(3000);
+            break;
+        }
+
+        default:
+        {
+            // Diluar state, something wrong?
+            state = error_state;
+            display.clearDisplay();
+            display.setCursor(0, 0);
+            display.print(F("Error: Hubungi Alkes"));
+            display.display();
+            Serial.println("Error");
             delay(1000);
+            break;
         }
-
-        if (cnt < cnt_lim)
-        {
-            Serial.println(WiFi.localIP());
-            Serial.println("SETUP BERHASIL");
-            display.clearDisplay();
-            display.setCursor(0, 0);
-            display.print(F("Koneksi berhasil"));
-            display.display();
-
-            return_monitor();
-        }
-        else
-        {
-            Serial.println("Koneksi gagal, ke pengaturan");
-            display.clearDisplay();
-            display.setCursor(0, 0);
-            display.print(F("Koneksi gagal, ke pengaturan"));
-            display.display();
-            state = setting;
-        }
-        delay(4000);
-        break;
     }
-
-    default:
-    {
-        // Diluar state, something wrong?
-        state = error_state;
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(F("Error: Hubungi Alkes"));
-        display.display();
-        Serial.println("Error");
-        delay(1000);
-        break;
-    }
-    }
-    delay(100);
 }
