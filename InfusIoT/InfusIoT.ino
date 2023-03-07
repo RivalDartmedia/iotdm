@@ -680,7 +680,7 @@ void loop()
             {
                 display.setCursor(0, 0);
                 display.print(F("Koneksi\n"));
-                display.print((cnt_lim-cnt)*del_disp);
+                display.print((cnt_lim-cnt)*del_disp/1000);
             }
             else
             {
