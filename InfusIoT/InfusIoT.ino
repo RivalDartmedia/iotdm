@@ -473,7 +473,7 @@ void setup()
     // Tunggu trigger pengaturan
     // Apakah perlu pengaturan?
     pinMode(set_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, CHANGE);
+    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, RISING);
 
     isSetting = 0;
     const int del_itvl = 100;  // ms
