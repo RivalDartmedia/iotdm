@@ -375,6 +375,54 @@ void setupServer()
         });
 }
 
+void ICACHE_RAM_ATTR sens_v()
+{
+    static unsigned long last_bounce_t;
+    const unsigned long bounce_itvl = 5; // cek _ms kemudian
+    if(millis() >= last_bounce_t - bounce_itvl){
+        isrun = 1;
+        time_drop = millis() - time_drop_prev;
+        time_drop_prev = millis();
+        tpm = time_drop * 0.06;
+        last_bounce_t = millis();
+    }
+}
+
+void ICACHE_RAM_ATTR sett_v()
+{
+    static unsigned long last_bounce_t;
+    const unsigned long bounce_itvl = 5; // cek _ms kemudian
+    if(millis() >= last_bounce_t - bounce_itvl){
+        isSetting = 1;
+        last_bounce_t = millis();
+    }
+}
+
+void return_monitor()
+{
+    // Selesai pengaturan, kembali ke monitoring
+    state = monitoring;
+    time_1 = millis() + INTERVAL_READING;
+    time_drop_prev = millis();
+}
+
+void sensor_read()
+{
+    // delay dengan millis agar tidak terblock
+    // setelah delay, cek jumlah tetesan per Interval Read
+    if (tpm == 0 || !isrun)
+    {
+        Serial.println("INFUSION LOW");
+
+        send_alert_tele();
+    }
+    else
+    {
+        Serial.println("INFUSION RUNNING");
+    }
+    isrun = 0;
+}
+
 void setup()
 {
     // Initialize serial port
@@ -425,7 +473,7 @@ void setup()
     // Tunggu trigger pengaturan
     // Apakah perlu pengaturan?
     pinMode(set_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, FALLING);
+    attachInterrupt(digitalPinToInterrupt(set_pin), sett_v, CHANGE);
 
     isSetting = 0;
     const int del_itvl = 100;  // ms
@@ -435,7 +483,6 @@ void setup()
 
     while (!isSetting && cnt < del_limit)
     {
-
         Serial.println(F("Melakukan pengaturan ?"));
         display.clearDisplay();
         display.setCursor(0, 0);
@@ -458,16 +505,9 @@ void setup()
         state = connecting;
     }
 
-    // // Create configuration file
-    // Serial.println(F("Saving configuration..."));
-    // write_config(LittleFS, config_dir, config);
-
     // Mulai monitoring
     pinMode(sens_pin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(sens_pin), sens_v, RISING);
-
-    // Demo state setting
-    state = setting;
+    attachInterrupt(digitalPinToInterrupt(sens_pin), sens_v, CHANGE);
 }
 
 void loop()
@@ -549,7 +589,7 @@ void loop()
         display.clearDisplay();
         display.setCursor(0, 0);
         
-        display.printf(F("Menunggu\nKonfirmasi"));
+        display.print(F("Menunggu\nKonfirmasi"));
         display.display();
         dnsServer.processNextRequest();
         delay(200);
@@ -642,60 +682,19 @@ void loop()
         delay(4000);
         break;
     }
-    case error_state:
-    {
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print(F("Error: Hubungi Alkes"));
-        display.display();
-        Serial.println("Error");
-        break;
-    }
 
     default:
     {
         // Diluar state, something wrong?
         state = error_state;
+        display.clearDisplay();
+        display.setCursor(0, 0);
+        display.print(F("Error: Hubungi Alkes"));
+        display.display();
+        Serial.println("Error");
+        delay(1000);
         break;
     }
     }
-    delay(200);
-}
-
-void ICACHE_RAM_ATTR sens_v()
-{
-    isrun = 1;
-    time_drop = millis() - time_drop_prev;
-    time_drop_prev = millis();
-    tpm = time_drop * 0.06;
-}
-
-void ICACHE_RAM_ATTR sett_v()
-{
-    isSetting = 1;
-}
-
-void return_monitor()
-{
-    // Selesai pengaturan, kembali ke monitoring
-    state = monitoring;
-    time_1 = millis() + INTERVAL_READING;
-    time_drop_prev = millis();
-}
-
-void sensor_read()
-{
-    // delay dengan millis agar tidak terblock
-    // setelah delay, cek jumlah tetesan per Interval Read
-    if (tpm == 0 || !isrun)
-    {
-        Serial.println("INFUSION LOW");
-
-        send_alert_tele();
-    }
-    else
-    {
-        Serial.println("INFUSION RUNNING");
-    }
-    isrun = 0;
+    delay(100);
 }
