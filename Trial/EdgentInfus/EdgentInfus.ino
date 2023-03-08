@@ -43,7 +43,6 @@
 
 #include "BlynkEdgent.h"
 #include "Sensing.h"
-#include "Indicator.h"
 
 #define tpm_pin 23
 
@@ -65,10 +64,10 @@ void begin_sens(int callib_param)
 
 void send_sens()
 {
-  float sens0 = tpm.get(), sens1 = weigh.get();
+  float sens1 = tpm.get(), sens0 = weigh.get();
   Serial.printf("TPM : %.2f, weigh : %.2f\n", sens0, sens1);
-  Blynk.virtualWrite(V1, sens0);
-  Blynk.virtualWrite(V0, sens1);
+  Blynk.virtualWrite(V0, sens0);
+  Blynk.virtualWrite(V1, sens1);
   // Blynk.virtualWrite(V1, tpm.get());
   // Blynk.virtualWrite(V0, weigh.get());
 }
@@ -78,8 +77,8 @@ void setup()
   Serial.begin(115200);
   delay(100);
   BlynkEdgent.begin();
-  SensorTimer.setInterval(5000L, send_sens);
-  begin_sens(tpm_pin, 12);
+  SensorTimer.setInterval(4000L, send_sens);
+  begin_sens(12);
 
 }
 

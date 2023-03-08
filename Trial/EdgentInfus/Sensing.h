@@ -39,7 +39,7 @@ public:
         //     tpm_val = 60000/(millis() - lastDebounceTime);
         // }
         // lastReading = newReading;
-        tpm += 10;
+        tpm_val += 10;
     }
 
     float get()
