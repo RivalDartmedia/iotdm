@@ -29,6 +29,7 @@ AsyncWebServer server(80);
 // Our configuration structure.
 struct Config
 {
+    // data yang tersimpan
     String seri_infus, nama_pasien, kode_kamar, kode_bed,
         koneksi, wifi_ssid, wifi_pass, sim_ssid, sim_pass;
 };
