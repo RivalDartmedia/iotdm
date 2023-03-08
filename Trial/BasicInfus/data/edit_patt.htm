@@ -1,0 +1,22 @@
+<!DOCTYPE HTML><html><head>
+    <title>Homepage Infus Monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head><body>
+    <h3>Edit Informasi Pasien dan Konektifitas</h3>
+    <form action="/save_patt" method='get'>
+      Nama Pasien: <br><input type="text" name="nama_pasien" value = %saved_nama_pasien%>
+      <br>
+      Kode Kamar: <br><input type="text" name="kode_kamar" value = %saved_kode_kamar%>
+      <br>
+      Kode Bed: <br><input type="text" name="kode_bed" value = %saved_kode_bed%>
+      <br>
+      Konektifitas: <br>
+      <select name = "mode_koneksi">
+        <option value="SIM">SIM</option>
+        <option value="WiFi">WiFi</option>
+      </select>
+      <br>
+      <input type="submit" value="Save">
+    </form>
+  </body>
+</html>

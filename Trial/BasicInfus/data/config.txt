@@ -1,0 +1,11 @@
+{
+  "seri_infus": " I5111",
+  "nama_pasien": "Default Test Pertama Kedua",
+  "kode_kamar": "AK421",
+  "kode_bed": "4",
+  "koneksi": "WiFi",
+  "wifi_ssid": "Not exist",
+  "wifi_pass": "8294",
+  "sim_ssid": "FirstTest",
+  "sim_pass": "123456789"
+}
