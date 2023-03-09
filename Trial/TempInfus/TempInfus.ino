@@ -1,3 +1,5 @@
+//ESP32
+
 #include "memory.h"
 #include "sensor.h"
 #include "koneksi.h"
@@ -5,15 +7,29 @@
 
 void setup(){
     //STEP1: Init Memory
+
     //STEP2: Load Config
+
     //STEP3: Config if needed
+
     //STEP4: Init Connection
+
     //STEP5: Init Sensor
+
 }
 
 void loop() {
-    //STEP-L1: Connection Management
-    //STEP-L2: Check Command
-    //STEP-L3: Get Sensor Data
-    //STEP-L4: Send Data
+    //State Monitoring
+    //STEP-M1: Connection Management
+
+    //STEP-M2: Check Command
+
+    //STEP-M3: Get Sensor Data
+
+    //STEP-M4: Send Data
+
+    //State Lost Connection
+    //STEP-LC1: Connection Management
+
+    //STEP-LC2: Show Error
 }
