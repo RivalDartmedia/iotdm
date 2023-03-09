@@ -9,17 +9,15 @@ private:
     float tpm_val;
     byte lastReading;
     unsigned long lastDebounceTime;
-    unsigned long debounceDelay = 40;
+    unsigned long debounceDelay = 20;
 
 public:
     // Constructor Declaration
-    Tpm(int sensor_pin)
+    Tpm()
     {
-        this->sensor_pin = sensor_pin;
-        init();
     }
 
-    void init()
+    void init(int sensor_pin)
     {
         pinMode(sensor_pin, INPUT_PULLUP);
     }
@@ -44,6 +42,8 @@ public:
 
     float get()
     {
+        // Untuk test
+        update();
         return tpm_val;
         // tpm_val = 0; // reset setelah didapat
     }
@@ -60,12 +60,13 @@ public:
     // Constructor Declaration
     Weigh()
     {
-        init();
     }
 
-    void init()
+    void init(int param)
     {
-        // pinMode(sensor_pin, INPUT_PULLUP);
+        // Start I2C dkk
+        callib(param);
+
     }
 
     void callib(int param)

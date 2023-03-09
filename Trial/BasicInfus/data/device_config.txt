@@ -1,5 +1,0 @@
-{
-    "BLYNK_TEMPLATE_ID":"TMPLbe3jTz-2";
-    "BLYNK_TEMPLATE_NAME":"Infus IoT";
-    "BLYNK_AUTH_TOKEN":"CWF_a-GCd_dk5IvcdD9z3TH8pbFloudk";
-}
