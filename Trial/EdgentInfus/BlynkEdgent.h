@@ -139,7 +139,6 @@ public:
     default:                     enterError();         break;
     }
   }
-
 } BlynkEdgent;
 
 void app_loop() {
