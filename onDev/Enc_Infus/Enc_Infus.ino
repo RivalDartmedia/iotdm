@@ -1,31 +1,23 @@
 //ESP32
-//Sensor Lib Test
 
 // #include "mem_set.h"
-#include "sensorinfus.h"
-// #include "koneksi.h"
+// #include "sensor.h"
+#include "koneksi_blynk.h"
 // #include "indikator.h"
 
-#define tpm_pin 23
-#define LOADCELL_DOUT_PIN 17
-#define LOADCELL_SCK_PIN 18
+BlynkTimer SensorTimer;
 
-Tpm tpm;
-Weigh weigh;
-
-void updatetpm()
+void send_sens()
 {
-  tpm.update();
-}
-
-void beginsens(){
-    tpm.init(tpm_pin);
-    attachInterrupt(tpm_pin, updatetpm, FALLING);
-    weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  float sens1 = tpm.get(), sens0 = weigh.get();
+  Serial.printf("TPM : %.2f, weigh : %.2f\n", sens0, sens1);
+  Blynk.virtualWrite(V0, sens0);
+  Blynk.virtualWrite(V1, sens1);
+  // Blynk.virtualWrite(V1, tpm.get());
+  // Blynk.virtualWrite(V0, weigh.get());
 }
 
 void setup(){
-    Serial.begin(115200);
     //STEP1: Init Memory
 
     //STEP2: Load Config
@@ -33,25 +25,24 @@ void setup(){
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
+    Serial.begin(115200);
+    delay(100);
+    BlynkEdgent.begin();
+    SensorTimer.setInterval(4000L, send_sens);
 
     //STEP5: Init Sensor
-    beginsens();
-    weigh.callib(); // Lakukan proses callib, atau Load
-    // LoadCellConfig loadconfig;
-    // weigh.set_callib(loadconfig.get(););
-    // weigh.set_callib(factor_); // Diinput nilai faktor tanpa callibrasi
 
 }
 
 void loop() {
     //State Monitoring
     //STEP-M1: Connection Management
+    BlynkEdgent.run();
+    SensorTimer.run();
 
     //STEP-M2: Check Command
 
     //STEP-M3: Get Sensor Data
-    Serial.printf("TPM: %.2f", tpm.get());
-    Serial.printf("Weigh: %.4f", weigh.get_unit());
 
     //STEP-M4: Send Data
 
@@ -59,5 +50,4 @@ void loop() {
     //STEP-LC1: Connection Management
 
     //STEP-LC2: Show Error
-    delay(2000);
 }
