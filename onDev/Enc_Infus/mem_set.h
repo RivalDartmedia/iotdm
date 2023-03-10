@@ -189,7 +189,7 @@ class LoadCellConfig
 private:
     float scale_factor;
     const char *configDir = "/weigh.txt";
-
+    bool isload;
 public:
     bool load(fs::FS &fs)
     {
@@ -220,6 +220,10 @@ public:
 
     float get()
     {
+        if (!isload){
+            load();
+            isload = true;
+        }
         return scale_factor;
     }
 

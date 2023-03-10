@@ -2,7 +2,6 @@
 #define sensorinfus_h
 
 #include <Arduino.h>
-#include "soc/rtc.h"
 #include <HX711.h>
 
 class Tpm
@@ -21,6 +20,10 @@ public:
         pinMode(sensor_pin, INPUT_PULLUP);
     }
 
+    /**
+     * @brief Fungsi update dipanggil setiap interupsi.
+     * 
+     */
     void update()
     {
         // debounce handler
@@ -33,7 +36,7 @@ public:
         else if (millis() - lastDebounceTime > debounceDelay)
         {
             // Update tpm
-            tpm_val = 60000 / (millis() - lastDebounceTime);
+            tpm_val = (float) (60000 / (millis() - lastDebounceTime));
         }
         lastReading = newReading;
     }
@@ -54,12 +57,11 @@ private:
     // HX711 circuit wiring
     HX711 scale;
     float callib_param;
+    bool callibrated = false;
 
 public:
-    void init(int LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN)
+    void init(int LOADCELL_DOUT_PIN, int LOADCELL_SCK_PIN)
     {
-        // Start I2C dkk
-        rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
         scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
     }
 
@@ -69,8 +71,8 @@ public:
  */
     void callib()
     {
-        bool isdone = false;
-        while (!isdone)
+        callibrated = false;
+        while (!callibrated)
         {
             if (scale.is_ready())
             {
@@ -84,13 +86,15 @@ public:
                 long reading = scale.get_units(10);
                 Serial.print("Result: ");
                 Serial.println(reading);
+
                 bool waitserial = 1;
+                int dataIn;
                 while(waitserial){
                     Serial.print("Input Berat:");
                     delay(2000);
                     while (Serial.available() > 0)
                     {
-                        int dataIn = Serial.parseInt();
+                        dataIn = Serial.parseInt();
                         //Do something with the data - like print it
                         Serial.printf("Input Berat %d\n",dataIn);
                         
@@ -102,7 +106,7 @@ public:
                 callib_param = reading/dataIn;
                 scale.set_scale(callib_param);
                 //Sensor terkalibrasi
-                isdone = 1;
+                callibrated = 1;
             }
             else
             {
@@ -111,7 +115,14 @@ public:
             delay(1000);
         }
     }
-    float get_callib()
+    void set_callib(float callib_param){
+        this->callib_param = callib_param;
+    }
+    float get_scale()
+    {
+        return scale.get_scale();
+    }
+    float get_unit()
     {
         return scale.get_units(20);
     }
