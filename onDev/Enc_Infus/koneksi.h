@@ -17,14 +17,33 @@ WiFiClientSecure client;
 
 class ConnectionManager:{
     private:
-    bool iswifiavail;
 
     public:
-
-    bool checkwifi(){
-        
+    void get(){
+        //Prioritas koneksi wifi
+        if(checkwifi()){
+            //Connect lewat wifi
+        }
+        else if (checksim()) 
+        {
+            //Connect lewat SIM jika tersedia
+        }
     }
     
+    bool checkwifi(){
+        if(WiFi.status() != WL_CONNECTED){
+            return 0;
+        }
+        // Check koneksi
+        // Return 0 jika tidak bisa koneksi
+        return 1;
+    }
+
+    bool checksim(){
+        return 0;
+    }
+
+
 };
 
 #endif // !1
