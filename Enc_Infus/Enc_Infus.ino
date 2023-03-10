@@ -1,20 +1,22 @@
 //ESP32
-//Memorr Lib Test
+//Sensor Lib Test
 
 #include "memory.h"
-// #include "sensor.h"
-// #include "koneksi.h"
-// #include "indikator.h"
-
-InfusConfig config1;
+#include "sensor.h"
+#include "koneksi.h"
+#include "indikator.h"
 
 void setup(){
-    Serial.begin(115200);
-    delay(5000);
     //STEP1: Init Memory
-    config1.init();
-    config1.load();
-    config1.print();
+
+    //STEP2: Load Config
+
+    //STEP3: Config if needed
+
+    //STEP4: Init Connection
+
+    //STEP5: Init Sensor
+
 }
 
 void loop() {

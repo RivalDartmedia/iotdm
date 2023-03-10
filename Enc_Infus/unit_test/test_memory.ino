@@ -1,19 +1,26 @@
 //ESP32
 //Memorr Lib Test
 
-#include "memory.h"
+#include "mem_set.h"
 // #include "sensor.h"
 // #include "koneksi.h"
 // #include "indikator.h"
 
 InfusConfig config1;
+mem_par mem_param;
 
 void setup(){
     Serial.begin(115200);
     delay(5000);
     //STEP1: Init Memory
-    config1.init();
-    config1.load();
+    init_fs();
+    config1.load(LittleFS);
+    config1.print();
+    config1.edit(tokenID_p, "oekdoakos");
+    Serial.printf("Template: %s\n",config1.get(temp_p));
+    config1.print();
+    config1.save(LittleFS);
+    config1.load(LittleFS);
     config1.print();
 }
 
