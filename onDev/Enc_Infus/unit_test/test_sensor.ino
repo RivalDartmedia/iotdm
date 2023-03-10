@@ -39,7 +39,6 @@ void setup(){
     weigh.callib(); // Lakukan proses callib, atau Load
     // LoadCellConfig loadconfig;
     // weigh.set_callib(loadconfig.get(););
-    // weigh.set_callib(factor_); // Diinput nilai faktor tanpa callibrasi
 
 }
 
