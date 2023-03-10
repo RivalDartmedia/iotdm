@@ -18,7 +18,7 @@ enum mem_par
 
 /**
  * @brief inisiasi LittleFS untuk akses memori ESP32
- * 
+ *
  * @return true LittleFS berhasil Load
  * @return false LittleFS tidak berhasil Load
  */
@@ -40,13 +40,13 @@ private:
     const char *configDir = "/config.txt";
 
 public:
-/**
- * @brief Load configurasi tersimpan dalam ESP32
- * 
- * @param fs 
- * @return true Load Berhasil
- * @return false Load Gagal
- */
+    /**
+     * @brief Load configurasi tersimpan dalam ESP32
+     *
+     * @param fs
+     * @return true Load Berhasil
+     * @return false Load Gagal
+     */
     bool load(fs::FS &fs)
     {
         // Open file for reading
@@ -73,48 +73,48 @@ public:
         return 1;
     }
 
-/**
- * @brief edit parameter config, simpan dengan save()
- * 
- * @param which_par parameter yg diedit
- * @param val_edit string nilai teredit
- */
+    /**
+     * @brief edit parameter config, simpan dengan save()
+     *
+     * @param which_par parameter yg diedit
+     * @param val_edit string nilai teredit
+     */
     void edit(mem_par which_par, String val_edit)
     {
         switch (which_par)
         {
-            case tokenID_p:
-            {
-                tokenID = val_edit;
-                break;
-            }
-            case temp_p:
-            {
-                temp_IoT = val_edit;
-                break;
-            }
-            case koneksi_p:
-            {
-                koneksi = val_edit;
-                break;
-            }
-            case wifi_ssid_p:
-            {
-                wifi_ssid = val_edit;
-                break;
-            }
-            case wifi_pass_p:
-            {
-                wifi_pass = val_edit;
-                break;
-            }
+        case tokenID_p:
+        {
+            tokenID = val_edit;
+            break;
+        }
+        case temp_p:
+        {
+            temp_IoT = val_edit;
+            break;
+        }
+        case koneksi_p:
+        {
+            koneksi = val_edit;
+            break;
+        }
+        case wifi_ssid_p:
+        {
+            wifi_ssid = val_edit;
+            break;
+        }
+        case wifi_pass_p:
+        {
+            wifi_pass = val_edit;
+            break;
+        }
         }
     }
 
-/**
- * @param which_par 
- * @return String dari parameter yang diinginkan
- */
+    /**
+     * @param which_par
+     * @return String dari parameter yang diinginkan
+     */
     String get(mem_par which_par)
     {
         switch (which_par)
@@ -138,13 +138,13 @@ public:
         Serial.printf("\nToken:%s\nTemplate:%s\nKoneksi:%s\nSSID:%s\nPass:%s\n", tokenID.c_str(), temp_IoT.c_str(), koneksi.c_str(), wifi_ssid.c_str(), wifi_pass.c_str());
     }
 
-/**
- * @brief Save nilai config ke memori
- * 
- * @param fs 
- * @return true 
- * @return false 
- */
+    /**
+     * @brief Save nilai config ke memori
+     *
+     * @param fs
+     * @return true
+     * @return false
+     */
     bool save(fs::FS &fs)
     {
         // Delete existing file, otherwise the configuration is appended to the file
@@ -176,6 +176,65 @@ public:
             Serial.println(F("Failed to write to file"));
             return 0;
         }
+
+        Serial.println("Config Saved");
+        // Close the file
+        file.close();
+        return 1;
+    }
+};
+
+class LoadCellConfig
+{
+private:
+    float scale_factor;
+    const char *configDir = "/weigh.txt";
+
+public:
+    bool load(fs::FS &fs)
+    {
+        // Open file for reading
+        File file = fs.open(configDir);
+        // Allocate a temporary JsonDocument
+        // Don't forget to change the capacity to match your requirements.
+        // Use arduinojson.org/v6/assistant to compute the capacity.
+        StaticJsonDocument<48> doc;
+
+        DeserializationError error = deserializeJson(doc, fs);
+
+        if (error)
+        {
+            Serial.print("deserializeJson() failed: ");
+            Serial.println(error.c_str());
+            return;
+        }
+
+        scale_factor = doc["callib_fact"];
+        return 1;
+    }
+
+    void edit(float new_fact)
+    {
+        scale_factor = new_fact;
+    }
+
+    float get()
+    {
+        return scale_factor;
+    }
+
+    bool save(fs::FS &fs)
+    {
+        // Delete existing file, otherwise the configuration is appended to the file
+        fs.remove(configDir);
+        // Allocate a temporary JsonDocument
+        // Don't forget to change the capacity to match your requirements.
+        // Use arduinojson.org/v6/assistant to compute the capacity.
+        StaticJsonDocument<16> doc;
+
+        doc["callib_fact"] = scale_factor;
+
+        serializeJson(doc, fs);
 
         Serial.println("Config Saved");
         // Close the file

@@ -1,6 +1,10 @@
 #ifndef sensorinfus_h
 #define sensorinfus_h
 
+#include <Arduino.h>
+#include "soc/rtc.h"
+#include <HX711.h>
+
 class Tpm
 {
 private:
@@ -9,13 +13,9 @@ private:
     byte lastReading;
     unsigned long lastDebounceTime;
     unsigned long debounceDelay = 20;
+    unsigned long notupdatelim = 6000;
 
 public:
-    // Constructor Declaration
-    Tpm()
-    {
-    }
-
     void init(int sensor_pin)
     {
         pinMode(sensor_pin, INPUT_PULLUP);
@@ -23,7 +23,7 @@ public:
 
     void update()
     {
-        //debounce handler
+        // debounce handler
         byte newReading = digitalRead(sensor_pin);
 
         if (newReading != lastReading)
@@ -33,55 +33,97 @@ public:
         else if (millis() - lastDebounceTime > debounceDelay)
         {
             // Update tpm
-            tpm_val = 60000/(millis() - lastDebounceTime);
+            tpm_val = 60000 / (millis() - lastDebounceTime);
         }
         lastReading = newReading;
     }
 
     float get()
     {
-        // Untuk test
-        update();
+        if (millis() - lastDebounceTime > notupdatelim){
+            //tpm tidak terupdate setelah notupdatelim ms, return 0
+            tpm_val = 0;
+        }
         return tpm_val;
-        // tpm_val = 0; // reset setelah didapat
     }
 };
 
 class Weigh
 {
 private:
-    int sensor_pin;
-    float weigh_val;
-    int callib_param;
+    // HX711 circuit wiring
+    HX711 scale;
+    float callib_param;
 
 public:
-    // Constructor Declaration
-    Weigh()
-    {
-    }
-
-    void init(int param)
+    void init(int LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN)
     {
         // Start I2C dkk
-        callib(param);
-
+        rtc_clk_cpu_freq_set(RTC_CPU_FREQ_80M);
+        scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
     }
 
-    void callib(int param)
+/**
+ * @brief Proses untuk kalibrasi sensor berat
+ * 
+ */
+    void callib()
     {
-        // debounce handler
-        callib_param = param;
+        bool isdone = false;
+        while (!isdone)
+        {
+            if (scale.is_ready())
+            {
+                scale.set_scale();
+                Serial.println("Tare... remove any weights from the scale.");
+                delay(5000);
+                scale.tare();
+                Serial.println("Tare done...");
+                Serial.print("Place a known weight on the scale...");
+                delay(5000);
+                long reading = scale.get_units(10);
+                Serial.print("Result: ");
+                Serial.println(reading);
+                bool waitserial = 1;
+                while(waitserial){
+                    Serial.print("Input Berat:");
+                    delay(2000);
+                    while (Serial.available() > 0)
+                    {
+                        int dataIn = Serial.parseInt();
+                        //Do something with the data - like print it
+                        Serial.printf("Input Berat %d\n",dataIn);
+                        
+                        //Tolak dataIn = 0
+                        if (dataIn == 0) Serial.print(F("Berat tidak boleh 0\n"));
+                        else waitserial = 0;
+                    }
+                }
+                callib_param = reading/dataIn;
+                scale.set_scale(callib_param);
+                //Sensor terkalibrasi
+                isdone = 1;
+            }
+            else
+            {
+                Serial.println("HX711 not found.");
+            }
+            delay(1000);
+        }
     }
-    void update()
+    float get_callib()
     {
-        // debounce handler
-        weigh_val += callib_param;
+        return scale.get_units(20);
     }
 
-    float get()
+    float get_raw()
     {
-        update();
-        return weigh_val;
+        return scale.get_value(20);
+    }
+    
+    void tare()
+    {
+        return scale.tare();
     }
 };
 
