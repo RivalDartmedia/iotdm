@@ -10,7 +10,7 @@ void setup(){
 
     //STEP2: Load Config
 
-    //STEP3: Config if needed
+    //STEP2.1: Config if needed
 
     //STEP4: Init Connection
 

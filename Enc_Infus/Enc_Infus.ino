@@ -1,7 +1,7 @@
 //ESP32
 //Sensor Lib Test
 
-#include "memory.h"
+#include "mem_set.h"
 #include "sensor.h"
 #include "koneksi.h"
 #include "indikator.h"
@@ -11,7 +11,7 @@ void setup(){
 
     //STEP2: Load Config
 
-    //STEP3: Config if needed
+    //STEP2.1: Config if needed
 
     //STEP4: Init Connection
 
