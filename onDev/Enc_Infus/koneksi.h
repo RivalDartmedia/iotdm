@@ -11,60 +11,87 @@
 #include <HTTPClient.h>
 
 static const char DEFAULT_ROOT_CA[] =
-#include <certs/certloc_pem.h>
+#include "certs/certloc_pem.h"
 
 DNSServer dnsServer;
 AsyncWebServer server(80);
 
-WiFiClientSecure client;
+class ConnectionManager
+{
+private:
+    const char *server = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=60"; // Server URL
+    WiFiClientSecure *client;
+    HTTPClient https;
 
-class ConnectionManager{
-    private:
-    const char* server = "blynk.cloud";  // Server URL
-    const 
-    public:
-    bool start_portal(InfusConfig &infusconfig){
+public:
+    bool start_portal(InfusConfig &infusconfig)
+    {
         Serial.println(infusconfig.get(infus_name_p));
         return 0;
     }
 
-    bool connect_client_wifi_secure(InfusConfig &infusconfig){
-        //Mulai koneksi
-        WiFi.begin(infusconfig.get(wifi_ssid_p),infusconfig.get(wifi_pass_p));
-        //Set CA / get fingerprint
-        client.setCACert(DEFAULT_ROOT_CA);
-        //Connect
-        if (!client.connect(server, 443)){
-            Serial.println("Connection failed!");
-            return 0;
+    bool connect_client_wifi_secure(InfusConfig &infusconfig)
+    {
+        // Mulai koneksi
+        // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
+        WiFi.begin("ZTE_2.4G_5yzkX4","123456789");
+        while(!checkWiFi()){
+            delay(200);
+        }
+        // Set CA / get fingerprint
+        client = new WifiClientSecure;
+        if (client)
+        {
+            client->setCACert(DEFAULT_ROOT_CA);
+
+            int httpCode = https.GET();
+            // httpCode will be negative on error
+            if (httpCode > 0)
+            {
+                // HTTP header has been send and Server response header has been handled
+                Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+                // file found at server
+                if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+                {
+                    // print server response payload
+                    String payload = https.getString();
+                    Serial.println(payload);
+                }
+            }
+            https.end();
+            delete client;
         }
         return 1;
     }
 
-    bool send_sens(float tpm, float weigh){
-        //Prioritas koneksi wifi
-        if(checkwifi()){
-            //Connect lewat wifi
-            //Kirim nilai tpm dan weigh
-            return 1;
-        }
-        else if (checksim()) 
+    bool send_sens(float tpm, float weigh)
+    {
+        // Prioritas koneksi wifi
+        if (checkwifi())
         {
-            //Connect lewat SIM jika tersedia
-            //Kirim nilai tpm dan weigh
+            // Connect lewat wifi
+            // Kirim nilai tpm dan weigh
             return 1;
         }
-        
-        //Tidak bisa koneksi, show error
+        else if (checksim())
+        {
+            // Connect lewat SIM jika tersedia
+            // Kirim nilai tpm dan weigh
+            return 1;
+        }
+
+        // Tidak bisa koneksi, show error
         return 0;
     }
-    
-    int get_indicator(){
-        //cek apa perlu memberikan output indikasi
 
+    int get_indicator()
+    {
+        // cek apa perlu memberikan output indikasi
     }
-    bool checkwifi(){
-        if(WiFi.status() != WL_CONNECTED){
+    bool checkwifi()
+    {
+        if (WiFi.status() != WL_CONNECTED)
+        {
             Serial.println("Tidak bisa connect Wifi");
             // Serial.println("Trying to Reconnect");
             // WiFi.begin(ssid, password);
@@ -75,8 +102,9 @@ class ConnectionManager{
         return 1;
     }
 
-    bool checksim(){
-        //Fungsi untuk cek apa bisa koneksi disini
+    bool checksim()
+    {
+        // Fungsi untuk cek apa bisa koneksi disini
         return 0;
     }
 };
