@@ -1,7 +1,7 @@
 {
   "tokenID": "E8fascspfoe3",
   "temp_IoT": "Infus_IoT",
-  "koneksi": "WiFi",
+  "infus_name": "Infus_aefxz",
   "wifi_ssid": "Not exist",
   "wifi_pass": "8294"
 }

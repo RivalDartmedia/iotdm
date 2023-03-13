@@ -11,7 +11,7 @@ enum mem_par
 {
     tokenID_p,
     temp_p,
-    koneksi_p,
+    infus_name_p,
     wifi_ssid_p,
     wifi_pass_p
 };
@@ -36,7 +36,7 @@ bool init_fs()
 class InfusConfig
 {
 private:
-    String tokenID, temp_IoT, koneksi, wifi_ssid, wifi_pass;
+    String tokenID, temp_IoT, infus_name, wifi_ssid, wifi_pass;
     const char *configDir = "/config.txt";
 
 public:
@@ -66,7 +66,7 @@ public:
 
         tokenID = (const char *)doc["tokenID"];
         temp_IoT = (const char *)doc["temp_IoT"];
-        koneksi = (const char *)doc["koneksi"];
+        infus_name = (const char *)doc["infus_name"];
         wifi_ssid = (const char *)doc["wifi_ssid"];
         wifi_pass = (const char *)doc["wifi_pass"];
         file.close();
@@ -93,9 +93,9 @@ public:
             temp_IoT = val_edit;
             break;
         }
-        case koneksi_p:
+        case infus_name_p:
         {
-            koneksi = val_edit;
+            infus_name = val_edit;
             break;
         }
         case wifi_ssid_p:
@@ -123,8 +123,6 @@ public:
             return tokenID;
         case temp_p:
             return temp_IoT;
-        case koneksi_p:
-            return koneksi;
         case wifi_ssid_p:
             return wifi_ssid;
         case wifi_pass_p:
@@ -135,7 +133,13 @@ public:
 
     void print()
     {
-        Serial.printf("\nToken:%s\nTemplate:%s\nKoneksi:%s\nSSID:%s\nPass:%s\n", tokenID.c_str(), temp_IoT.c_str(), koneksi.c_str(), wifi_ssid.c_str(), wifi_pass.c_str());
+        Serial.print("--------------------------\n");
+        Serial.printf("Token:%s\n", tokenID.c_str());
+        Serial.printf("Template:%s\n", temp_IoT.c_str());
+        Serial.printf("Nama Infus:%s\n", infus_name.c_str());
+        Serial.printf("SSID:%s\n", wifi_ssid.c_str());
+        Serial.printf("Pass:%s\n", wifi_pass.c_str());
+        Serial.print("--------------------------\n");
     }
 
     /**
@@ -164,7 +168,7 @@ public:
 
         doc["tokenID"] = tokenID;
         doc["temp_IoT"] = temp_IoT;
-        doc["koneksi"] = koneksi;
+        doc["infus_name"] = infus_name;
         doc["wifi_ssid"] = wifi_ssid;
         doc["wifi_pass"] = wifi_pass;
 
@@ -189,7 +193,6 @@ class LoadCellConfig
 private:
     float scale_factor;
     const char *configDir = "/weigh.txt";
-    bool isload;
 public:
     bool load(fs::FS &fs)
     {
@@ -200,16 +203,17 @@ public:
         // Use arduinojson.org/v6/assistant to compute the capacity.
         StaticJsonDocument<48> doc;
 
-        DeserializationError error = deserializeJson(doc, fs);
-
+        DeserializationError error = deserializeJson(doc, file);
         if (error)
         {
-            Serial.print("deserializeJson() failed: ");
+            Serial.print("Gagal load");
             Serial.println(error.c_str());
-            return;
+            return 0;
         }
 
         scale_factor = doc["callib_fact"];
+        
+        file.close();
         return 1;
     }
 
@@ -220,10 +224,6 @@ public:
 
     float get()
     {
-        if (!isload){
-            load();
-            isload = true;
-        }
         return scale_factor;
     }
 
@@ -231,14 +231,25 @@ public:
     {
         // Delete existing file, otherwise the configuration is appended to the file
         fs.remove(configDir);
-        // Allocate a temporary JsonDocument
+         // Allocate a temporary JsonDocument
         // Don't forget to change the capacity to match your requirements.
         // Use arduinojson.org/v6/assistant to compute the capacity.
         StaticJsonDocument<16> doc;
-
+        File file = fs.open(configDir, FILE_WRITE);
+        if (!file)
+        {
+            Serial.println(F("Failed to create file"));
+            return 0;
+        }
         doc["callib_fact"] = scale_factor;
 
-        serializeJson(doc, fs);
+        serializeJson(doc, file);
+        // Serialize JSON to file
+        if (serializeJson(doc, file) == 0)
+        {
+            Serial.println(F("Failed to write to file"));
+            return 0;
+        }
 
         Serial.println("Config Saved");
         // Close the file
