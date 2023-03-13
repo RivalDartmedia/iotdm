@@ -20,7 +20,6 @@ class ConnectionManager
 {
 private:
     const char *server = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=60"; // Server URL
-    WiFiClientSecure *client;
     HTTPClient https;
 
 public:
@@ -35,11 +34,11 @@ public:
         // Mulai koneksi
         // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
         WiFi.begin("ZTE_2.4G_5yzkX4","123456789");
-        while(!checkWiFi()){
+        while(!this->checkwifi()){
             delay(200);
         }
         // Set CA / get fingerprint
-        client = new WifiClientSecure;
+        WiFiClientSecure *client = new WiFiClientSecure;
         if (client)
         {
             client->setCACert(DEFAULT_ROOT_CA);

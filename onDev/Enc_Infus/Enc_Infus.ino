@@ -9,7 +9,7 @@ ConnectionManager connect1;
 
 void setup(){
     //STEP0:
-    OutPrint.begin(115200);
+    Serial.begin(115200);
 
     //STEP1: Init Memorya
     init_fs();
