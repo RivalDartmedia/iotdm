@@ -138,4 +138,68 @@ public:
     }
 };
 
+class settingButton
+{
+private:
+    int button_pin;
+    byte lastReading;
+    bool isHold, startHold;
+    unsigned long lastDebounceTime, finishHoldTime;
+    unsigned long debounceDelay = 20;
+    unsigned long holdtime = 5000;
+
+public:
+    void init(int button_pin)
+    {
+        pinMode(button_pin, INPUT_PULLUP);
+    }
+
+    /**
+     * @brief Fungsi update dipanggil setiap interupsi.
+     * 
+     */
+    void update()
+    {
+        // debounce handler
+        byte newReading = digitalRead(sensor_pin);
+
+        if (newReading != lastReading)
+        {
+            lastDebounceTime = millis();
+        }
+        else if (millis() - lastDebounceTime > debounceDelay)
+        {
+            //Debouncer
+            if(newReading == 0){
+                //Tombol ditahan
+                if(!startHold){
+                    //Mulai ditekan
+                    startHold = 1;
+                    finishHoldTime = millis();
+                }else {
+                    if(millis() - holdtime > finishHoldTime){
+                        //Setelah sekian lama, tombol terus ditekan
+                        isHold = 1;
+                    }
+                }
+            }
+            else {
+                //Reset Hold
+                startHold = 0;
+                isHold = 0;
+            }
+        }
+        lastReading = newReading;
+    }
+
+    bool is_hold()
+    {
+        return isHold;
+    }
+    bool is_push()
+    {
+        return startHold;
+    }
+};
+
 #endif

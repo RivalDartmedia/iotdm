@@ -7,7 +7,7 @@
 // #include "indikator.h"
 
 InfusConfig config1;
-mem_par mem_param;
+LoadCellConfig load1;
 
 void setup(){
     Serial.begin(115200);
@@ -22,6 +22,12 @@ void setup(){
     config1.save(LittleFS);
     config1.load(LittleFS);
     config1.print();
+
+    load1.load(LittleFS);
+    Serial.println(load1.get());
+    load1.edit(load1.get()+0.123);
+    load1.save(LittleFS);
+    Serial.println(load1.get());
 }
 
 void loop() {
