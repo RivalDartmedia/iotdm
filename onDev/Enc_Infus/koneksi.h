@@ -8,6 +8,7 @@
 #include <AsyncTCP.h>
 #include "ESPAsyncWebServer.h"
 #include <WiFiClientSecure.h>
+#include <HTTPClient.h>
 
 static const char DEFAULT_ROOT_CA[] =
 #include <certs/certloc_pem.h>
