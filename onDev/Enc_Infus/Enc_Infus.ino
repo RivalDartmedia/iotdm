@@ -29,7 +29,7 @@ void setup(){
 void loop() {
     //State Monitoring
     //STEP-M1: Connection Management
-
+    connect1.connect_client_wifi_secure(config1);
     //STEP-M2: Check Command
 
     //STEP-M3: Get Sensor Data
@@ -40,5 +40,5 @@ void loop() {
     //STEP-LC1: Connection Management
 
     //STEP-LC2: Show Error
-    delay(50);
+    delay(5000);
 }
