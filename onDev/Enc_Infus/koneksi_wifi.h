@@ -190,7 +190,7 @@ public:
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
-        send_message = server + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+        send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
         Serial.printf("Sending %s\n", send_message);
         Serial.print("[HTTPS] begin...\n");
         if (https.begin(*client, send_message))
@@ -219,7 +219,7 @@ public:
 
           https.end();
 
-          send_message = server + get_p + token + tokenid + blink_v;
+          send_message = server_dom + get_p + token + tokenid + blink_v;
           // New Connect to get blink command
           if (https.begin(*client, send_message))
           { // HTTPS

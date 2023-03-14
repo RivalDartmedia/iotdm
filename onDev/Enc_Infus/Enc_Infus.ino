@@ -27,7 +27,7 @@ void setup(){
     // start_portal(config1);
     // config1.print();
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
-    config1.save();
+    config1.save(LittleFS);
     //STEP5: Init Sensor
 }
 
@@ -41,7 +41,7 @@ void loop() {
     if(connect1.checkwifi()){
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
 
-    }else if (/*Cek bisa sim atau tidak*/) {
+    }else if (false) { //Cek bisa sim atau tidak
         //Kirim lewat SIM
     }
     else {
