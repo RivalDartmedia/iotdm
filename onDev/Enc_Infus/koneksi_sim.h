@@ -26,7 +26,7 @@ static const char DEFAULT_ROOT_CA[] =
     DNSServer dnsServer;
 AsyncWebServer server(80);
 
-class ConnectionManager
+class ConnectionSIM
 {
 private:
   String server = "https://sgp1.blynk.cloud/external/api/"; // Server URL
@@ -49,260 +49,145 @@ private:
   double val_sample_tpm = 12.839;
   
 public : 
-  bool start_portal(InfusConfig &infusconfig)
+
+  void init()
   {
-    Serial.println(infusconfig.get(infus_name_p));
+    SoftwareSerial *serial = new SoftwareSerial(SIM800_TX_PIN, SIM800_RX_PIN);
+    serial->begin(115200);
+    delay(1000);
 
-    return 0;
-  }
+    sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512);
+    // sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512, (Stream *)&Serial);
+    Serial.println("Waiting for module settings...");
 
-  bool update_val_wifi(double tpm, int weigh){
-    //String to Send
-    
-    return 
-  }
-
-  int connect_client_wifi_secure(InfusConfig &infusconfig)
-  {
-    // Mulai koneksi
-    // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
-    do{
-      WiFi.begin(SSID, Pass);
-      delay(500);
-    } while (!this->checkwifi());
-
-    Serial.println("Terhubung WiFi");
-
-    WiFiClientSecure *client = new WiFiClientSecure;
-    if (client)
+    // Setup module for GPRS communication
+    int PowerMode = sim800l->getPowerMode();
+    if (PowerMode == 1)
     {
-      client->setCACert(DEFAULT_ROOT_CA);
-      {
-        // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
-        HTTPClient https;
-        Serial.printf("Sending %s\n", berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm));
-        Serial.print("[HTTPS] begin...\n");
-        if (https.begin(*client, server + token + berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm)))
-        { // HTTPS
-          Serial.print("[HTTPS] GET...\n");
-          // start connection and send HTTP header
-          int httpCode = https.GET();
-
-          // httpCode will be negative on error
-          if (httpCode > 0)
-          {
-            // HTTP header has been send and Server response header has been handled
-            Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-
-            // file found at server
-            if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-            {
-              String payload = https.getString();
-              Serial.println(payload);
-            }
-          }
-          else
-          {
-            Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-          }
-
-          https.end();
-        }
-        else
-        {
-          Serial.printf("[HTTPS] Unable to connect\n");
-        }
-        // End extra scoping block
-      }
-      delete client;
+      Serial.println(F("Module in normal power mode"));
+      Serial.println(F("Ready for next setup..."));
     }
-    return httpCode;
+    else
+    {
+      Serial.println(F("Switch to normal power mode ..."));
+      sim800l->setPowerMode(NORMAL);
+      delay(200);
+    }
+    setupModule();
   }
 
-  bool send_sens(float tpm, float weigh)
+  void setupModule()
   {
-    // Prioritas koneksi wifi
-    if (checkwifi())
+    // Wait until the module is ready to accept AT commands
+    while (!sim800l->isReady())
     {
-      // Connect lewat wifi
-      // Kirim nilai tpm dan weigh
-      return 1;
+      Serial.println(F("Problem to initialize AT command, retry in 1 sec"));
+      delay(1000);
     }
-    else if (checksim())
+    Serial.println(F("Setup Complete!"));
+
+    // Wait for operator network registration (national or roaming network)
+    NetworkRegistration network = sim800l->getRegistrationStatus();
+    while (network != REGISTERED_HOME && network != REGISTERED_ROAMING)
     {
-      // Connect lewat SIM jika tersedia
-      // Kirim nilai tpm dan weigh
-      return 1;
+      delay(1000);
+      network = sim800l->getRegistrationStatus();
+    }
+    Serial.println(F("Network registration OK"));
+    delay(1000);
+
+    // Setup APN for GPRS configuration
+    bool success = sim800l->setupGPRS(APN);
+    while (!success)
+    {
+      success = sim800l->setupGPRS(APN);
+      delay(5000);
+    }
+    Serial.println(F("GPRS config OK"));
+  }
+
+  void connect_gprs()
+  {
+    Serial.println("Mulai...");
+    // Establish GPRS connectivity (5 trials)
+    bool connected = false;
+    for (uint8_t i = 0; i < 5 && !connected; i++)
+    {
+      delay(1000);
+      connected = sim800l->connectGPRS();
     }
 
-    // Tidak bisa koneksi, show error
-    return 0;
-  }
-
-  int get_indicator()
-  {
-    // cek apa perlu memberikan output indikasi
-    return 0;
-  }
-  bool checkwifi()
-  {
-    if (WiFi.status() != WL_CONNECTED)
+    // Check if connected, if not reset the module and setup the config again
+    if (connected)
     {
-      Serial.println("Tidak bisa connect Wifi");
-      // Serial.println("Trying to Reconnect");
-      // WiFi.begin(ssid, password);
-      return 0;
+      Serial.println(F("GPRS connected !"));
     }
-    // Check koneksi
-    // Return 0 jika tidak bisa koneksi
-    return 1;
+    else
+    {
+      Serial.println(F("GPRS not connected !"));
+      Serial.println(F("Reset the module."));
+      sim800l->reset();
+      setupModule();
+      return;
+    }
+
+    Serial.println(F("Start HTTP GET..."));
+
+    // Write TS Channel
+    WriteTS();
+
+    // Close GPRS connectivity (5 trials)
+    bool disconnected = sim800l->disconnectGPRS();
+    for (uint8_t i = 0; i < 5 && !connected; i++)
+    {
+      delay(1000);
+      disconnected = sim800l->disconnectGPRS();
+    }
+
+    if (disconnected)
+    {
+      Serial.println(F("GPRS disconnected !"));
+    }
+    else
+    {
+      Serial.println(F("GPRS still connected !"));
+    }
+    sim800l->reset();
+    delay(1000);
   }
 
-  bool checksim()
+  void WriteTS()
   {
-    // Fungsi untuk cek apa bisa koneksi disini
-    return 0;
+    // String address="http://date.jsontest.com/";
+    // String address="http://api.telegram.org/bot6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4/sendMessage?chat_id=-894765173&text=tes";
+    int number = random(0, 100);
+    String numberstr;
+    numberstr = String(number);
+    Serial.println(numberstr);
+    String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
+    char URL1[100];
+
+    // Do HTTP GET communication with 10s for the timeout (read)
+    address.toCharArray(URL1, 100);
+
+    uint16_t rc = sim800l->doGet(URL1, 10000);
+    if (rc == 200)
+    {
+      // Success, output the data received on the serial
+      Serial.print(F("HTTP GET successful ("));
+      Serial.print(sim800l->getDataSizeReceived());
+      Serial.println(F(" bytes)"));
+      Serial.print(F("Received : "));
+      String TS_data = sim800l->getDataReceived();
+      Serial.println(TS_data);
+    }
+    else
+    {
+      // Failed...
+      Serial.print(F("HTTP GET error "));
+      Serial.println(rc);
+    }
   }
 };
-
-//   void init()
-//   {
-//     SoftwareSerial *serial = new SoftwareSerial(SIM800_TX_PIN, SIM800_RX_PIN);
-//     serial->begin(9600);
-//     delay(1000);
-
-//     sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512);
-//     // sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512, (Stream *)&Serial);
-//     Serial.println("Waiting for module settings...");
-
-//     // Setup module for GPRS communication
-//     int PowerMode = sim800l->getPowerMode();
-//     if (PowerMode == 1)
-//     {
-//       Serial.println(F("Module in normal power mode"));
-//       Serial.println(F("Ready for next setup..."));
-//     }
-//     else
-//     {
-//       Serial.println(F("Switch to normal power mode ..."));
-//       sim800l->setPowerMode(NORMAL);
-//       delay(200);
-//     }
-//     setupModule();
-//   }
-
-//   void setupModule()
-//   {
-//     // Wait until the module is ready to accept AT commands
-//     while (!sim800l->isReady())
-//     {
-//       Serial.println(F("Problem to initialize AT command, retry in 1 sec"));
-//       delay(1000);
-//     }
-//     Serial.println(F("Setup Complete!"));
-
-//     // Wait for operator network registration (national or roaming network)
-//     NetworkRegistration network = sim800l->getRegistrationStatus();
-//     while (network != REGISTERED_HOME && network != REGISTERED_ROAMING)
-//     {
-//       delay(1000);
-//       network = sim800l->getRegistrationStatus();
-//     }
-//     Serial.println(F("Network registration OK"));
-//     delay(1000);
-
-//     // Setup APN for GPRS configuration
-//     bool success = sim800l->setupGPRS(APN);
-//     while (!success)
-//     {
-//       success = sim800l->setupGPRS(APN);
-//       delay(5000);
-//     }
-//     Serial.println(F("GPRS config OK"));
-//   }
-
-//   void connect_gprs()
-//   {
-//     Serial.println("Mulai...");
-//     // Establish GPRS connectivity (5 trials)
-//     bool connected = false;
-//     for (uint8_t i = 0; i < 5 && !connected; i++)
-//     {
-//       delay(1000);
-//       connected = sim800l->connectGPRS();
-//     }
-
-//     // Check if connected, if not reset the module and setup the config again
-//     if (connected)
-//     {
-//       Serial.println(F("GPRS connected !"));
-//     }
-//     else
-//     {
-//       Serial.println(F("GPRS not connected !"));
-//       Serial.println(F("Reset the module."));
-//       sim800l->reset();
-//       setupModule();
-//       return;
-//     }
-
-//     Serial.println(F("Start HTTP GET..."));
-
-//     // Write TS Channel
-//     WriteTS();
-
-//     // Close GPRS connectivity (5 trials)
-//     bool disconnected = sim800l->disconnectGPRS();
-//     for (uint8_t i = 0; i < 5 && !connected; i++)
-//     {
-//       delay(1000);
-//       disconnected = sim800l->disconnectGPRS();
-//     }
-
-//     if (disconnected)
-//     {
-//       Serial.println(F("GPRS disconnected !"));
-//     }
-//     else
-//     {
-//       Serial.println(F("GPRS still connected !"));
-//     }
-//     sim800l->reset();
-//     delay(1000);
-//   }
-
-//   void WriteTS()
-//   {
-//     // String address="http://date.jsontest.com/";
-//     // String address="http://api.telegram.org/bot6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4/sendMessage?chat_id=-894765173&text=tes";
-//     int number = random(0, 100);
-//     String numberstr;
-//     numberstr = String(number);
-//     Serial.println(numberstr);
-//     String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
-//     char URL1[100];
-
-//     // Do HTTP GET communication with 10s for the timeout (read)
-//     address.toCharArray(URL1, 100);
-
-//     uint16_t rc = sim800l->doGet(URL1, 10000);
-//     if (rc == 200)
-//     {
-//       // Success, output the data received on the serial
-//       Serial.print(F("HTTP GET successful ("));
-//       Serial.print(sim800l->getDataSizeReceived());
-//       Serial.println(F(" bytes)"));
-//       Serial.print(F("Received : "));
-//       String TS_data = sim800l->getDataReceived();
-//       Serial.println(TS_data);
-//     }
-//     else
-//     {
-//       // Failed...
-//       Serial.print(F("HTTP GET error "));
-//       Serial.println(rc);
-//     }
-//   }
-// };
 
 #endif // !1

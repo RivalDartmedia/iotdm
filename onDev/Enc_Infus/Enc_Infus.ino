@@ -1,11 +1,11 @@
 //ESP32
 #include "mem_set.h"
 // #include "sensor.h"
-#include "koneksi.h"
+#include "koneksi_wifi.h"
 // #include "indikator.h"
 
 InfusConfig config1;
-ConnectionManager connect1;
+ConnectionWiFi connect1;
 
 void setup(){
     //STEP0:
@@ -16,12 +16,13 @@ void setup(){
     
     //STEP2: Load Config
     config1.load(LittleFS);
+    config1.print();
 
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
-    connect1.start_portal(config1);
-
+    start_portal(config1);
+    config1.print();
     //STEP5: Init Sensor
 
 }
@@ -29,7 +30,7 @@ void setup(){
 void loop() {
     //State Monitoring
     //STEP-M1: Connection Management
-    connect1.connect_client_wifi_secure(config1);
+    // connect1.connect_client_wifi_secure(config1);
     //STEP-M2: Check Command
 
     //STEP-M3: Get Sensor Data

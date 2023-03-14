@@ -123,6 +123,8 @@ public:
             return tokenID;
         case temp_p:
             return temp_IoT;
+        case infus_name_p:
+            return infus_name;
         case wifi_ssid_p:
             return wifi_ssid;
         case wifi_pass_p:
