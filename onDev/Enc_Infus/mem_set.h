@@ -213,7 +213,7 @@ public:
             return 0;
         }
 
-        scale_factor = doc["callib_fact"];
+        scale_factor = doc["callib_fact"].toFloat();
         
         file.close();
         return 1;
@@ -243,7 +243,7 @@ public:
             Serial.println(F("Failed to create file"));
             return 0;
         }
-        doc["callib_fact"] = scale_factor;
+        doc["callib_fact"] = String(scale_factor);
 
         serializeJson(doc, file);
         // Serialize JSON to file
