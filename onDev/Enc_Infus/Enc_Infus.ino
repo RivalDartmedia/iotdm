@@ -6,8 +6,8 @@
 
 InfusConfig config1;
 ConnectionWiFi connect1;
-  int val_sample_berat = 600;
-  double val_sample_tpm = 18.45;
+int val_sample_berat = 600;
+double val_sample_tpm = 18.45;
 indi_state main_indicator;
 
 void setup(){
@@ -26,23 +26,27 @@ void setup(){
     //STEP4: Init Connection
     // start_portal(config1);
     // config1.print();
+    config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
+    config1.save();
     //STEP5: Init Sensor
-
 }
 
 void loop() {
     //State Monitoring
-    //STEP-M1: Connection Management
-    connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-    //STEP-M2: Check Command
+    
+    //STEP-M1: Get Sensor Data
 
-    //STEP-M3: Get Sensor Data
+    //STEP-M2: Connection Management
+    //STEP-M3: Send Data n Update Indicator
+    if(connect1.checkwifi()){
+        connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
 
-    //STEP-M4: Send Data
-
-    //State Lost Connection
-    //STEP-LC1: Connection Management
-
-    //STEP-LC2: Show Error
-    delay(5000);
+    }else if (/*Cek bisa sim atau tidak*/) {
+        //Kirim lewat SIM
+    }
+    else {
+        //State Lost Connection
+        //STEP-LC1: Show Error
+        delay(5000);
+    }
 }

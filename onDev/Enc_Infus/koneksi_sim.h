@@ -3,13 +3,7 @@
 
 #include "mem_set.h"
 #include "indikator.h"
-
-#include <DNSServer.h>
-#include <WiFi.h>
-#include <AsyncTCP.h>
-#include "ESPAsyncWebServer.h"
-#include <WiFiClientSecure.h>
-#include <HTTPClient.h>
+#include "koneksi_cred.h"
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
@@ -20,33 +14,15 @@
 #define SIM800_RX_PIN 17
 #define SIM800_RST_PIN 22
 
-static const char DEFAULT_ROOT_CA[] =
-#include "certs/certloc_pem.h"
-
-    DNSServer dnsServer;
-AsyncWebServer server(80);
-
 class ConnectionSIM
 {
 private:
-  String server = "https://sgp1.blynk.cloud/external/api/"; // Server URL
-  String send_p = "batch/update?";
-  String get_p = "get?";
-  String token = "token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX";
-  String berat_v = "&v0=";
-  String tpm_v = "&v1=";
-  String blink_v = "&v2"
   // Update server+token+send_p+berat_v+   +tpm_v
   // get Blink Indicator server + get_p + blink_v
 
   HTTPClient https;
   const char *APN = "3gprs"; // Bisa dipilih ?
   SIM800L *sim800l;
-  const char *SSID = "ZTE_2.4G_5yzkX4";
-  const char *Pass = "123456789";
-  
-  int val_sample_berat = 625;
-  double val_sample_tpm = 12.839;
   
 public : 
 

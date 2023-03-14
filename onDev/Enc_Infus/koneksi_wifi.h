@@ -3,6 +3,7 @@
 
 #include "mem_set.h"
 #include "indikator.h"
+#include "koneksi_cred.h"
 
 #include <DNSServer.h>
 #include <WiFi.h>
@@ -142,34 +143,32 @@ bool start_portal(InfusConfig &config)
 class ConnectionWiFi
 {
 private:
-  String server = "https://sgp1.blynk.cloud/external/api/"; // Server URL
-  String send_p = "batch/update?";
-  String get_p = "get?";
-  String token = "token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX";
-  String berat_v = "&v0=";
-  String tpm_v = "&v1=";
-  String blink_v = "&v3";
-      // Update server+token+send_p+berat_v+   +tpm_v
-      // get Blink Indicator server + get_p + blink_v
+  // Update server+token+send_p+berat_v+   +tpm_v
+  // get Blink Indicator server + get_p + blink_v
 
+  String tokenid;
   String send_message;
   HTTPClient https;
 
 public:
   bool checkwifi()
   {
-    if (WiFi.status() != WL_CONNECTED)
+    int limit_try = 10, cnt = 0;
+    while (WiFi.status() != WL_CONNECTED && cnt < limit_try)
     {
       Serial.println("Tidak terkoneksi dengan Wifi");
       // Serial.println("Trying to Reconnect");
       // WiFi.begin(ssid, password);
-      return 0;
+      delay(250);
     }
     // Check koneksi
+    if(cnt < limit_try){
+      return 1;
+    }
     // Return 0 jika tidak bisa koneksi
-    return 1;
+    return 0;
   }
-
+  
   int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
   {
     // Mulai koneksi
@@ -186,11 +185,12 @@ public:
     int httpCode;
     if (client)
     {
+      tokenid = infusconfig.get(tokenID_p);
       client->setCACert(DEFAULT_ROOT_CA);
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
-        send_message = server + send_p + token + berat_v + String(weigh) + tpm_v + String(tpm);
+        send_message = server + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
         Serial.printf("Sending %s\n", send_message);
         Serial.print("[HTTPS] begin...\n");
         if (https.begin(*client, send_message))
@@ -219,13 +219,13 @@ public:
 
           https.end();
 
-          send_message = server + get_p + token + blink_v;
+          send_message = server + get_p + token + tokenid + blink_v;
           // New Connect to get blink command
           if (https.begin(*client, send_message))
           { // HTTPS
             Serial.print("[HTTPS] GET...\n");
             // start connection and send HTTP header
-            int httpCode = https.GET();
+            httpCode = https.GET();
 
             // httpCode will be negative on error
             if (httpCode > 0)
@@ -239,6 +239,7 @@ public:
                 String payload = https.getString();
                 Serial.println(payload);
                 int payload_val = payload.toInt();
+                //Atur Indikator disini
                 if(payload_val >= 255){
                   indi_command = blink_fast;
                 }else{
@@ -261,9 +262,8 @@ public:
         }
         delete client;
       }
-      return httpCode;
     }
-    return 0;
+    return httpCode;
   }
 };
 
