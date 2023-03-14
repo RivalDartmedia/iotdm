@@ -148,20 +148,19 @@ private:
   String token = "token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX";
   String berat_v = "&v0=";
   String tpm_v = "&v1=";
-  String blink_v = "&v2";
+  String blink_v = "&v3";
       // Update server+token+send_p+berat_v+   +tpm_v
       // get Blink Indicator server + get_p + blink_v
 
+  String send_message;
   HTTPClient https;
-  int val_sample_berat = 160;
-  double val_sample_tpm = 18.45;
 
 public:
   bool checkwifi()
   {
     if (WiFi.status() != WL_CONNECTED)
     {
-      Serial.println("Tidak bisa connect Wifi");
+      Serial.println("Tidak terkoneksi dengan Wifi");
       // Serial.println("Trying to Reconnect");
       // WiFi.begin(ssid, password);
       return 0;
@@ -171,7 +170,7 @@ public:
     return 1;
   }
 
-  int update_secure(InfusConfig &infusconfig, double tpm, int weigh, int &indi_command)
+  int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
   {
     // Mulai koneksi
     // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
@@ -191,9 +190,10 @@ public:
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
-        Serial.printf("Sending %s\n", berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm));
+        send_message = server + send_p + token + berat_v + String(weigh) + tpm_v + String(tpm);
+        Serial.printf("Sending %s\n", send_message);
         Serial.print("[HTTPS] begin...\n");
-        if (https.begin(*client, server + token + berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm)))
+        if (https.begin(*client, send_message))
         { // HTTPS
           Serial.print("[HTTPS] GET...\n");
           // start connection and send HTTP header
@@ -219,8 +219,9 @@ public:
 
           https.end();
 
+          send_message = server + get_p + token + blink_v;
           // New Connect to get blink command
-          if (https.begin(*client, server + get_p + token + blink_v))
+          if (https.begin(*client, send_message))
           { // HTTPS
             Serial.print("[HTTPS] GET...\n");
             // start connection and send HTTP header
@@ -237,6 +238,12 @@ public:
               {
                 String payload = https.getString();
                 Serial.println(payload);
+                int payload_val = payload.toInt();
+                if(payload_val >= 255){
+                  indi_command = blink_fast;
+                }else{
+                  indi_command = blink_slow;
+                }
               }
             }
             else
