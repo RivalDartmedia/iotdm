@@ -179,11 +179,7 @@ public:
     void update()
     {
         // debounce handler
-<<<<<<< Updated upstream
-        byte newReading = digitalRead(button_pin);
-=======
         byte newReading = digitalRead(this->button_pin);
->>>>>>> Stashed changes
 
         if (newReading != lastReading)
         {
