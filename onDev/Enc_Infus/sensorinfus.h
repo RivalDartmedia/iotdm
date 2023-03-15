@@ -157,7 +157,7 @@ class Button
 {
 private:
     int button_pin;
-    bool pushed, hold;
+    bool pushed, hold, start_hold;
     unsigned long lastDebounceTime, startHoldTime;
     unsigned long debounceDelay = 50;
     unsigned long holdtime = 5000, holddur = 10000;
@@ -169,7 +169,7 @@ public:
         pinMode(button_pin, INPUT_PULLUP);
     }
     void print(){
-        Serial.printf("IsH: %d, StartH:%d\n", isHold, startHold);
+        Serial.printf("IsH: %d, StartH:%d\n", is_hold(), is_push());
     }
     /**
      * @brief Fungsi update dipanggil setiap interupsi.
@@ -178,50 +178,36 @@ public:
     void update()
     {
         // debounce handler
-        bool newReading = digitalRead(this->button_pin); // Pull up
+        bool newReading;
         static bool lastReading;
-        if (newReading != lastReading)
+        unsigned long now_t = millis();
+        if ((now_t - lastDebounceTime) > debounceDelay)
         {
-            lastDebounceTime = millis();
-        }
-        
-        if ((millis() - lastDebounceTime) > debounceDelay)
-        {
-            // Debouncer 
-            if (newReading == 0) // Tombol ditekan
+            newReading = digitalRead(this->button_pin); // Pull up
+            if (newReading != lastReading)
             {
-                // Tombol ditahan
-                if (!startHold)
-                {
-                    // Mulai ditekan
-                    startHold = 1;
-                    finishHoldTime = millis();
+                // Debouncer 
+                //Sebelumnya tidak dipush dan sekarang dipush
+                if (!pushed && !newReading){
+                    startHoldTime = now_t;
+                    start_hold = 1;
+                }else if (!pushed){
+                    start_hold = 0;
                 }
-                else if (millis() - holdtime > finishHoldTime)
-                {
-                    // Setelah sekian lama, tombol terus ditekan
-                    isHold = 1;
-                }
-            }
-            else
-            {
-                // Reset Hold
-                startHold = 0;
-                isHold = 0;
+                lastReading = newReading;
             }
             pushed = !newReading;
-            hold = is_hold();
         }
-        lastReading = newReading;
+        lastDebounceTime = now_t;
     }
 
     bool is_hold()
     {
-        return (millis() - startHoldTime > holdtime) && (millis() - startHoldTime < holddur);
+        return start_hold && (millis() - startHoldTime > holdtime) && (millis() - startHoldTime < holddur);
     }
     bool is_push()
     {
-        return startHold;
+        return pushed;
     }
 };
 

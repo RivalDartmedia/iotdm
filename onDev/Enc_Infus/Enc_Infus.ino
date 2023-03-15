@@ -19,17 +19,17 @@ Weigh weigh;
 // LoadCellConfig loadconfig;
 Button data_edit, weigh_set;
 
-void updatetpm()
+void ICACHE_RAM_ATTR updatetpm()
 {
   tpm.update();
 }
 
-void updateedit()
+void ICACHE_RAM_ATTR updateedit()
 {
   data_edit.update();
 }
 
-void updatetare()
+void ICACHE_RAM_ATTR updatetare()
 {
   weigh_set.update();
 }
@@ -39,9 +39,9 @@ void beginsens(){
     attachInterrupt(tpm_pin, updatetpm, FALLING);
     weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
     data_edit.init(sett_pin);
-    attachInterrupt(sett_pin, updateedit, FALLING);
+    attachInterrupt(sett_pin, updateedit, CHANGE);
     weigh_set.init(tare_pin);
-    attachInterrupt(tare_pin, updatetare, FALLING);
+    attachInterrupt(tare_pin, updatetare, CHANGE);
 }
 
 void setup(){
@@ -85,7 +85,7 @@ void loop() {
     //STEP-M1: Connection Management
 
     //STEP-M2: Check Command
-    Serial.print("DATA");
+    Serial.print("---------------------------- /n DATA");
     data_edit.print();
     Serial.print("TARE");
     weigh_set.print();
