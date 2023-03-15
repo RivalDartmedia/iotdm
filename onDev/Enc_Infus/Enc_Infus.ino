@@ -39,9 +39,9 @@ void beginsens(){
     attachInterrupt(tpm_pin, updatetpm, FALLING);
     weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
     data_edit.init(sett_pin);
-    attachInterrupt(sett_pin, updateedit, FALLING);
+    attachInterrupt(sett_pin, updateedit, CHANGE);
     weigh_set.init(tare_pin);
-    attachInterrupt(tare_pin, updatetare, FALLING);
+    attachInterrupt(tare_pin, updatetare, CHANGE);
 }
 
 void setup(){
