@@ -157,11 +157,18 @@ class Button
 {
 private:
     int button_pin;
+<<<<<<< Updated upstream
     byte lastReading;
     bool isHold, startHold;
     unsigned long lastDebounceTime, finishHoldTime;
     unsigned long debounceDelay = 20;
     unsigned long holdtime = 5000;
+=======
+    bool pushed, hold;
+    unsigned long lastDebounceTime, startHoldTime;
+    unsigned long debounceDelay = 50;
+    unsigned long holdtime = 5000, holddur = 10000;
+>>>>>>> Stashed changes
 
 public:
     void init(int button_pin)
@@ -180,16 +187,26 @@ public:
     {
         // debounce handler
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         byte newReading = digitalRead(button_pin);
 =======
         byte newReading = digitalRead(this->button_pin);
 >>>>>>> Stashed changes
 
+=======
+        bool newReading = digitalRead(this->button_pin); // Pull up
+        static bool lastReading;
+>>>>>>> Stashed changes
         if (newReading != lastReading)
         {
             lastDebounceTime = millis();
         }
+<<<<<<< Updated upstream
         else if (millis() - lastDebounceTime > debounceDelay)
+=======
+        
+        if ((millis() - lastDebounceTime) > debounceDelay)
+>>>>>>> Stashed changes
         {
             // Debouncer 
             if (newReading == 0) // Tombol ditekan
@@ -213,13 +230,22 @@ public:
                 startHold = 0;
                 isHold = 0;
             }
+<<<<<<< Updated upstream
+=======
+            pushed = !newReading;
+            hold = is_hold();
+>>>>>>> Stashed changes
         }
         lastReading = newReading;
     }
 
     bool is_hold()
     {
+<<<<<<< Updated upstream
         return isHold;
+=======
+        return (millis() - startHoldTime > holdtime) && (millis() - startHoldTime < holddur);
+>>>>>>> Stashed changes
     }
     bool is_push()
     {
