@@ -17,17 +17,18 @@ private:
 public:
     void init(int sensor_pin)
     {
+        this->sensor_pin = sensor_pin;
         pinMode(sensor_pin, INPUT_PULLUP);
     }
 
     /**
      * @brief Fungsi update dipanggil setiap interupsi.
-     * 
+     *
      */
     void update()
     {
         // debounce handler
-        byte newReading = digitalRead(sensor_pin);
+        byte newReading = digitalRead(this->sensor_pin);
 
         if (newReading != lastReading)
         {
@@ -36,15 +37,16 @@ public:
         else if (millis() - lastDebounceTime > debounceDelay)
         {
             // Update tpm
-            tpm_val = (float) (60000 / (millis() - lastDebounceTime));
+            tpm_val = (float)(60000 / (millis() - lastDebounceTime));
         }
         lastReading = newReading;
     }
 
     float get()
     {
-        if (millis() - lastDebounceTime > notupdatelim){
-            //tpm tidak terupdate setelah notupdatelim ms, return 0
+        if (millis() - lastDebounceTime > notupdatelim)
+        {
+            // tpm tidak terupdate setelah notupdatelim ms, return 0
             tpm_val = 0;
         }
         return tpm_val;
@@ -65,10 +67,10 @@ public:
         scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
     }
 
-/**
- * @brief Proses untuk kalibrasi sensor berat
- * 
- */
+    /**
+     * @brief Proses untuk kalibrasi sensor berat
+     *
+     */
     void callib()
     {
         callibrated = false;
@@ -82,30 +84,33 @@ public:
                 scale.tare();
                 Serial.println("Tare done...");
                 Serial.print("Place a known weight on the scale...");
-                delay(5000);
-                long reading = scale.get_units(10);
-                Serial.print("Result: ");
-                Serial.println(reading);
-
                 bool waitserial = 1;
                 int dataIn;
-                while(waitserial){
-                    Serial.print("Input Berat:");
-                    delay(2000);
+                long reading;
+                String str;
+                while (waitserial)
+                {
+                    reading = scale.get_units(10);
+                    Serial.printf("Result: %d. Berat asli?\n", reading);
+                    delay(1000);
                     while (Serial.available() > 0)
                     {
                         dataIn = Serial.parseInt();
-                        //Do something with the data - like print it
-                        Serial.printf("Input Berat %d\n",dataIn);
-                        
-                        //Tolak dataIn = 0
-                        if (dataIn == 0) Serial.print(F("Berat tidak boleh 0\n"));
-                        else waitserial = 0;
+                        str = Serial.readStringUntil('\n');
+                        // Do something with the data - like print it
+                        Serial.printf("Input Berat %d\n", dataIn);
+
+                        // Tolak dataIn = 0
+                        if (dataIn == 0)
+                            Serial.print(F("Berat tidak boleh 0\n"));
+                        else
+                            waitserial = 0;
                     }
                 }
-                callib_param = reading/dataIn;
+                callib_param = (float)reading / dataIn;
+                Serial.printf("Callib Param: %f", callib_param);
                 scale.set_scale(callib_param);
-                //Sensor terkalibrasi
+                // Sensor terkalibrasi
                 callibrated = 1;
             }
             else
@@ -115,30 +120,40 @@ public:
             delay(1000);
         }
     }
-    void set_callib(float callib_param){
+    void set_callib(float callib_param)
+    {
+        while (!scale.is_ready())
+        {
+            Serial.print(F("Wait scale ready\n"));
+            delay(100);
+        }
+        Serial.println("Tare... remove any weights from the scale.");
+        delay(5000);
+        scale.tare();
         this->callib_param = callib_param;
+        scale.set_scale(callib_param);
     }
     float get_scale()
     {
-        return scale.get_scale();
+        return this->callib_param;
     }
     float get_unit()
     {
-        return scale.get_units(20);
+        return scale.get_units(5);
     }
 
-    float get_raw()
+    double get_raw()
     {
-        return scale.get_value(20);
+        return scale.get_value(5);
     }
-    
+
     void tare()
     {
         return scale.tare();
     }
 };
 
-class settingButton
+class Button
 {
 private:
     int button_pin;
@@ -151,17 +166,24 @@ private:
 public:
     void init(int button_pin)
     {
+        this->button_pin = button_pin;
         pinMode(button_pin, INPUT_PULLUP);
     }
-
+    void print(){
+        Serial.printf("IsH: %d, StartH:%d\n", isHold, startHold);
+    }
     /**
      * @brief Fungsi update dipanggil setiap interupsi.
-     * 
+     *
      */
     void update()
     {
         // debounce handler
+<<<<<<< Updated upstream
         byte newReading = digitalRead(button_pin);
+=======
+        byte newReading = digitalRead(this->button_pin);
+>>>>>>> Stashed changes
 
         if (newReading != lastReading)
         {
@@ -169,22 +191,25 @@ public:
         }
         else if (millis() - lastDebounceTime > debounceDelay)
         {
-            //Debouncer
-            if(newReading == 0){
-                //Tombol ditahan
-                if(!startHold){
-                    //Mulai ditekan
+            // Debouncer 
+            if (newReading == 0) // Tombol ditekan
+            {
+                // Tombol ditahan
+                if (!startHold)
+                {
+                    // Mulai ditekan
                     startHold = 1;
                     finishHoldTime = millis();
-                }else {
-                    if(millis() - holdtime > finishHoldTime){
-                        //Setelah sekian lama, tombol terus ditekan
-                        isHold = 1;
-                    }
+                }
+                else if (millis() - holdtime > finishHoldTime)
+                {
+                    // Setelah sekian lama, tombol terus ditekan
+                    isHold = 1;
                 }
             }
-            else {
-                //Reset Hold
+            else
+            {
+                // Reset Hold
                 startHold = 0;
                 isHold = 0;
             }
