@@ -48,15 +48,7 @@ void setup(){
     //Load and Callibr
     loadconfig.load(LittleFS);
     weigh.set_callib(loadconfig.get());
-    // // loadconfig.edit(weigh.get_scale());
-    // // weigh.set_callib(loadconfig.get());
-    // // Serial.printf("Load Param: %f", loadconfig.get());
-    // // loadconfig.edit(weigh.get_scale());
-
-    // loadconfig.save(LittleFS);
-    // LoadCellConfig loadconfig;
-    // weigh.set_callib(loadconfig.get(););
-
+    Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {
