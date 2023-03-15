@@ -169,7 +169,7 @@ public:
         pinMode(button_pin, INPUT_PULLUP);
     }
     void print(){
-        Serial.printf("IsH: %d, StartH:%d\n", is_hold(), is_push());
+        Serial.printf("IsH: %d, IsP:%d, H_pin:%d\n", is_hold(), is_push(), pushed);
     }
     /**
      * @brief Fungsi update dipanggil setiap interupsi.
@@ -207,7 +207,7 @@ public:
     }
     bool is_push()
     {
-        return pushed;
+        return !digitalRead(this->button_pin);
     }
 };
 

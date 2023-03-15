@@ -85,7 +85,7 @@ void loop() {
     //STEP-M1: Connection Management
 
     //STEP-M2: Check Command
-    Serial.print("---------------------------- /n DATA");
+    Serial.print("DATA");
     data_edit.print();
     Serial.print("TARE");
     weigh_set.print();
