@@ -161,7 +161,7 @@ public:
     void update()
     {
         // debounce handler
-        byte newReading = digitalRead(sensor_pin);
+        byte newReading = digitalRead(button_pin);
 
         if (newReading != lastReading)
         {
