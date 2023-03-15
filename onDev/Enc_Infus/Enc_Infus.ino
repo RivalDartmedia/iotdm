@@ -1,71 +1,52 @@
 //ESP32
-//Sensor Lib Test
-
 #include "mem_set.h"
-#include "sensorinfus.h"
-// #include "koneksi.h"
-// #include "indikator.h"
+// #include "sensor.h"
+#include "koneksi_wifi.h"
+#include "indikator.h"
 
-#define tpm_pin 23
-#define LOADCELL_DOUT_PIN 4
-#define LOADCELL_SCK_PIN 2
-
-Tpm tpm;
-Weigh weigh;
-LoadCellConfig loadconfig;
-
-void updatetpm()
-{
-  tpm.update();
-}
-
-void beginsens(){
-    tpm.init(tpm_pin);
-    attachInterrupt(tpm_pin, updatetpm, FALLING);
-    weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
-}
+InfusConfig config1;
+ConnectionWiFi connect1;
+int val_sample_berat = 650;
+double val_sample_tpm = 18.45;
+indi_state main_indicator;
 
 void setup(){
+    //STEP0:
     Serial.begin(115200);
-    //STEP1: Init Memory
+
+    //STEP1: Init Memorya
     init_fs();
+    
     //STEP2: Load Config
+    config1.load(LittleFS);
+    config1.print();
 
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
-
+    // start_portal(config1);
+    config1.print();
+    config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
+    config1.save(LittleFS);
     //STEP5: Init Sensor
-    beginsens();
-    
-    //Callib and Save
-    // weigh.callib(); // Lakukan proses callib, atau Load
-    // Serial.print(weigh.get_scale());
-    // loadconfig.edit(weigh.get_scale());
-    // //Save to Config
-    // loadconfig.save(LittleFS);
-
-    //Load and Callibr
-    loadconfig.load(LittleFS);
-    weigh.set_callib(loadconfig.get());
-    Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {
     //State Monitoring
-    //STEP-M1: Connection Management
+    
+    //STEP-M1: Get Sensor Data
+    connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
 
-    //STEP-M2: Check Command
-
-    //STEP-M3: Get Sensor Data
-    Serial.printf("TPM: %.2f", tpm.get());
-    Serial.printf("Weigh: %3.f\n", weigh.get_unit());
-
-    //STEP-M4: Send Data
-
-    //State Lost Connection
-    //STEP-LC1: Connection Management
-
-    //STEP-LC2: Show Error
-    delay(2000);
+    //STEP-M2: Connection Management
+    //STEP-M3: Send Data n Update Indicator
+    // if(connect1.checkwifi()){
+        
+    // }else if (false) { //Cek bisa sim atau tidak
+    //     //Kirim lewat SIM
+    // }
+    // else {
+        //State Lost Connection
+        //STEP-LC1: Show Error
+        delay(5000);
+    // }
 }
