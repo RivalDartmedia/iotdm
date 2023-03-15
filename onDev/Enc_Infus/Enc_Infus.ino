@@ -1,52 +1,104 @@
 //ESP32
-#include "mem_set.h"
-// #include "sensor.h"
-#include "koneksi_wifi.h"
-#include "indikator.h"
+//Button Test
+//Fokus sistem monitoring tanpa koneksi
 
-InfusConfig config1;
-ConnectionWiFi connect1;
-int val_sample_berat = 600;
-double val_sample_tpm = 18.45;
-indi_state main_indicator;
+// #include "mem_set.h"
+#include "sensorinfus.h"
+// #include "koneksi.h"
+// #include "indikator.h"
+
+#define tpm_pin 21
+#define sett_pin 23
+#define tare_pin 19
+#define led_pin 15
+#define LOADCELL_DOUT_PIN 4
+#define LOADCELL_SCK_PIN 2
+
+Tpm tpm;
+Weigh weigh;
+// LoadCellConfig loadconfig;
+Button data_edit, weigh_set;
+
+void updatetpm()
+{
+  tpm.update();
+}
+
+void updateedit()
+{
+  data_edit.update();
+}
+
+void updatetare()
+{
+  weigh_set.update();
+}
+
+void beginsens(){
+    tpm.init(tpm_pin);
+    attachInterrupt(tpm_pin, updatetpm, FALLING);
+    weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+    data_edit.init(sett_pin);
+    attachInterrupt(sett_pin, updateedit, FALLING);
+    weigh_set.init(tare_pin);
+    attachInterrupt(tare_pin, updatetare, FALLING);
+}
 
 void setup(){
-    //STEP0:
     Serial.begin(115200);
+    //STEP1: Init Memory
+    // init_fs();
 
-    //STEP1: Init Memorya
-    init_fs();
+    //STEP2: Init Sensor
+    beginsens();
+
+    //STEP3.0: Config if needed
     
-    //STEP2: Load Config
-    config1.load(LittleFS);
-    config1.print();
-
-    //STEP2.1: Config if needed
+    //STEP3: Load Config
+    
 
     //STEP4: Init Connection
-    // start_portal(config1);
-    // config1.print();
-    config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
-    config1.save(LittleFS);
-    //STEP5: Init Sensor
+    
+    //Callib and Save
+    // weigh.callib(); // Lakukan proses callib, atau Load
+    // Serial.print(weigh.get_scale());
+    // loadconfig.edit(weigh.get_scale());
+    // //Save to Config
+    // loadconfig.save(LittleFS);
+
+    //Load and Callibr
+    // loadconfig.load(LittleFS);
+    // weigh.set_callib(loadconfig.get());
+    // // loadconfig.edit(weigh.get_scale());
+    // // weigh.set_callib(loadconfig.get());
+    // // Serial.printf("Load Param: %f", loadconfig.get());
+    // // loadconfig.edit(weigh.get_scale());
+
+    // loadconfig.save(LittleFS);
+    // LoadCellConfig loadconfig;
+    // weigh.set_callib(loadconfig.get(););
+
 }
 
 void loop() {
     //State Monitoring
-    
-    //STEP-M1: Get Sensor Data
+    //STEP-M1: Connection Management
 
-    //STEP-M2: Connection Management
-    //STEP-M3: Send Data n Update Indicator
-    if(connect1.checkwifi()){
-        connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+    //STEP-M2: Check Command
+    Serial.print("DATA");
+    data_edit.print();
+    Serial.print("TARE");
+    weigh_set.print();
 
-    }else if (false) { //Cek bisa sim atau tidak
-        //Kirim lewat SIM
-    }
-    else {
-        //State Lost Connection
-        //STEP-LC1: Show Error
-        delay(5000);
-    }
+    //STEP-M3: Get Sensor Data
+    // Serial.printf("TPM: %.2f", tpm.get());
+    // Serial.printf("Weigh: %3.f\n", weigh.get_unit());
+
+    //STEP-M4: Send Data
+
+    //State Lost Connection
+    //STEP-LC1: Connection Management
+
+    //STEP-LC2: Show Error
+    delay(50);
 }

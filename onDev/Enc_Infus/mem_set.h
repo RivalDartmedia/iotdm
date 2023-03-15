@@ -195,6 +195,7 @@ class LoadCellConfig
 private:
     float scale_factor;
     const char *configDir = "/weigh.txt";
+    String scale_factor_str;
 public:
     bool load(fs::FS &fs)
     {
@@ -213,7 +214,11 @@ public:
             return 0;
         }
 
-        scale_factor = doc["callib_fact"].toFloat();
+        scale_factor = doc["callib_fact"];
+        
+        // Serial.printf("Loaded -> String %s\n",scale_factor_str);
+        // scale_factor = scale_factor_str.toFloat();
+        Serial.printf("Loaded %f",scale_factor);
         
         file.close();
         return 1;
@@ -243,7 +248,8 @@ public:
             Serial.println(F("Failed to create file"));
             return 0;
         }
-        doc["callib_fact"] = String(scale_factor);
+        
+        doc["callib_fact"] = scale_factor;
 
         serializeJson(doc, file);
         // Serialize JSON to file

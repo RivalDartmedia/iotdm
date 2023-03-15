@@ -2,6 +2,8 @@
 #define koneksi_h
 
 #include "mem_set.h"
+#include "indikator.h"
+#include "koneksi_cred.h"
 
 #include <DNSServer.h>
 #include <WiFi.h>
@@ -10,73 +12,192 @@
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 
-// #include <Arduino.h>
-// #include <SoftwareSerial.h>
-// #include "SIM800L.h"
-// #include <ArduinoJson.h>
-
-#define SIM800_TX_PIN 16
-#define SIM800_RX_PIN 17
-#define SIM800_RST_PIN 22
-
 static const char DEFAULT_ROOT_CA[] =
 #include "certs/certloc_pem.h"
 
-    DNSServer dnsServer;
+DNSServer dnsServer;
 AsyncWebServer server(80);
+String avail_wifi, port_ssid, port_name, port_pass, port_token;
+bool portal_on;
 
-class ConnectionManager
+String processor(const String &var)
 {
-private:
-  String server = "https://sgp1.blynk.cloud/external/api/batch/update?"; // Server URL
-  String token = "token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX";
-  String berat_v = "&v0=";
-  String tpm_v = "&v1=";
-  // Update server+token+val_send
-  HTTPClient https;
-  // const char *APN = "3gprs"; // Bisa dipilih ?
-  // SIM800L *sim800l;
-  const char *SSID = "ZTE_2.4G_5yzkX4";
-  const char *Pass = "123456789";
-  
-  int val_sample_berat = 625;
-  double val_sample_tpm = 12.839;
-  
-public : 
-  bool start_portal(InfusConfig & infusconfig)
+  if (var == "wifi_selection")
   {
-    Serial.println(infusconfig.get(infus_name_p));
+    return avail_wifi;
+  }
+  return String();
+}
 
-    return 0;
+class CaptiveRequestHandler : public AsyncWebHandler
+{
+public:
+  CaptiveRequestHandler() {}
+  virtual ~CaptiveRequestHandler() {}
+
+  bool canHandle(AsyncWebServerRequest *request)
+  {
+    request->addInterestingHeader("Setting Infus");
+    return true;
   }
 
-  bool connect_client_wifi_secure(InfusConfig &infusconfig)
+  void handleRequest(AsyncWebServerRequest *request)
+  {
+    request->send(LittleFS, "/edit_data.htm", String(), false, processor);
+  }
+};
+
+void checkavailnetwork()
+{
+  avail_wifi = "SSID: <select name = wifi_ssid>";
+
+  int n = WiFi.scanNetworks();
+  // Serial.println("scan done");
+  if (n == 0)
+  {
+    avail_wifi += "<option value=null>No Network Available</option><br>";
+  }
+  else
+  {
+    for (int i = 0; i < n; ++i)
+    {
+      avail_wifi += "<option value=" + WiFi.SSID(i) + ">" + WiFi.SSID(i) + "</option><br>";
+    }
+  }
+  avail_wifi += "</select><br>";
+}
+
+void setupServer(class InfusConfig &config)
+{
+  checkavailnetwork();
+  server.on(
+      "/",
+      HTTP_GET,
+      [](AsyncWebServerRequest *request)
+      {
+        request->send(LittleFS, "/edit_data.htm", String(), false, processor);
+        Serial.println("Client Connected");
+      });
+
+  server.on(
+      "/save_data",
+      HTTP_GET,
+      [](AsyncWebServerRequest *request)
+      {
+        if (request->hasParam("infus_name"))
+        {
+          port_name = request->getParam("infus_name")->value();
+        }
+        if (request->hasParam("wifi_ssid"))
+        {
+          port_ssid = request->getParam("wifi_ssid")->value();
+        }
+        if (request->hasParam("wifi_pass"))
+        {
+          port_pass = request->getParam("wifi_pass")->value();
+        }
+        if (request->hasParam("token_id"))
+        {
+          port_token = request->getParam("token_id")->value();
+        }
+        // Mulai koneksi
+        request->send(200, "text/plain", "Informasi tersimpan. Akhiri Sesi");
+        portal_on = 0;
+      }
+    );
+}
+
+bool start_portal(InfusConfig &config)
+{
+  // Mulai Portal
+  WiFi.mode(WIFI_OFF);
+  WiFi.mode(WIFI_AP_STA);
+  Serial.println(F("SSID : "));
+  Serial.println(config.get(infus_name_p).c_str());
+
+  WiFi.softAP(config.get(infus_name_p).c_str());
+  setupServer(config);
+  dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
+  dnsServer.start(53, "*", WiFi.softAPIP());
+
+  server.addHandler(new CaptiveRequestHandler()).setFilter(ON_AP_FILTER); // only when requested from AP
+  // more handlers...
+  server.begin();
+  portal_on = 1;
+  while (portal_on)
+  {
+    dnsServer.processNextRequest();
+    delay(100);
+  }
+  server.end();
+  // Close Server
+  config.edit(infus_name_p, port_name);
+  config.edit(wifi_pass_p, port_pass);
+  config.edit(wifi_ssid_p, port_ssid);
+  config.edit(tokenID_p, port_token);
+  config.save(LittleFS);
+  WiFi.mode(WIFI_OFF);
+  return 0;
+}
+
+class ConnectionWiFi
+{
+private:
+  // Update server+token+send_p+berat_v+   +tpm_v
+  // get Blink Indicator server + get_p + blink_v
+
+  String tokenid;
+  String send_message;
+  HTTPClient https;
+
+public:
+  bool checkwifi()
+  {
+    int limit_try = 10, cnt = 0;
+    while (WiFi.status() != WL_CONNECTED && cnt < limit_try)
+    {
+      Serial.println("Tidak terkoneksi dengan Wifi");
+      // Serial.println("Trying to Reconnect");
+      // WiFi.begin(ssid, password);
+      delay(250);
+    }
+    // Check koneksi
+    if(cnt < limit_try){
+      return 1;
+    }
+    // Return 0 jika tidak bisa koneksi
+    return 0;
+  }
+  
+  int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
   {
     // Mulai koneksi
     // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
-    do{
-      WiFi.begin(SSID, Pass);
+    do
+    {
+      WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
       delay(500);
     } while (!this->checkwifi());
 
     Serial.println("Terhubung WiFi");
 
     WiFiClientSecure *client = new WiFiClientSecure;
+    int httpCode;
     if (client)
     {
+      tokenid = infusconfig.get(tokenID_p);
       client->setCACert(DEFAULT_ROOT_CA);
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
-        Serial.printf("Sending %s\n", berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm));
+        send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+        Serial.printf("Sending %s\n", send_message);
         Serial.print("[HTTPS] begin...\n");
-        if (https.begin(*client, server + token + berat_v + String(val_sample_berat) + tpm_v + String(val_sample_tpm)))
+        if (https.begin(*client, send_message))
         { // HTTPS
-          val_sample_berat += 2;
-          val_sample_tpm += 0.5;
           Serial.print("[HTTPS] GET...\n");
           // start connection and send HTTP header
-          int httpCode = https.GET();
+          httpCode = https.GET();
 
           // httpCode will be negative on error
           if (httpCode > 0)
@@ -97,202 +218,53 @@ public :
           }
 
           https.end();
+
+          send_message = server_dom + get_p + token + tokenid + blink_v;
+          // New Connect to get blink command
+          if (https.begin(*client, send_message))
+          { // HTTPS
+            Serial.print("[HTTPS] GET...\n");
+            // start connection and send HTTP header
+            httpCode = https.GET();
+
+            // httpCode will be negative on error
+            if (httpCode > 0)
+            {
+              // HTTP header has been send and Server response header has been handled
+              Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+
+              // file found at server
+              if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+              {
+                String payload = https.getString();
+                Serial.println(payload);
+                int payload_val = payload.toInt();
+                //Atur Indikator disini
+                if(payload_val >= 255){
+                  indi_command = blink_fast;
+                }else{
+                  indi_command = blink_slow;
+                }
+              }
+            }
+            else
+            {
+              Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+            }
+
+            https.end();
+          }
+          else
+          {
+            Serial.printf("[HTTPS] Unable to connect\n");
+          }
+          // End extra scoping block
         }
-        else
-        {
-          Serial.printf("[HTTPS] Unable to connect\n");
-        }
-        // End extra scoping block
+        delete client;
       }
-      delete client;
     }
-    return 1;
-  }
-
-  bool send_sens(float tpm, float weigh)
-  {
-    // Prioritas koneksi wifi
-    if (checkwifi())
-    {
-      // Connect lewat wifi
-      // Kirim nilai tpm dan weigh
-      return 1;
-    }
-    else if (checksim())
-    {
-      // Connect lewat SIM jika tersedia
-      // Kirim nilai tpm dan weigh
-      return 1;
-    }
-
-    // Tidak bisa koneksi, show error
-    return 0;
-  }
-
-  int get_indicator()
-  {
-    // cek apa perlu memberikan output indikasi
-    return 0;
-  }
-  bool checkwifi()
-  {
-    if (WiFi.status() != WL_CONNECTED)
-    {
-      Serial.println("Tidak bisa connect Wifi");
-      // Serial.println("Trying to Reconnect");
-      // WiFi.begin(ssid, password);
-      return 0;
-    }
-    // Check koneksi
-    // Return 0 jika tidak bisa koneksi
-    return 1;
-  }
-
-  bool checksim()
-  {
-    // Fungsi untuk cek apa bisa koneksi disini
-    return 0;
+    return httpCode;
   }
 };
-
-//   void init()
-//   {
-//     SoftwareSerial *serial = new SoftwareSerial(SIM800_TX_PIN, SIM800_RX_PIN);
-//     serial->begin(9600);
-//     delay(1000);
-
-//     sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512);
-//     // sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512, (Stream *)&Serial);
-//     Serial.println("Waiting for module settings...");
-
-//     // Setup module for GPRS communication
-//     int PowerMode = sim800l->getPowerMode();
-//     if (PowerMode == 1)
-//     {
-//       Serial.println(F("Module in normal power mode"));
-//       Serial.println(F("Ready for next setup..."));
-//     }
-//     else
-//     {
-//       Serial.println(F("Switch to normal power mode ..."));
-//       sim800l->setPowerMode(NORMAL);
-//       delay(200);
-//     }
-//     setupModule();
-//   }
-
-//   void setupModule()
-//   {
-//     // Wait until the module is ready to accept AT commands
-//     while (!sim800l->isReady())
-//     {
-//       Serial.println(F("Problem to initialize AT command, retry in 1 sec"));
-//       delay(1000);
-//     }
-//     Serial.println(F("Setup Complete!"));
-
-//     // Wait for operator network registration (national or roaming network)
-//     NetworkRegistration network = sim800l->getRegistrationStatus();
-//     while (network != REGISTERED_HOME && network != REGISTERED_ROAMING)
-//     {
-//       delay(1000);
-//       network = sim800l->getRegistrationStatus();
-//     }
-//     Serial.println(F("Network registration OK"));
-//     delay(1000);
-
-//     // Setup APN for GPRS configuration
-//     bool success = sim800l->setupGPRS(APN);
-//     while (!success)
-//     {
-//       success = sim800l->setupGPRS(APN);
-//       delay(5000);
-//     }
-//     Serial.println(F("GPRS config OK"));
-//   }
-
-//   void connect_gprs()
-//   {
-//     Serial.println("Mulai...");
-//     // Establish GPRS connectivity (5 trials)
-//     bool connected = false;
-//     for (uint8_t i = 0; i < 5 && !connected; i++)
-//     {
-//       delay(1000);
-//       connected = sim800l->connectGPRS();
-//     }
-
-//     // Check if connected, if not reset the module and setup the config again
-//     if (connected)
-//     {
-//       Serial.println(F("GPRS connected !"));
-//     }
-//     else
-//     {
-//       Serial.println(F("GPRS not connected !"));
-//       Serial.println(F("Reset the module."));
-//       sim800l->reset();
-//       setupModule();
-//       return;
-//     }
-
-//     Serial.println(F("Start HTTP GET..."));
-
-//     // Write TS Channel
-//     WriteTS();
-
-//     // Close GPRS connectivity (5 trials)
-//     bool disconnected = sim800l->disconnectGPRS();
-//     for (uint8_t i = 0; i < 5 && !connected; i++)
-//     {
-//       delay(1000);
-//       disconnected = sim800l->disconnectGPRS();
-//     }
-
-//     if (disconnected)
-//     {
-//       Serial.println(F("GPRS disconnected !"));
-//     }
-//     else
-//     {
-//       Serial.println(F("GPRS still connected !"));
-//     }
-//     sim800l->reset();
-//     delay(1000);
-//   }
-
-//   void WriteTS()
-//   {
-//     // String address="http://date.jsontest.com/";
-//     // String address="http://api.telegram.org/bot6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4/sendMessage?chat_id=-894765173&text=tes";
-//     int number = random(0, 100);
-//     String numberstr;
-//     numberstr = String(number);
-//     Serial.println(numberstr);
-//     String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
-//     char URL1[100];
-
-//     // Do HTTP GET communication with 10s for the timeout (read)
-//     address.toCharArray(URL1, 100);
-
-//     uint16_t rc = sim800l->doGet(URL1, 10000);
-//     if (rc == 200)
-//     {
-//       // Success, output the data received on the serial
-//       Serial.print(F("HTTP GET successful ("));
-//       Serial.print(sim800l->getDataSizeReceived());
-//       Serial.println(F(" bytes)"));
-//       Serial.print(F("Received : "));
-//       String TS_data = sim800l->getDataReceived();
-//       Serial.println(TS_data);
-//     }
-//     else
-//     {
-//       // Failed...
-//       Serial.print(F("HTTP GET error "));
-//       Serial.println(rc);
-//     }
-//   }
-// };
 
 #endif // !1
