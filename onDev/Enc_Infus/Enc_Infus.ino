@@ -4,6 +4,7 @@
 #include "koneksi_wifi.h"
 #include "indikator.h"
 
+//tes koneksi ide
 InfusConfig config1;
 ConnectionWiFi connect1;
 int val_sample_berat = 650;
