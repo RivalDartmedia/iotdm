@@ -4,11 +4,10 @@
 #include "koneksi_wifi.h"
 #include "indikator.h"
 
-//tes koneksi ide
 InfusConfig config1;
 ConnectionWiFi connect1;
-int val_sample_berat = 650;
-double val_sample_tpm = 18.45;
+int val_sample_berat = 630;
+double val_sample_tpm = 16.25;
 indi_state main_indicator;
 
 void setup(){
