@@ -11,6 +11,7 @@ private:
     float tpm_val;
     byte lastReading;
     unsigned long lastDebounceTime;
+    // unsigned long debounceDelay = 50;
     unsigned long debounceDelay = 20;
     unsigned long notupdatelim = 6000;
 
@@ -38,6 +39,7 @@ public:
         {
             // Update tpm
             tpm_val = (float)(60000 / (millis() - lastDebounceTime));
+            // tpm_val = (60000 / (millis() - lastDebounceTime));
         }
         lastReading = newReading;
     }
