@@ -5,8 +5,9 @@
 #include "sensorinfus.h"
 // #include "koneksi.h"
 // #include "indikator.h"
+#include "soc/rtc_wdt.h"
 
-#define tpm_pin 23
+#define tpm_pin 21
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
 
@@ -27,6 +28,8 @@ void beginsens(){
 
 void setup(){
     Serial.begin(115200);
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
     //STEP1: Init Memory
     init_fs();
     //STEP2: Load Config
@@ -47,18 +50,21 @@ void setup(){
 
     //Load and Callibr
     loadconfig.load(LittleFS);
+    // weigh.set_callib(0.512400);
     weigh.set_callib(loadconfig.get());
     Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
     //State Monitoring
     //STEP-M1: Connection Management
 
     //STEP-M2: Check Command
 
     //STEP-M3: Get Sensor Data
-    Serial.printf("TPM: %.2f", tpm.get());
+    Serial.printf("TPM: %.2f\n", tpm.get());
     Serial.printf("Weigh: %3.f\n", weigh.get_unit());
 
     //STEP-M4: Send Data

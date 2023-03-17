@@ -4,8 +4,8 @@
   "kode_kamar": "AK421",
   "kode_bed": "4",
   "koneksi": "WiFi",
-  "wifi_ssid": "Not exist",
-  "wifi_pass": "8294",
+  "wifi_ssid": "ZTE_2.4G_5yzkX4",
+  "wifi_pass": "123456789",
   "sim_ssid": "FirstTest",
   "sim_pass": "123456789"
 }
