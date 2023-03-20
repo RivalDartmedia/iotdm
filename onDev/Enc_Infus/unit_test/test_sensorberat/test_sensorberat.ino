@@ -5,7 +5,7 @@
 #include "sensorinfus.h"
 // #include "koneksi.h"
 // #include "indikator.h"
-#include "soc/rtc_wdt.h"
+// #include "soc/rtc_wdt.h"
 
 #define tpm_pin 21
 #define LOADCELL_DOUT_PIN 4
@@ -27,9 +27,9 @@ void beginsens(){
 }
 
 void setup(){
-    Serial.begin(115200);
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
+    Serial.begin(9600);
+    // rtc_wdt_protect_off();
+    // rtc_wdt_disable();
     //STEP1: Init Memory
     init_fs();
     //STEP2: Load Config
@@ -42,22 +42,22 @@ void setup(){
     beginsens();
     
     //Callib and Save
-    // weigh.callib(); // Lakukan proses callib, atau Load
-    // Serial.print(weigh.get_scale());
-    // loadconfig.edit(weigh.get_scale());
-    // //Save to Config
-    // loadconfig.save(LittleFS);
+    weigh.callib(); // Lakukan proses callib, atau Load
+    Serial.print(weigh.get_scale());
+    loadconfig.edit(weigh.get_scale());
+
+    //Save to Config
+    loadconfig.save(LittleFS);
 
     //Load and Callibr
-    loadconfig.load(LittleFS);
-    // weigh.set_callib(0.512400);
-    weigh.set_callib(loadconfig.get());
-    Serial.printf("Load Param: %f", loadconfig.get());
+    // loadconfig.load(LittleFS);
+    // weigh.set_callib(loadconfig.get());
+    // Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {
-    rtc_wdt_protect_off();
-    rtc_wdt_disable();
+    // rtc_wdt_protect_off();
+    // rtc_wdt_disable();
     //State Monitoring
     //STEP-M1: Connection Management
 
@@ -73,5 +73,6 @@ void loop() {
     //STEP-LC1: Connection Management
 
     //STEP-LC2: Show Error
-    delay(2000);
+//    delay(2000);
+    delay(50);
 }

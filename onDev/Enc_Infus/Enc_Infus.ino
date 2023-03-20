@@ -12,7 +12,7 @@ indi_state main_indicator;
 
 void setup(){
     //STEP0:
-    Serial.begin(115200);
+    Serial.begin(9600);
 
     //STEP1: Init Memorya
     init_fs();

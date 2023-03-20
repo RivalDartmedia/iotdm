@@ -11,7 +11,7 @@ private:
     float tpm_val;
     byte lastReading;
     unsigned long lastDebounceTime;
-    // unsigned long debounceDelay = 50;
+//    unsigned long debounceDelay = 50;
     unsigned long debounceDelay = 20;
     unsigned long notupdatelim = 6000;
 
