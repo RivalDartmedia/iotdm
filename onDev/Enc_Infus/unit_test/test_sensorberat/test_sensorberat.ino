@@ -73,6 +73,6 @@ void loop() {
     //STEP-LC1: Connection Management
 
     //STEP-LC2: Show Error
-//    delay(2000);
-    delay(50);
+    delay(2000);
+//    delay(50);
 }

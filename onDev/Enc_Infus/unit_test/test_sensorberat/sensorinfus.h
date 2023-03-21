@@ -29,7 +29,8 @@ public:
     void update()
     {
         // debounce handler
-        byte newReading = digitalRead(this->sensor_pin);
+//        byte newReading = digitalRead(sensor_pin);
+         byte newReading = digitalRead(this->sensor_pin);
 
         if (newReading != lastReading)
         {
@@ -39,7 +40,6 @@ public:
         {
             // Update tpm
             tpm_val = (float)(60000 / (millis() - lastDebounceTime));
-            // tpm_val = (60000 / (millis() - lastDebounceTime));
         }
         lastReading = newReading;
     }
