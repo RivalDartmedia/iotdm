@@ -6,8 +6,8 @@
 
 InfusConfig config1;
 ConnectionWiFi connect1;
-int val_sample_berat = 630;
-double val_sample_tpm = 16.25;
+int val_sample_berat = 600;
+double val_sample_tpm = 15.55;
 indi_state main_indicator;
 
 void setup(){
@@ -26,6 +26,7 @@ void setup(){
     //STEP4: Init Connection
     // start_portal(config1);
     config1.print();
+    // config1.edit(tokenID_p, "ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy");
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
     //STEP5: Init Sensor
