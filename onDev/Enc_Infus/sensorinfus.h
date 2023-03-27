@@ -8,7 +8,7 @@ class Tpm
 {
 private:
     int sensor_pin;
-    float tpm_val;
+    int tpm_val;
     byte lastReading;
     unsigned long lastDebounceTime;
     unsigned long debounceDelay = 20;
@@ -37,12 +37,13 @@ public:
         else if (millis() - lastDebounceTime > debounceDelay)
         {
             // Update tpm
-            tpm_val = (float)(60000 / (millis() - lastDebounceTime));
+            tpm_val = (int) (60000 / (millis() - lastDebounceTime));
+            // tpm_val = (float)(60000 / (millis() - lastDebounceTime));
         }
         lastReading = newReading;
     }
 
-    float get()
+    int get()
     {
         if (millis() - lastDebounceTime > notupdatelim)
         {
