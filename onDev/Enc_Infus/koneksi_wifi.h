@@ -1,5 +1,5 @@
-#ifndef koneksi_h
-#define koneksi_h
+#ifndef koneksi_wifi_h
+#define koneksi_wifi_h
 
 #include "mem_set.h"
 #include "indikator.h"

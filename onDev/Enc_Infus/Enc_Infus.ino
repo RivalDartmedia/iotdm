@@ -2,12 +2,12 @@
 #include "mem_set.h"
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
+// #include "koneksi_sim.h"
 #include "indikator.h"
 
 InfusConfig config1;
 ConnectionWiFi connect1;
-// int val_sample_berat = 600;
-// double val_sample_tpm = 15.55;
+// ConnectionSIM sim;
 indi_state main_indicator;
 Tpm tpm;
 Weigh weigh;
@@ -36,6 +36,7 @@ void setup(){
     init_fs();
     
     //STEP2: Load Config
+    // sim.init();
     config1.load(LittleFS);
     config1.print();
 
@@ -44,7 +45,6 @@ void setup(){
     //STEP4: Init Connection
     // start_portal(config1);
     config1.print();
-    // config1.edit(tokenID_p, "ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy");
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
 
@@ -52,17 +52,17 @@ void setup(){
     beginsens();
     
     //Callib and Save
-    weigh.callib(); // Lakukan proses callib, atau Load
-    Serial.print(weigh.get_scale());
-    loadconfig.edit(weigh.get_scale());
+    // weigh.callib(); // Lakukan proses callib, atau Load
+    // Serial.print(weigh.get_scale());
+    // loadconfig.edit(weigh.get_scale());
 
-    //Save to Config
-    loadconfig.save(LittleFS);
+    // //Save to Config
+    // loadconfig.save(LittleFS);
 
     //Load and Callibr
-    // loadconfig.load(LittleFS);
-    // weigh.set_callib(loadconfig.get());
-    // Serial.printf("Load Param: %f", loadconfig.get());
+    loadconfig.load(LittleFS);
+    weigh.set_callib(loadconfig.get());
+    Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {
@@ -73,17 +73,16 @@ void loop() {
     int val_sample_tpm = tpm.get();
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
-    // Serial.printf("TPM: %.2f\n", tpm.get());
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
     connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-    // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+    // sim.connect_gprs();
 
     //STEP-M2: Connection Management
     //STEP-M3: Send Data n Update Indicator
     // if(connect1.checkwifi()){
-        
+    //     connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     // }else if (false) { //Cek bisa sim atau tidak
-    //     //Kirim lewat SIM
+    //     sim.connect_gprs();
     // }
     // else {
         //State Lost Connection

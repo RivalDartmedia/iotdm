@@ -1,9 +1,9 @@
-#ifndef koneksi_h
-#define koneksi_h
+#ifndef koneksi_sim_h
+#define koneksi_sim_h
 
-#include "mem_set.h"
-#include "indikator.h"
-#include "koneksi_cred.h"
+// #include "mem_set.h"
+// #include "indikator.h"
+// #include "koneksi_cred.h"
 
 #include <Arduino.h>
 #include <SoftwareSerial.h>
@@ -20,8 +20,7 @@ private:
   // Update server+token+send_p+berat_v+   +tpm_v
   // get Blink Indicator server + get_p + blink_v
 
-  HTTPClient https;
-  const char *APN = "3gprs"; // Bisa dipilih ?
+  const char *APN = "internet"; // Bisa dipilih ?
   SIM800L *sim800l;
   
 public : 
@@ -29,7 +28,7 @@ public :
   void init()
   {
     SoftwareSerial *serial = new SoftwareSerial(SIM800_TX_PIN, SIM800_RX_PIN);
-    serial->begin(115200);
+    serial->begin(9600);
     delay(1000);
 
     sim800l = new SIM800L((Stream *)serial, SIM800_RST_PIN, 200, 512);
@@ -134,13 +133,12 @@ public :
 
   void WriteTS()
   {
-    // String address="http://date.jsontest.com/";
-    // String address="http://api.telegram.org/bot6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4/sendMessage?chat_id=-894765173&text=tes";
-    int number = random(0, 100);
-    String numberstr;
-    numberstr = String(number);
-    Serial.println(numberstr);
-    String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
+    String address="http://date.jsontest.com/";
+    // int number = random(0, 100);
+    // String numberstr;
+    // numberstr = String(number);
+    // Serial.println(numberstr);
+    // String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
     char URL1[100];
 
     // Do HTTP GET communication with 10s for the timeout (read)

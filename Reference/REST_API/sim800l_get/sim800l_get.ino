@@ -6,8 +6,8 @@
 // #define SIM800_RX_PIN 15  //Tx ESP8266 D8
 // #define SIM800_RST_PIN 12 //D6
 
-#define SIM800_TX_PIN 16  //Rx ESP8266 D7
-#define SIM800_RX_PIN 17  //Tx ESP8266 D8
+#define SIM800_TX_PIN 16  //Rx ESP32 D7
+#define SIM800_RX_PIN 17  //Tx ESP32 D8
 #define SIM800_RST_PIN 22 //D22
 
 const char APN[] = "internet"; // ==> your APN
@@ -83,9 +83,13 @@ void loop() {
 
 void WriteTS(){
 //  String address="http://thick-lemons-fail-180-254-76-126.loca.lt/insertLog?cardID=DB1FD74F";
-  // String address="http://date.jsontest.com/";
+   String address="http://date.jsontest.com/";
   // String address="http://api.telegram.org/bot6025777872:AAGOiaT-UVZCXnW7Ur9KS2xmuLIXgirmRE4/sendMessage?chat_id=-894765173&text=tes";
-  String address="http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=90";
+//  int number = random(0, 100);
+//  String numberstr;
+//  numberstr = String(number);
+//  Serial.println(numberstr);
+//  String address="http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4="+ numberstr;
   char URL1[100];
  
   // Do HTTP GET communication with 10s for the timeout (read)
