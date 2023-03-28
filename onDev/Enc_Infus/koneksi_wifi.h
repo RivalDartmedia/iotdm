@@ -169,15 +169,21 @@ public:
     return 0;
   }
   
+  void connectWifi(InfusConfig &infusconfig)
+  {
+    WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
+    delay(500);
+  }
+
   int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
   {
     // Mulai koneksi
-    // WiFi.begin(infusconfig.get(wifi_ssid_p), infusconfig.get(wifi_pass_p));
-    do
-    {
-      WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
-      delay(500);
-    } while (!this->checkwifi());
+    // WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
+    // do
+    // {
+    //   WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
+    //   delay(500);
+    // } while (!this->checkwifi());
 
     Serial.println("Terhubung WiFi");
 
@@ -191,11 +197,11 @@ public:
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
         send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
-        Serial.printf("Sending %s\n", send_message);
-        Serial.print("[HTTPS] begin...\n");
+        // Serial.printf("Sending %s\n", send_message);
+        // Serial.print("[HTTPS] begin...\n");
         if (https.begin(*client, send_message))
         { // HTTPS
-          Serial.print("[HTTPS] GET...\n");
+          // Serial.print("[HTTPS] GET...\n");
           // start connection and send HTTP header
           httpCode = https.GET();
 
@@ -223,7 +229,7 @@ public:
           // New Connect to get blink command
           if (https.begin(*client, send_message))
           { // HTTPS
-            Serial.print("[HTTPS] GET...\n");
+            // Serial.print("[HTTPS] GET...\n");
             // start connection and send HTTP header
             httpCode = https.GET();
 
@@ -237,7 +243,7 @@ public:
               if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
               {
                 String payload = https.getString();
-                Serial.println(payload);
+                // Serial.println(payload);
                 int payload_val = payload.toInt();
                 //Atur Indikator disini
                 if(payload_val >= 255){

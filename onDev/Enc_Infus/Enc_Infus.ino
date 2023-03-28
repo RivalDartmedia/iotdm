@@ -74,19 +74,24 @@ void loop() {
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
-    connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+    connect1.connectWifi(config1);
+    // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     // sim.connect_gprs();
+    Serial.println(connect1.checkwifi());
 
     //STEP-M2: Connection Management
     //STEP-M3: Send Data n Update Indicator
-    // if(connect1.checkwifi()){
-    //     connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+    if(connect1.checkwifi()){
+        // connect1.connectWifi(config1);
+        Serial.println("WIFI TERKONEKSI");
+        connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     // }else if (false) { //Cek bisa sim atau tidak
     //     sim.connect_gprs();
-    // }
-    // else {
+    }
+    else {
+        Serial.println("WIFI GAGAL");
         //State Lost Connection
         //STEP-LC1: Show Error
-        delay(2000);
-    // }
+    }
+    delay(2000);
 }
