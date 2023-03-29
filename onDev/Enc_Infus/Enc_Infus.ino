@@ -77,19 +77,21 @@ void loop() {
     connect1.connectWifi(config1);
     // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     // sim.connect_gprs();
-    Serial.println(connect1.checkwifi());
+    // Serial.println(connect1.checkwifi());
 
     //STEP-M2: Connection Management
     //STEP-M3: Send Data n Update Indicator
-    if(connect1.checkwifi()){
+    bool cekKoneksi = connect1.checkwifi();
+    if(cekKoneksi == 1){
         // connect1.connectWifi(config1);
         Serial.println("WIFI TERKONEKSI");
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-    // }else if (false) { //Cek bisa sim atau tidak
-    //     sim.connect_gprs();
+    }else if (cekKoneksi == 0) { //Cek bisa sim atau tidak
+        Serial.println("KONEKSI SIM");
+        // sim.connect_gprs();
     }
     else {
-        Serial.println("WIFI GAGAL");
+        Serial.println("KONEKSI GAGAL");
         //State Lost Connection
         //STEP-LC1: Show Error
     }

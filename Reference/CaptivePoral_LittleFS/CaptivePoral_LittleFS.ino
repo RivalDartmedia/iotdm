@@ -447,7 +447,7 @@ void loop()
     {
     case monitoring:
     {
-        Serial.println("Monitoring %d", tpm);
+        // Serial.println("Monitoring %d", tpm);
         // Melakukan monitoring per INTERVAL_READING
         if (millis() >= time_1 + INTERVAL_READING)
         {

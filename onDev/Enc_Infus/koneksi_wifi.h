@@ -157,6 +157,7 @@ public:
     while (WiFi.status() != WL_CONNECTED && cnt < limit_try)
     {
       Serial.println("Tidak terkoneksi dengan Wifi");
+      cnt ++;
       // Serial.println("Trying to Reconnect");
       // WiFi.begin(ssid, password);
       delay(250);
