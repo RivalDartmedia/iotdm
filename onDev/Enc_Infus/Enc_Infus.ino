@@ -2,12 +2,12 @@
 #include "mem_set.h"
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
-// #include "koneksi_sim.h"
+#include "koneksi_sim.h"
 #include "indikator.h"
 
 InfusConfig config1;
 ConnectionWiFi connect1;
-// ConnectionSIM sim;
+ConnectionSIM sim;
 indi_state main_indicator;
 Tpm tpm;
 Weigh weigh;
@@ -36,14 +36,14 @@ void setup(){
     init_fs();
     
     //STEP2: Load Config
-    // sim.init();
+    sim.init();
     config1.load(LittleFS);
     config1.print();
 
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
-    // start_portal(config1);
+    start_portal(config1);
     config1.print();
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
@@ -81,19 +81,16 @@ void loop() {
 
     //STEP-M2: Connection Management
     //STEP-M3: Send Data n Update Indicator
-    bool cekKoneksi = connect1.checkwifi();
-    if(cekKoneksi == 1){
-        // connect1.connectWifi(config1);
-        Serial.println("WIFI TERKONEKSI");
+    if(connect1.checkwifi()){
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-    }else if (cekKoneksi == 0) { //Cek bisa sim atau tidak
+    }else{ //Cek bisa sim atau tidak
         Serial.println("KONEKSI SIM");
-        // sim.connect_gprs();
+        sim.connect_gprs();
     }
-    else {
-        Serial.println("KONEKSI GAGAL");
+    // else {
+        // Serial.println("KONEKSI GAGAL");
         //State Lost Connection
         //STEP-LC1: Show Error
-    }
+    // }
     delay(2000);
 }

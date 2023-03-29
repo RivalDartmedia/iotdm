@@ -116,6 +116,8 @@ bool start_portal(InfusConfig &config)
   Serial.println(config.get(infus_name_p).c_str());
 
   WiFi.softAP(config.get(infus_name_p).c_str());
+  Serial.print("AP IP address: ");
+  Serial.println(WiFi.softAPIP());
   setupServer(config);
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
   dnsServer.start(53, "*", WiFi.softAPIP());
