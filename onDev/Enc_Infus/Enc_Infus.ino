@@ -12,10 +12,12 @@ indi_state main_indicator;
 Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
+Button button;
 
 #define tpm_pin 21
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
+#define configWiFiButton 19
 
 void updatetpm()
 {
@@ -31,22 +33,40 @@ void beginsens(){
 void setup(){
     //STEP0:
     Serial.begin(9600);
+    button.init(configWiFiButton);
 
-    //STEP1: Init Memorya
+    //STEP1: Init Memory
     init_fs();
     
     //STEP2: Load Config
-    sim.init();
     config1.load(LittleFS);
     config1.print();
 
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
-    start_portal(config1);
+    if(connect1.checkwifi()){
+        Serial.println("WiFi Connected");
+    }else{ //Cek bisa sim atau tidak
+        Serial.println("Wifi Not Connected");
+    }
+
+    int cnt_config_lim = 10, cnt_config = 0;
+    while(cnt_config < cnt_config_lim && !button.is_push()){
+        Serial.println("Setting WiFi ?");
+        cnt_config++;
+        delay(500);
+    }
+    if (cnt_config < cnt_config_lim){
+            Serial.println("Starting Captive Portal...");
+            start_portal(config1);
+    }
     config1.print();
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
+
+    Serial.println("Setup SIM...");
+    sim.init();
 
     //STEP5: Init Sensor
     beginsens();
@@ -61,8 +81,10 @@ void setup(){
 
     //Load and Callibr
     loadconfig.load(LittleFS);
+    Serial.println("");
     weigh.set_callib(loadconfig.get());
     Serial.printf("Load Param: %f", loadconfig.get());
+    Serial.println("");
 }
 
 void loop() {

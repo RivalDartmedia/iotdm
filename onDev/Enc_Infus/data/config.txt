@@ -2,6 +2,6 @@
   "tokenID": "E8fascspfoe3",
   "temp_IoT": "Infus_IoT",
   "infus_name": "Infus_aefxz",
-  "wifi_ssid": "ZTE_2.4G_5yzkX4",
-  "wifi_pass": "123456789"
+  "wifi_ssid": "",
+  "wifi_pass": ""
 }
