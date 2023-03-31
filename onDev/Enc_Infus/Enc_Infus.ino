@@ -45,10 +45,12 @@ void setup(){
     //STEP2.1: Config if needed
 
     //STEP4: Init Connection
+    connect1.connectWifi(config1);
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
+        start_portal(config1);
     }
 
     int cnt_config_lim = 10, cnt_config = 0;
@@ -96,7 +98,7 @@ void loop() {
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
-    connect1.connectWifi(config1);
+    // connect1.connectWifi(config1);
     // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     // sim.connect_gprs();
     // Serial.println(connect1.checkwifi());
