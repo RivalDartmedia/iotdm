@@ -49,11 +49,6 @@ public :
       delay(200);
     }
     setupModule();
-    // if (setupModule()){
-      // return 1;
-    // }else{
-    //   return 0;
-    // }
   }
 
   bool setupModule()
