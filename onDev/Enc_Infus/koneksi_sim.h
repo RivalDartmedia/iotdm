@@ -49,9 +49,14 @@ public :
       delay(200);
     }
     setupModule();
+    // if (setupModule()){
+      // return 1;
+    // }else{
+    //   return 0;
+    // }
   }
 
-  void setupModule()
+  bool setupModule()
   {
     // Wait until the module is ready to accept AT commands
     while (!sim800l->isReady())
@@ -62,13 +67,23 @@ public :
     Serial.println(F("Setup Complete!"));
 
     // Wait for operator network registration (national or roaming network)
+    int cnt_sim_lim = 10, cnt_sim = 0;
     NetworkRegistration network = sim800l->getRegistrationStatus();
-    while (network != REGISTERED_HOME && network != REGISTERED_ROAMING)
+    while (network != REGISTERED_HOME && network != REGISTERED_ROAMING && cnt_sim < cnt_sim_lim)
     {
       delay(1000);
       network = sim800l->getRegistrationStatus();
+      cnt_sim++;
+      Serial.println(cnt_sim);
     }
-    Serial.println(F("Network registration OK"));
+
+    if (cnt_sim < 10){
+      Serial.println(F("Network registration OK"));
+      return true;
+    }else{
+      Serial.println("SIM network error");
+      return false;
+    }
     delay(1000);
 
     // Setup APN for GPRS configuration
