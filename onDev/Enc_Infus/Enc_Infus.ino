@@ -98,10 +98,7 @@ void loop() {
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
-    // connect1.connectWifi(config1);
-    // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-    // sim.connect_gprs();
-    // Serial.println(connect1.checkwifi());
+    connect1.connectWifi(config1);
 
     //STEP-M2: Connection Management
     //STEP-M3: Send Data n Update Indicator
