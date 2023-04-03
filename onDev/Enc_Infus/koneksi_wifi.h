@@ -113,9 +113,10 @@ bool start_portal(InfusConfig &config)
   WiFi.mode(WIFI_OFF);
   WiFi.mode(WIFI_AP_STA);
   Serial.println(F("SSID : "));
-  Serial.println(config.get(infus_name_p).c_str());
+  // Serial.println(config.get(infus_name_p).c_str());
 
   WiFi.softAP(config.get(infus_name_p).c_str());
+  Serial.println(config.get(infus_name_p).c_str());
   Serial.print("AP IP address: ");
   Serial.println(WiFi.softAPIP());
   setupServer(config);

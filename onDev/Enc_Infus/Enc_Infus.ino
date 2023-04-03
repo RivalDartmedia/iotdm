@@ -50,7 +50,9 @@ void setup(){
         Serial.println("WiFi Connected");
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
+        Serial.println("Starting Captive Portal...");
         start_portal(config1);
+        // vTaskDelay(1);
     }
 
     int cnt_config_lim = 10, cnt_config = 0;
@@ -62,6 +64,7 @@ void setup(){
     if (cnt_config < cnt_config_lim){
             Serial.println("Starting Captive Portal...");
             start_portal(config1);
+            vTaskDelay(1);
     }
     config1.print();
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
