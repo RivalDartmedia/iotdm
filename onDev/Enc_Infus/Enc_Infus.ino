@@ -14,7 +14,7 @@ Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
 
-#define tpm_pin 21
+#define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19

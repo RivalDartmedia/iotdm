@@ -12,7 +12,7 @@
 
 #define SIM800_TX_PIN 16
 #define SIM800_RX_PIN 17
-#define SIM800_RST_PIN 22
+#define SIM800_RST_PIN 23
 
 class ConnectionSIM
 {
