@@ -4,6 +4,7 @@
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
 #include "indikator.h"
+#include "display_infusion.h"
 
 InfusConfig config1;
 ConnectionWiFi connect1;
@@ -13,6 +14,7 @@ Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
+Display disp;
 
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
@@ -34,6 +36,9 @@ void setup(){
     //STEP0:
     Serial.begin(9600);
     button.init(configWiFiButton);
+    disp.init();
+    disp.hello();
+    delay(2000);
 
     //STEP1: Init Memory
     init_fs();
