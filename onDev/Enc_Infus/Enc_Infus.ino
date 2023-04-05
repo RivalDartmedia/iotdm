@@ -35,12 +35,10 @@ void beginsens(){
 void setup(){
     //STEP0:
     Serial.begin(9600);
+    
+    //STEP1: Init
     button.init(configWiFiButton);
     disp.init();
-    disp.hello();
-    delay(2000);
-
-    //STEP1: Init Memory
     init_fs();
     
     //STEP2: Load Config
@@ -53,29 +51,35 @@ void setup(){
     connect1.connectWifi(config1);
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
+        disp.print("WiFi Connected");
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
         Serial.println("Starting Captive Portal...");
+        disp.print("Not Connected");
+        delay(2000);
+        disp.print("Setting WiFi...");
         start_portal(config1);
-        // vTaskDelay(1);
+        vTaskDelay(1);
     }
 
-    int cnt_config_lim = 10, cnt_config = 0;
-    while(cnt_config < cnt_config_lim && !button.is_push()){
+    int cnt_config_lim = 0, cnt_config = 10;
+    while(cnt_config > cnt_config_lim && !button.is_push()){
         Serial.println("Setting WiFi ?");
-        cnt_config++;
-        delay(500);
+        disp.settingWiFi(cnt_config);
+        cnt_config--;
+        delay(1000);
     }
-    if (cnt_config < cnt_config_lim){
+    if (cnt_config > cnt_config_lim){
             Serial.println("Starting Captive Portal...");
             start_portal(config1);
             vTaskDelay(1);
     }
-    config1.print();
+    // config1.print();
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
 
     Serial.println("Setup SIM...");
+    disp.print("Setup SIM...");
     sim.init();
 
     //STEP5: Init Sensor

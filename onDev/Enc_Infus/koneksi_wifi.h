@@ -11,10 +11,12 @@
 #include "ESPAsyncWebServer.h"
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
+#include "display_infusion.h"
 
 static const char DEFAULT_ROOT_CA[] =
 #include "certs/certloc_pem.h"
 
+Display disp_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
 String avail_wifi, port_ssid, port_name, port_pass, port_token;
@@ -175,6 +177,7 @@ public:
   
   void connectWifi(InfusConfig &infusconfig)
   {
+    disp_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
   }

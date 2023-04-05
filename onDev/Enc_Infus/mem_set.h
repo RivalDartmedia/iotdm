@@ -4,8 +4,11 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include "FS.h"
+#include "display_infusion.h"
 
 #define FORMAT_LITTLEFS_IF_FAILED true
+
+Display disp_mem;
 
 enum mem_par
 {
@@ -50,6 +53,9 @@ public:
     bool load(fs::FS &fs)
     {
         // Open file for reading
+        disp_mem.cekMemoriWiFi();
+        delay(2000);
+        delay(1000);
         File file = fs.open(configDir);
         // Allocate a temporary JsonDocument
         // Don't forget to change the capacity to match your requirements.
@@ -142,6 +148,8 @@ public:
         Serial.printf("SSID:%s\n", wifi_ssid.c_str());
         Serial.printf("Pass:%s\n", wifi_pass.c_str());
         Serial.print("--------------------------\n");
+        disp_mem.wiFiFound(wifi_ssid);
+        delay(2000);
     }
 
     /**

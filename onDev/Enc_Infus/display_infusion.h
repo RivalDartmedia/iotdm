@@ -15,12 +15,54 @@ public:
         lcd.backlight();
     }
 
-    void hello()
+    void tes()
     {
         lcd.clear();
-        lcd.print("     Hello");
-        lcd.setCursor(5, 1);
-        lcd.print("Dunia!");
+        lcd.setCursor(0, 0);
+        lcd.print("TES");
+    }
+
+    void print(String text)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print(text);
+    }
+
+    void cekMemoriWiFi()
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Checking WiFi");
+        lcd.setCursor(0, 1);
+        lcd.print("Memory");
+    }
+
+    void wiFiFound(String ssid)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("WiFi data found:");
+        lcd.setCursor(0, 1);
+        lcd.print(ssid);
+    }
+
+    void connectingWiFi(String wifi)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Connecting to:");
+        lcd.setCursor(0, 1);
+        lcd.print(wifi);
+    }
+
+    void settingWiFi(int setWiFi)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Reset WiFi ?");
+        lcd.setCursor(0, 1);
+        lcd.print(setWiFi);
     }
 };
 
