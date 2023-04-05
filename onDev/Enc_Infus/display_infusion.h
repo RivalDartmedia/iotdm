@@ -64,6 +64,41 @@ public:
         lcd.setCursor(0, 1);
         lcd.print(setWiFi);
     }
+
+    void weighCallib(int cnt_callib)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Jangan gantung");
+        lcd.setCursor(0, 1);
+        lcd.print("botol infus");
+        lcd.setCursor(13, 1);
+        lcd.print(cnt_callib);
+    }
+
+    void weighCallibrated()
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Gantung botol");
+        lcd.setCursor(0, 1);
+        lcd.print("infus");
+    }
+
+    void sample(int tpm, int weigh)
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("TPM :");
+        lcd.setCursor(6, 0);
+        lcd.print(tpm);
+        lcd.setCursor(0, 1);
+        lcd.print("Weigh :");
+        lcd.setCursor(8, 1);
+        lcd.print(weigh);
+        lcd.setCursor(10, 1);
+        lcd.print("gr");
+    }
 };
 
 #endif

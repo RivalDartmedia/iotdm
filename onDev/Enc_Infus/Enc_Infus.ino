@@ -52,6 +52,7 @@ void setup(){
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
         disp.print("WiFi Connected");
+        delay(2000);
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
         Serial.println("Starting Captive Portal...");
@@ -71,6 +72,7 @@ void setup(){
     }
     if (cnt_config > cnt_config_lim){
             Serial.println("Starting Captive Portal...");
+            disp.print("Setting WiFi...");
             start_portal(config1);
             vTaskDelay(1);
     }
@@ -94,11 +96,20 @@ void setup(){
     // loadconfig.save(LittleFS);
 
     //Load and Callibr
+    int weigh_callib_lim = 0, weigh_callib = 10;
+    while(weigh_callib > weigh_callib_lim){
+        Serial.println(weigh_callib);
+        disp.weighCallib(weigh_callib);
+        delay(1000);
+        weigh_callib--;
+    }
     loadconfig.load(LittleFS);
     Serial.println("");
     weigh.set_callib(loadconfig.get());
     Serial.printf("Load Param: %f", loadconfig.get());
     Serial.println("");
+    disp.weighCallibrated();
+    delay(5000);
 }
 
 void loop() {
@@ -110,6 +121,10 @@ void loop() {
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
+
+    disp.sample(val_sample_tpm, val_sample_berat);
+    delay(4000);
+
     connect1.connectWifi(config1);
 
     //STEP-M2: Connection Management
@@ -118,6 +133,7 @@ void loop() {
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
     }else{ //Cek bisa sim atau tidak
         Serial.println("KONEKSI SIM");
+        vTaskDelay(1);
         sim.connect_gprs();
     }
     // else {
@@ -125,5 +141,5 @@ void loop() {
         //State Lost Connection
         //STEP-LC1: Show Error
     // }
-    delay(2000);
+    delay(1000);
 }

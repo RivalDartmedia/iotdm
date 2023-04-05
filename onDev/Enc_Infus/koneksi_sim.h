@@ -9,10 +9,13 @@
 #include <SoftwareSerial.h>
 #include "SIM800L.h"
 #include <ArduinoJson.h>
+#include "display_infusion.h"
 
 #define SIM800_TX_PIN 16
 #define SIM800_RX_PIN 17
 #define SIM800_RST_PIN 23
+
+Display disp_sim;
 
 class ConnectionSIM
 {
@@ -74,9 +77,13 @@ public :
 
     if (cnt_sim < 10){
       Serial.println(F("Network registration OK"));
+      disp_sim.print("SIM OK");
+      delay(2000);
       return true;
     }else{
       Serial.println("SIM network error");
+      disp_sim.print("No SIM/SIM Error");
+      delay(2000);
       return false;
     }
     delay(1000);
