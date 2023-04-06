@@ -65,6 +65,7 @@ public :
     Serial.println(F("Setup Complete!"));
 
     // Wait for operator network registration (national or roaming network)
+    disp_sim.regNetWorker();
     int cnt_sim_lim = 10, cnt_sim = 0;
     NetworkRegistration network = sim800l->getRegistrationStatus();
     while (network != REGISTERED_HOME && network != REGISTERED_ROAMING && cnt_sim < cnt_sim_lim)
@@ -171,12 +172,14 @@ public :
       Serial.print(F("Received : "));
       String TS_data = sim800l->getDataReceived();
       Serial.println(TS_data);
+      disp_sim.print("Send data succed");
     }
     else
     {
       // Failed...
       Serial.print(F("HTTP GET error "));
       Serial.println(rc);
+      disp_sim.print("Send data failed");
     }
   }
 };

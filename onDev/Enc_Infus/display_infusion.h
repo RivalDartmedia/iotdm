@@ -99,6 +99,33 @@ public:
         lcd.setCursor(10, 1);
         lcd.print("gr");
     }
+
+    void wiFiNotConnected()
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("WiFi not");
+        lcd.setCursor(0, 1);
+        lcd.print("connected");
+    }
+
+    void sendSim()
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Sending data via");
+        lcd.setCursor(0, 1);
+        lcd.print("SIM card");
+    }
+
+    void regNetWorker()
+    {
+        lcd.clear();
+        lcd.setCursor(0, 0);
+        lcd.print("Registering");
+        lcd.setCursor(0, 1);
+        lcd.print("Network...");
+    }
 };
 
 #endif

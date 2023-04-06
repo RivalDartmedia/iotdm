@@ -158,7 +158,7 @@ private:
 public:
   bool checkwifi()
   {
-    int limit_try = 10, cnt = 0;
+    int limit_try = 15, cnt = 0;
     while (WiFi.status() != WL_CONNECTED && cnt < limit_try)
     {
       Serial.println("Connecting WiFi...");
@@ -223,11 +223,13 @@ public:
             {
               String payload = https.getString();
               Serial.println(payload);
+              disp_wifi.print("Send data succed");
             }
           }
           else
           {
             Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+            disp_wifi.print("Send data failed");
           }
 
           https.end();

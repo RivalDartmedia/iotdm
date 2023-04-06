@@ -56,7 +56,7 @@ void setup(){
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
         Serial.println("Starting Captive Portal...");
-        disp.print("Not Connected");
+        disp.wiFiNotConnected();
         delay(2000);
         disp.print("Setting WiFi...");
         start_portal(config1);
@@ -123,7 +123,7 @@ void loop() {
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
 
     disp.sample(val_sample_tpm, val_sample_berat);
-    delay(4000);
+    delay(2000);
 
     connect1.connectWifi(config1);
 
@@ -131,15 +131,20 @@ void loop() {
     //STEP-M3: Send Data n Update Indicator
     if(connect1.checkwifi()){
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+        delay(2500);
     }else{ //Cek bisa sim atau tidak
+        disp.wiFiNotConnected();
+        delay(2000);
+        disp.sendSim();
         Serial.println("KONEKSI SIM");
         vTaskDelay(1);
         sim.connect_gprs();
+        delay(1000);
     }
     // else {
         // Serial.println("KONEKSI GAGAL");
         //State Lost Connection
         //STEP-LC1: Show Error
     // }
-    delay(1000);
+    // delay(1000);
 }
