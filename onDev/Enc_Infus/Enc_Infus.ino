@@ -5,6 +5,7 @@
 #include "koneksi_sim.h"
 #include "indikator.h"
 #include "display_infusion.h"
+// #include "display_led.h"
 
 InfusConfig config1;
 ConnectionWiFi connect1;
@@ -15,6 +16,7 @@ Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
 Display disp;
+// DisplayLed displed;
 
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
@@ -39,6 +41,7 @@ void setup(){
     //STEP1: Init
     button.init(configWiFiButton);
     disp.init();
+    // displed.init();
     init_fs();
     
     //STEP2: Load Config
@@ -52,6 +55,7 @@ void setup(){
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
         disp.print("WiFi Connected");
+        // displed.print("WiFi Connected");
         delay(2000);
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
