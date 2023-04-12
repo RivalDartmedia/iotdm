@@ -6,7 +6,7 @@
 // #include "koneksi.h"
 // #include "indikator.h"
 
-#define tpm_pin 21
+#define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
 
@@ -39,17 +39,17 @@ void setup(){
     beginsens();
     
     //Callib and Save
-    weigh.callib(); // Lakukan proses callib, atau Load
-    Serial.print(weigh.get_scale());
-    loadconfig.edit(weigh.get_scale());
+    // weigh.callib(); // Lakukan proses callib, atau Load
+    // Serial.print(weigh.get_scale());
+    // loadconfig.edit(weigh.get_scale());
 
-    //Save to Config
-    loadconfig.save(LittleFS);
+    // //Save to Config
+    // loadconfig.save(LittleFS);
 
     //Load and Callibr
-    // loadconfig.load(LittleFS);
-    // weigh.set_callib(loadconfig.get());
-    // Serial.printf("Load Param: %f", loadconfig.get());
+    loadconfig.load(LittleFS);
+    weigh.set_callib(loadconfig.get());
+    Serial.printf("Load Param: %f", loadconfig.get());
 }
 
 void loop() {

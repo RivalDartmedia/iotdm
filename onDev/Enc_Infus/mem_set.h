@@ -55,7 +55,7 @@ public:
         // Open file for reading
         disp_mem.cekMemoriWiFi();
         delay(2000);
-        delay(1000);
+        // delay(1000);
         File file = fs.open(configDir);
         // Allocate a temporary JsonDocument
         // Don't forget to change the capacity to match your requirements.
