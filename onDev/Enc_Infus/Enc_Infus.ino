@@ -54,7 +54,7 @@ void setup(){
     connect1.connectWifi(config1);
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
-        // disp.print("WiFi Connected");
+        disp.print("WiFi Connected");
         displed.print("WiFi Connected");
         delay(2000);
     }else{ //Cek bisa sim atau tidak
@@ -62,7 +62,7 @@ void setup(){
         Serial.println("Starting Captive Portal...");
         disp.wiFiNotConnected();
         delay(2000);
-        // disp.print("Setting WiFi...");
+        disp.print("Setting WiFi...");
         displed.print("Setting WiFi...");
         start_portal(config1);
         vTaskDelay(1);
@@ -77,7 +77,7 @@ void setup(){
     }
     if (cnt_config > cnt_config_lim){
             Serial.println("Starting Captive Portal...");
-            // disp.print("Setting WiFi...");
+            disp.print("Setting WiFi...");
             displed.print("Setting WiFi...");
             start_portal(config1);
             vTaskDelay(1);
@@ -87,7 +87,7 @@ void setup(){
     config1.save(LittleFS);
 
     Serial.println("Setup SIM...");
-    // disp.print("Setup SIM...");
+    disp.print("Setup SIM...");
     displed.print("Setup SIM...");
     sim.init();
 
