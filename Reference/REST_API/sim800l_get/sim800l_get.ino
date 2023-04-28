@@ -8,7 +8,7 @@
 
 #define SIM800_TX_PIN 16  //Rx ESP32 D7
 #define SIM800_RX_PIN 17  //Tx ESP32 D8
-#define SIM800_RST_PIN 22 //D22
+#define SIM800_RST_PIN 23 //D23
 
 const char APN[] = "internet"; // ==> your APN
 
