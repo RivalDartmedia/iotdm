@@ -32,6 +32,16 @@ public:
         display.display();
     }
 
+    void print_sample(int text)
+    {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0,0);
+        display.println(text);
+        display.display();
+    }
+
     void cekMemoriWiFi()
     {
         lcd.clear();

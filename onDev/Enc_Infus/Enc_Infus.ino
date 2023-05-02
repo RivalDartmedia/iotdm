@@ -117,6 +117,7 @@ void setup(){
     weigh.set_callib(loadconfig.get());
     Serial.printf("Load Param: %f", loadconfig.get());
     Serial.println("");
+
     disp.weighCallibrated();
     displed.print("Strart..");
     delay(5000);
@@ -131,8 +132,10 @@ void loop() {
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
-
+    
     disp.sample(val_sample_tpm, val_sample_berat);
+    displed.print_sample(val_sample_berat);
+
     delay(2000);
 
     connect1.connectWifi(config1);
