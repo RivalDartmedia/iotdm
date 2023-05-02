@@ -42,6 +42,7 @@ void setup(){
     button.init(configWiFiButton);
     disp.init();
     displed.init();
+    displed.print("Welcome");
     init_fs();
     
     //STEP2: Load Config
@@ -90,6 +91,7 @@ void setup(){
     disp.print("Setup SIM...");
     displed.print("Setup SIM...");
     sim.init();
+    displed.print("SIM OK");
 
     //STEP5: Init Sensor
     beginsens();
@@ -116,6 +118,7 @@ void setup(){
     Serial.printf("Load Param: %f", loadconfig.get());
     Serial.println("");
     disp.weighCallibrated();
+    displed.print("Strart..");
     delay(5000);
 }
 
