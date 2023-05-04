@@ -4,7 +4,7 @@
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
 #include "indikator.h"
-#include "display_infusion.h"
+// #include "display_infusion.h"
 #include "display_led.h"
 
 InfusConfig config1;
@@ -15,7 +15,7 @@ Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
-Display disp;
+// Display disp;
 DisplayLed displed;
 
 #define tpm_pin 18
@@ -40,12 +40,12 @@ void setup(){
     
     //STEP1: Init
     button.init(configWiFiButton);
-    disp.init();
+    // disp.init();
     displed.init();
-    displed.print("Welcome");
     init_fs();
     
     //STEP2: Load Config
+    displed.print("Cek memoriWiFi...");
     config1.load(LittleFS);
     config1.print();
 
@@ -55,16 +55,16 @@ void setup(){
     connect1.connectWifi(config1);
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
-        disp.print("WiFi Connected");
-        displed.print("WiFi Connected");
+        // disp.print("WiFi Connected");
+        displed.print("WiFi      tersambung");
         delay(2000);
     }else{ //Cek bisa sim atau tidak
         Serial.println("Wifi Not Connected");
         Serial.println("Starting Captive Portal...");
-        disp.wiFiNotConnected();
+        // disp.wiFiNotConnected();
         delay(2000);
-        disp.print("Setting WiFi...");
-        displed.print("Setting WiFi...");
+        // disp.print("Setting WiFi...");
+        displed.print("Mengatur  WiFi...");
         start_portal(config1);
         vTaskDelay(1);
     }
@@ -72,14 +72,15 @@ void setup(){
     int cnt_config_lim = 0, cnt_config = 10;
     while(cnt_config > cnt_config_lim && !button.is_push()){
         Serial.println("Setting WiFi ?");
-        disp.settingWiFi(cnt_config);
+        // disp.settingWiFi(cnt_config);
+        displed.settingWiFi(cnt_config);
         cnt_config--;
         delay(1000);
     }
     if (cnt_config > cnt_config_lim){
             Serial.println("Starting Captive Portal...");
-            disp.print("Setting WiFi...");
-            displed.print("Setting WiFi...");
+            // disp.print("Setting WiFi...");
+            displed.print("Mengatur  WiFi...");
             start_portal(config1);
             vTaskDelay(1);
     }
@@ -88,10 +89,9 @@ void setup(){
     config1.save(LittleFS);
 
     Serial.println("Setup SIM...");
-    disp.print("Setup SIM...");
-    displed.print("Setup SIM...");
+    // disp.print("Setup SIM...");
+    displed.print("MenyiapkanSIM...");
     sim.init();
-    displed.print("SIM OK");
 
     //STEP5: Init Sensor
     beginsens();
@@ -108,7 +108,8 @@ void setup(){
     int weigh_callib_lim = 0, weigh_callib = 10;
     while(weigh_callib > weigh_callib_lim){
         Serial.println(weigh_callib);
-        disp.weighCallib(weigh_callib);
+        // disp.weighCallib(weigh_callib);
+        displed.weighCallib(weigh_callib);
         delay(1000);
         weigh_callib--;
     }
@@ -118,8 +119,8 @@ void setup(){
     Serial.printf("Load Param: %f", loadconfig.get());
     Serial.println("");
 
-    disp.weighCallibrated();
-    displed.print("Strart..");
+    // disp.weighCallibrated();
+    displed.print("Gantung   infus !");
     delay(5000);
 }
 
@@ -133,7 +134,7 @@ void loop() {
     Serial.println(val_sample_tpm);
     Serial.printf("Weigh: %3.f\n", val_sample_berat);
     
-    disp.sample(val_sample_tpm, val_sample_berat);
+    // disp.sample(val_sample_tpm, val_sample_berat);
     displed.print_sample(val_sample_berat);
 
     delay(2000);
@@ -146,9 +147,11 @@ void loop() {
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
         delay(2500);
     }else{ //Cek bisa sim atau tidak
-        disp.wiFiNotConnected();
+        // disp.wiFiNotConnected();
+        displed.print("WiFi tidaktersambung");
         delay(2000);
-        disp.sendSim();
+        // disp.sendSim();
+        displed.print("Kirim datavia SIM");
         Serial.println("KONEKSI SIM");
         vTaskDelay(1);
         sim.connect_gprs();
