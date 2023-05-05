@@ -63,6 +63,22 @@ public:
         display.display();
     }
 
+    void sample(int tpm, int weigh)
+    {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0,0);
+        display.println("TPM   :");
+        display.setCursor(90,0);
+        display.println(tpm);
+        display.setCursor(0,16);
+        display.println("Weigh :");
+        display.setCursor(90,16);
+        display.println(weigh);
+        display.display();
+    }
+
     void print_sample(int text)
     {
         display.clearDisplay();
