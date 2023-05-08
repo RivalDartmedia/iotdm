@@ -88,10 +88,10 @@ void setupServer(class InfusConfig &config)
       HTTP_GET,
       [](AsyncWebServerRequest *request)
       {
-        if (request->hasParam("infus_name"))
-        {
-          port_name = request->getParam("infus_name")->value();
-        }
+        // if (request->hasParam("infus_name"))
+        // {
+        //   port_name = request->getParam("infus_name")->value();
+        // }
         if (request->hasParam("wifi_ssid"))
         {
           port_ssid = request->getParam("wifi_ssid")->value();
@@ -100,10 +100,10 @@ void setupServer(class InfusConfig &config)
         {
           port_pass = request->getParam("wifi_pass")->value();
         }
-        if (request->hasParam("token_id"))
-        {
-          port_token = request->getParam("token_id")->value();
-        }
+        // if (request->hasParam("token_id"))
+        // {
+        //   port_token = request->getParam("token_id")->value();
+        // }
         // Mulai koneksi
         request->send(200, "text/plain", "Informasi tersimpan. Akhiri Sesi");
         portal_on = 0;
@@ -138,10 +138,10 @@ bool start_portal(InfusConfig &config)
   }
   server.end();
   // Close Server
-  config.edit(infus_name_p, port_name);
+  // config.edit(infus_name_p, port_name);
   config.edit(wifi_pass_p, port_pass);
   config.edit(wifi_ssid_p, port_ssid);
-  config.edit(tokenID_p, port_token);
+  // config.edit(tokenID_p, port_token);
   config.save(LittleFS);
   WiFi.mode(WIFI_OFF);
   return 0;
@@ -216,7 +216,7 @@ public:
           httpCode = https.GET();
 
           // httpCode will be negative on error
-          if (httpCode > 0)
+          if (httpCode == 200)
           {
             // HTTP header has been send and Server response header has been handled
             Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
