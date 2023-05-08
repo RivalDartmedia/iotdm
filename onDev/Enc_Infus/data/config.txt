@@ -1,7 +1,7 @@
 {
   "tokenID": "E8fascspfoe3",
   "temp_IoT": "Infus_IoT",
-  "infus_name": "Infus_aefxz",
+  "infus_name": "IoT_Infusion_Monitoring",
   "wifi_ssid": "",
   "wifi_pass": ""
 }
