@@ -1,4 +1,4 @@
-//ESP32
+//-----------ESP32
 #include "mem_set.h"
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
@@ -7,6 +7,7 @@
 // #include "display_infusion.h"
 #include "display_led.h"
 
+//-----------Buat object dari class
 InfusConfig config1;
 ConnectionWiFi connect1;
 ConnectionSIM sim;
@@ -15,9 +16,10 @@ Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
-// Display disp;
 DisplayLed displed;
+// Display disp;
 
+//-----------Inisialisasi pin
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
@@ -35,24 +37,24 @@ void beginsens(){
 }
 
 void setup(){
-    //STEP0:
+    //-----------STEP0:
     Serial.begin(9600);
     
-    //STEP1: Init
+    //-----------STEP1: Init
     button.init(configWiFiButton);
-    // disp.init();
     displed.init();
     init_fs();
+    // disp.init();
     
-    //STEP2: Load Config
+    //-----------STEP2: Load Config
     displed.print("Cek memoriWiFi...");
     config1.load(LittleFS);
     config1.print();
 
-    //STEP2.1: Config if needed
-
-    //STEP4: Init Connection
+    //-----------STEP3: Init Connection
     connect1.connectWifi(config1);
+
+    //-----------STEP4: Config if needed and check wifi connection
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
         // disp.print("WiFi Connected");
@@ -88,12 +90,13 @@ void setup(){
     config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     config1.save(LittleFS);
 
+    //-----------STEP5: Setup SIM Card
     Serial.println("Setup SIM...");
     // disp.print("Setup SIM...");
     displed.print("MenyiapkanSIM...");
     sim.init();
 
-    //STEP5: Init Sensor
+    //-----------STEP6: Init Sensor
     beginsens();
     
     //Callib and Save
@@ -101,7 +104,7 @@ void setup(){
     // Serial.print(weigh.get_scale());
     // loadconfig.edit(weigh.get_scale());
 
-    // //Save to Config
+    //Save to Config
     // loadconfig.save(LittleFS);
 
     //Load and Callibr
