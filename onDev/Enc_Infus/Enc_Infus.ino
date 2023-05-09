@@ -100,27 +100,27 @@ void setup(){
     beginsens();
     
     //Callib and Save
-    weigh.callib(); // Lakukan proses callib, atau Load
-    Serial.print(weigh.get_scale());
-    loadconfig.edit(weigh.get_scale());
+    // weigh.callib(); // Lakukan proses callib, atau Load
+    // Serial.print(weigh.get_scale());
+    // loadconfig.edit(weigh.get_scale());
 
-    //Save to Config
-    loadconfig.save(LittleFS);
+    // //Save to Config
+    // loadconfig.save(LittleFS);
 
     //Load and Callibr
-    // int weigh_callib_lim = 0, weigh_callib = 10;
-    // while(weigh_callib > weigh_callib_lim){
-    //     Serial.println(weigh_callib);
-    //     // disp.weighCallib(weigh_callib);
-    //     displed.weighCallib(weigh_callib);
-    //     delay(1000);
-    //     weigh_callib--;
-    // }
-    // loadconfig.load(LittleFS);
-    // Serial.println("");
-    // weigh.set_callib(loadconfig.get());
-    // Serial.printf("Load Param: %f", loadconfig.get());
-    // Serial.println("");
+    int weigh_callib_lim = 0, weigh_callib = 10;
+    while(weigh_callib > weigh_callib_lim){
+        Serial.println(weigh_callib);
+        // disp.weighCallib(weigh_callib);
+        displed.weighCallib(weigh_callib);
+        delay(1000);
+        weigh_callib--;
+    }
+    loadconfig.load(LittleFS);
+    Serial.println("");
+    weigh.set_callib(loadconfig.get());
+    Serial.printf("Load Param: %f", loadconfig.get());
+    Serial.println("");
 
     // disp.weighCallibrated();
     displed.print("Gantung   infus !");
