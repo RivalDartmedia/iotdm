@@ -130,7 +130,7 @@ void setup(){
 void loop() {
     //State Monitoring
     
-    //STEP-M1: Get Sensor Data
+    //-----------STEP-M1: Get Sensor Data & Displaying
     float val_sample_berat = weigh.get_unit();
     int val_sample_tpm = tpm.get();
     Serial.print("TPM: ");
@@ -141,12 +141,11 @@ void loop() {
     // displed.print_sample(val_sample_berat);
     displed.sample(val_sample_tpm, val_sample_berat);
 
-    delay(2000);
+    // delay(2000);
 
     connect1.connectWifi(config1);
 
-    //STEP-M2: Connection Management
-    //STEP-M3: Send Data n Update Indicator
+    //-----------STEP-M2: Connection Management & Send Data
     if(connect1.checkwifi()){
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
         delay(2500);
@@ -161,10 +160,5 @@ void loop() {
         sim.connect_gprs(config1, val_sample_tpm, val_sample_berat);
         delay(1000);
     }
-    // else {
-        // Serial.println("KONEKSI GAGAL");
-        //State Lost Connection
-        //STEP-LC1: Show Error
-    // }
     // delay(1000);
 }
