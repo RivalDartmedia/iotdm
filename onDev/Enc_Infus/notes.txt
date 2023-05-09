@@ -1,0 +1,2 @@
+API key :
+https://sgp1.blynk.cloud/external/api/batch/update?token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX&v0=100&v1=100
