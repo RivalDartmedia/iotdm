@@ -141,7 +141,7 @@ void loop() {
     // displed.print_sample(val_sample_berat);
     displed.sample(val_sample_tpm, val_sample_berat);
 
-    // delay(2000);
+    delay(2000);
 
     connect1.connectWifi(config1);
 
