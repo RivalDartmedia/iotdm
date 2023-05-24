@@ -35,7 +35,7 @@ void beginsens(){
 }
 
 void setup(){
-    //-----------STEP0:
+    //-----------STEP0: begin serial communication
     Serial.begin(9600);
     
     //-----------STEP1: Init
