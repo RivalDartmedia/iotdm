@@ -11,13 +11,11 @@
 #include "ESPAsyncWebServer.h"
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
-// #include "display_infusion.h"
 #include "display_led.h"
 
 static const char DEFAULT_ROOT_CA[] =
 #include "certs/certloc_pem.h"
 
-// Display disp_wifi;
 DisplayLed displed_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
@@ -179,7 +177,6 @@ public:
   
   void connectWifi(InfusConfig &infusconfig)
   {
-    // disp_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     displed_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
@@ -226,14 +223,12 @@ public:
             {
               String payload = https.getString();
               Serial.println(payload);
-              // disp_wifi.print("Send data succed");
               displed_wifi.print("Kirim databerhasil");
             }
           }
           else
           {
             Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-            // disp_wifi.print("Send data failed");
             displed_wifi.print("Kirim datagagal");
           }
 

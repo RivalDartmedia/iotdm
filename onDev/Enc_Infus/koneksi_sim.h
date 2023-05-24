@@ -10,14 +10,12 @@
 #include "SIM800L.h"
 #include <ArduinoJson.h>
 #include "mem_set.h"
-// #include "display_infusion.h"
 #include "display_led.h"
 
 #define SIM800_TX_PIN 16
 #define SIM800_RX_PIN 17
 #define SIM800_RST_PIN 23
 
-// Display disp_sim;
 DisplayLed displed_sim;
 
 class ConnectionSIM
@@ -68,7 +66,6 @@ public :
     Serial.println(F("Setup Complete!"));
 
     // Wait for operator network registration (national or roaming network)
-    // disp_sim.regNetWorker();
     displed_sim.print("Mendaftar jaringan...");
     int cnt_sim_lim = 10, cnt_sim = 0;
     NetworkRegistration network = sim800l->getRegistrationStatus();
@@ -82,13 +79,11 @@ public :
 
     if (cnt_sim < 10){
       Serial.println(F("Network registration OK"));
-      // disp_sim.print("SIM OK");
       displed_sim.print("SIM OK");
       delay(2000);
       return true;
     }else{
       Serial.println("SIM network error");
-      // disp_sim.print("No SIM/SIM Error");
       displed_sim.print("No SIM /  SIM Error");
       delay(2000);
       return false;
@@ -158,7 +153,6 @@ public :
       Serial.print(F("Received : "));
       String TS_data = sim800l->getDataReceived();
       Serial.println(TS_data);
-      // disp_sim.print("Send data succed");
       displed_sim.print("Kirim databerhasil");
     }
     else
@@ -166,7 +160,6 @@ public :
       // Failed...
       Serial.print(F("HTTP GET error "));
       Serial.println(rc);
-      // disp_sim.print("Send data failed");
       displed_sim.print("Kirim datagagal");
     }
 
