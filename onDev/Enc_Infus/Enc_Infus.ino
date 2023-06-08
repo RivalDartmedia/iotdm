@@ -130,7 +130,7 @@ void loop() {
 
     delay(2000);
 
-    connect1.connectWifi(config1);
+    // connect1.connectWifi(config1);
 
     //-----------STEP-M2: Connection Management & Send Data
     if(connect1.checkwifi()){
