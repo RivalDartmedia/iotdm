@@ -2,7 +2,7 @@
 #define koneksi_wifi_h
 
 #include "mem_set.h"
-#include "indikator.h"
+// #include "indikator.h"
 #include "koneksi_cred.h"
 
 #include <DNSServer.h>
@@ -182,7 +182,8 @@ public:
     delay(500);
   }
 
-  int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
+  // int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
+  int update_secure(InfusConfig &infusconfig, double tpm, int weigh)
   {
     // Mulai koneksi
     // WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
@@ -255,11 +256,11 @@ public:
                 // Serial.println(payload);
                 int payload_val = payload.toInt();
                 //Atur Indikator disini
-                if(payload_val >= 255){
-                  indi_command = blink_fast;
-                }else{
-                  indi_command = blink_slow;
-                }
+                // if(payload_val >= 255){
+                //   indi_command = blink_fast;
+                // }else{
+                //   indi_command = blink_slow;
+                // }
               }
             }
             else

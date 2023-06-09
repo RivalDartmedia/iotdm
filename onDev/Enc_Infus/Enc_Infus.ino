@@ -3,14 +3,14 @@
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
-#include "indikator.h"
+// #include "indikator.h"
 #include "display_led.h"
 
 //-----------Buat object dari class
 InfusConfig config1;
 ConnectionWiFi connect1;
 ConnectionSIM sim;
-indi_state main_indicator;
+// indi_state main_indicator;
 Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
@@ -134,7 +134,8 @@ void loop() {
 
     //-----------STEP-M2: Connection Management & Send Data
     if(connect1.checkwifi()){
-        connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+        // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
+        connect1.update_secure(config1, val_sample_tpm, val_sample_berat);
         delay(2500);
     }else{ //Cek bisa sim atau tidak
         displed.print("WiFi tidaktersambung");
