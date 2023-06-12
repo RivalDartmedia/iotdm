@@ -5,6 +5,7 @@
 #include "koneksi_sim.h"
 // #include "indikator.h"
 #include "display_led.h"
+#include "buzzer.h"
 
 //-----------Buat object dari class
 InfusConfig config1;
@@ -16,6 +17,7 @@ Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
 DisplayLed displed;
+buzzer buzz;
 
 //-----------Inisialisasi pin
 #define tpm_pin 18
@@ -42,6 +44,7 @@ void setup(){
     button.init(configWiFiButton);
     displed.init();
     init_fs();
+    buzz.init(5);
     
     //-----------STEP2: Load Config
     displed.print("Cek memoriWiFi...");
@@ -113,7 +116,8 @@ void setup(){
     Serial.println("");
 
     displed.print("Gantung   infus !");
-    delay(5000);
+    // buzz.buzzonoff(2000);
+    delay(2000);
 }
 
 void loop() {

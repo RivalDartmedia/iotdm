@@ -16,7 +16,12 @@ class buzzer
       pinMode(buzzPin, OUTPUT);
     }
 
-    void buzzbeep(unsigned long buzzerDuration)
+    void buzzbeep(){
+      digitalWrite(buzzPin, HIGH);
+      delay(2000);
+    }
+
+    void buzzbeep1(unsigned long buzzerDuration)
     {
       unsigned long currentMillis = millis();
       if (currentMillis - buzzerStartTime < buzzerDuration) {

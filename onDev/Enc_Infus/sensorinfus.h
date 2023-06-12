@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 #include <HX711.h>
+#include "buzzer.h"
+
+buzzer buzzbutton;
 
 class Tpm
 {
@@ -208,6 +211,7 @@ public:
     }
     bool is_push()
     {
+        buzzbutton.buzzbeep();
         return !digitalRead(this->button_pin);
     }
 };
