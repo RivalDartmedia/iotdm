@@ -68,14 +68,23 @@ void setup(){
         vTaskDelay(1);
     }
 
-    int cnt_config_lim = 0, cnt_config = 10;
-    while(cnt_config > cnt_config_lim && !button.is_push()){
-        Serial.println("Setting WiFi ?");
-        displed.settingWiFi(cnt_config);
-        cnt_config--;
-        delay(1000);
+    int cnt_config = 10;
+    unsigned long previousMillis = 0;
+    unsigned long interval = 1000;
+    while(cnt_config > 0 && !button.is_push()){
+        unsigned long currentMillis = millis();
+        if (currentMillis - previousMillis >= interval) {
+            previousMillis = currentMillis;
+    
+            if (cnt_config > 0) {
+                Serial.print("Setting WiFi ? ");
+                Serial.println(cnt_config);
+                displed.settingWiFi(cnt_config);
+                cnt_config--;
+            }
+        }
     }
-    if (cnt_config > cnt_config_lim){
+    if (cnt_config > 0){
             Serial.println("Starting Captive Portal...");
             displed.print("Mengatur  WiFi...");
             start_portal(config1);

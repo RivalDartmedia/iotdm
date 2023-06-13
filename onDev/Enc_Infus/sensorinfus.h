@@ -211,7 +211,6 @@ public:
     }
     bool is_push()
     {
-        // buzzbutton.buzzbeep();
         return !digitalRead(this->button_pin);
     }
 };
