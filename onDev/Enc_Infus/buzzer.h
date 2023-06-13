@@ -7,7 +7,8 @@ class buzzer
     int buzzPin;
     int buzzState = LOW;
     unsigned long previousMillis = 0;
-    unsigned long buzzerStartTime = 0;
+    unsigned long buzzerStartTime;
+    int buzzerStatus = 0;
   
   public:
     void init(int buzzPin)
@@ -16,9 +17,10 @@ class buzzer
       pinMode(buzzPin, OUTPUT);
     }
 
-    void buzzbeep(){
+    void buzzbeep(unsigned long buzzerDuration){
       digitalWrite(buzzPin, HIGH);
-      delay(2000);
+      delay(buzzerDuration);
+      digitalWrite(buzzPin, LOW);
     }
 
     void buzzbeep1(unsigned long buzzerDuration)

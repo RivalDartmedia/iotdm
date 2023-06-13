@@ -1,26 +1,42 @@
-const int buttonPin = 19;  // Pin tombol
-const int buzzerPin = 5;  // Pin buzzer
-int buttonState = 0;      // Variabel untuk menyimpan status tombol
-bool isButtonPressed = false;  // Flag untuk menandai jika tombol ditekan
+// Pin buzzer terhubung ke pin digital 9
+int buzzerPin = 5;
+
+// Waktu awal saat buzzer diaktifkan
+unsigned long startMillis;
+
+// Durasi aktif buzzer dalam milidetik
+unsigned long buzzerDuration = 500;
+
+// Status buzzer (0 = mati, 1 = aktif)
+int buzzerStatus = 0;
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(buttonPin, INPUT_PULLUP);
+  // Atur pin buzzer sebagai OUTPUT
   pinMode(buzzerPin, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
-  buttonState = digitalRead(buttonPin);  // Membaca status tombol
-
-  if (buttonState == HIGH && !isButtonPressed) {  // Jika tombol ditekan
-    isButtonPressed = true;  // Set flag menjadi true
-    digitalWrite(buzzerPin, HIGH);  // Aktifkan buzzer
-    Serial.println("Tombol ditekan");
-    delay(2000);  // Tunggu selama 2 detik
-    digitalWrite(buzzerPin, LOW);  // Matikan buzzer
+  // Periksa apakah buzzer dalam status mati
+  if (buzzerStatus == 0) {
+    // Aktifkan buzzer
+    digitalWrite(buzzerPin, HIGH);
+    Serial.println("Buzzer ON");
+    
+    // Simpan waktu saat ini
+    startMillis = millis();
+    
+    // Ubah status buzzer menjadi aktif
+    buzzerStatus = 1;
   }
   
-  if (buttonState == LOW) {  // Jika tombol dilepas
-    isButtonPressed = false;  // Set flag menjadi false
+  // Periksa apakah buzzer sudah aktif selama satu detik
+  if (buzzerStatus == 1 && millis() - startMillis >= buzzerDuration) {
+    // Matikan buzzer
+    digitalWrite(buzzerPin, LOW);
+    Serial.println("Buzzer OFF");
+    
+    // Ubah status buzzer menjadi mati
+    // buzzerStatus = 0;
   }
 }
