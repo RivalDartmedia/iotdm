@@ -59,11 +59,13 @@ void setup(){
         Serial.println("WiFi Connected");
         displed.print("WiFi      tersambung");
         delay(2000);
-    }else{ //Cek bisa sim atau tidak
+    }else{
         Serial.println("Wifi Not Connected");
-        Serial.println("Starting Captive Portal...");
+        displed.print("WiFi tidaktersambung");
         delay(2000);
+        Serial.println("Starting Captive Portal...");
         displed.print("Mengatur  WiFi...");
+        buzz.buzzbeep(500);
         start_portal(config1);
         vTaskDelay(1);
     }
