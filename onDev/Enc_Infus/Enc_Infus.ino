@@ -118,7 +118,8 @@ void setup(){
     while(weigh_callib > weigh_callib_lim){
         Serial.println(weigh_callib);
         displed.weighCallib(weigh_callib);
-        delay(1000);
+        buzz.buzzbeep(500);
+        delay(500);
         weigh_callib--;
     }
     loadconfig.load(LittleFS);
@@ -128,8 +129,8 @@ void setup(){
     Serial.println("");
 
     displed.print("Gantung   infus !");
-    // buzz.buzzonoff(2000);
-    delay(2000);
+    buzz.buzzbeep(1000);
+    // delay(2000);
 }
 
 void loop() {
