@@ -105,15 +105,16 @@ void setup(){
     //-----------STEP6: Init Sensor
     beginsens();
     
-    //Callib and Save
+    //--------------Callib and Save----------------------
     // weigh.callib(); // Lakukan proses callib, atau Load
     // Serial.print(weigh.get_scale());
     // loadconfig.edit(weigh.get_scale());
 
     // //Save to Config
     // loadconfig.save(LittleFS);
+    //---------------------------------------------------
 
-    //Load and Callibr
+    //-------------Load and Callibr---------------------
     int weigh_callib_lim = 0, weigh_callib = 10;
     while(weigh_callib > weigh_callib_lim){
         Serial.println(weigh_callib);
@@ -130,7 +131,8 @@ void setup(){
 
     displed.print("Gantung   infus !");
     buzz.buzzbeep(1000);
-    // delay(2000);
+    delay(2000);
+    //-------------------------------------------------
 }
 
 void loop() {
