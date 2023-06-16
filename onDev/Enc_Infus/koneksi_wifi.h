@@ -10,6 +10,7 @@
 #include <AsyncTCP.h>
 #include "ESPAsyncWebServer.h"
 #include <WiFiClientSecure.h>
+// #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include "display_led.h"
 
@@ -21,6 +22,7 @@ DNSServer dnsServer;
 AsyncWebServer server(80);
 String avail_wifi, port_ssid, port_name, port_pass, port_token;
 bool portal_on;
+WiFiClient client;
 
 String processor(const String &var)
 {
@@ -153,7 +155,7 @@ private:
 
   String tokenid;
   String send_message;
-  HTTPClient https;
+  HTTPClient http;
 
 public:
   bool checkwifi()
@@ -195,23 +197,27 @@ public:
 
     Serial.println("Terhubung WiFi");
 
-    WiFiClientSecure *client = new WiFiClientSecure;
+    // WiFiClientSecure *client = new WiFiClientSecure;
     int httpCode;
-    if (client)
-    {
+    // if (client)
+    // {
       tokenid = infusconfig.get(tokenID_p);
-      client->setCACert(DEFAULT_ROOT_CA);
+      // client->setCACert(DEFAULT_ROOT_CA);
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
-        send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+        // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+        send_message = server_dom + send_p + get_p + token + tokenid + "&text=" + "TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+        // send_message = "http://date.jsontest.com";
+        Serial.println(send_message);
         // Serial.printf("Sending %s\n", send_message);
         // Serial.print("[HTTPS] begin...\n");
-        if (https.begin(*client, send_message))
+        if (http.begin(client, send_message))
         { // HTTPS
           // Serial.print("[HTTPS] GET...\n");
           // start connection and send HTTP header
-          httpCode = https.GET();
+          httpCode = http.GET();
+          Serial.println(httpCode);
 
           // httpCode will be negative on error
           if (httpCode == 200)
@@ -222,7 +228,7 @@ public:
             // file found at server
             if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
             {
-              String payload = https.getString();
+              String payload = http.getString();
               Serial.println(payload);
               displed_wifi.print("Kirim databerhasil");
             }
@@ -233,52 +239,52 @@ public:
             displed_wifi.print("Kirim datagagal");
           }
 
-          https.end();
+          http.end();
 
-          send_message = server_dom + get_p + token + tokenid + blink_v;
-          // New Connect to get blink command
-          if (https.begin(*client, send_message))
-          { // HTTPS
-            // Serial.print("[HTTPS] GET...\n");
-            // start connection and send HTTP header
-            httpCode = https.GET();
+          // send_message = server_dom + get_p + token + tokenid + blink_v;
+          // // New Connect to get blink command
+          // if (https.begin(*client, send_message))
+          // { // HTTPS
+          //   // Serial.print("[HTTPS] GET...\n");
+          //   // start connection and send HTTP header
+          //   httpCode = https.GET();
 
-            // httpCode will be negative on error
-            if (httpCode > 0)
-            {
-              // HTTP header has been send and Server response header has been handled
-              Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+          //   // httpCode will be negative on error
+          //   if (httpCode > 0)
+          //   {
+          //     // HTTP header has been send and Server response header has been handled
+          //     Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
 
-              // file found at server
-              if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-              {
-                String payload = https.getString();
-                // Serial.println(payload);
-                int payload_val = payload.toInt();
-                //Atur Indikator disini
-                // if(payload_val >= 255){
-                //   indi_command = blink_fast;
-                // }else{
-                //   indi_command = blink_slow;
-                // }
-              }
-            }
-            else
-            {
-              Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-            }
+          //     // file found at server
+          //     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
+          //     {
+          //       String payload = https.getString();
+          //       // Serial.println(payload);
+          //       int payload_val = payload.toInt();
+          //       //Atur Indikator disini
+          //       // if(payload_val >= 255){
+          //       //   indi_command = blink_fast;
+          //       // }else{
+          //       //   indi_command = blink_slow;
+          //       // }
+          //     }
+          //   }
+          //   else
+          //   {
+          //     Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+          //   }
 
-            https.end();
-          }
-          else
-          {
-            Serial.printf("[HTTPS] Unable to connect\n");
-          }
+          //   https.end();
+          // }
+          // else
+          // {
+          //   Serial.printf("[HTTPS] Unable to connect\n");
+          // }
           // End extra scoping block
         }
-        delete client;
+        // delete client;
       }
-    }
+    // }
     return httpCode;
   }
 };

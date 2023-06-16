@@ -163,5 +163,5 @@ void loop() {
         sim.connect_gprs(config1, val_sample_tpm, val_sample_berat);
         delay(1000);
     }
-    // delay(1000);
+    // delay(3000);
 }
