@@ -24,7 +24,8 @@ private:
   // Update server+token+send_p+berat_v+   +tpm_v
   // get Blink Indicator server + get_p + blink_v
 
-  const char *APN = "internet"; // Bisa dipilih ?
+  const char *APN = "internet";
+//  const char *APN = "3gprs";
   SIM800L *sim800l;
   
 public : 
