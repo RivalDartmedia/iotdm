@@ -140,6 +140,9 @@ void loop() {
     
     //-----------STEP-M1: Get Sensor Data & Displaying
     float val_sample_berat = weigh.get_unit();
+    if (val_sample_berat < 0){
+      val_sample_berat = 0;
+    }
     int val_sample_tpm = tpm.get();
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
