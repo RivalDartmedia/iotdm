@@ -142,7 +142,7 @@ public:
         Serial.printf("SSID:%s\n", wifi_ssid.c_str());
         Serial.printf("Pass:%s\n", wifi_pass.c_str());
         Serial.print("--------------------------\n");
-        delay(2000);
+        delay(1000);
     }
 
     /**

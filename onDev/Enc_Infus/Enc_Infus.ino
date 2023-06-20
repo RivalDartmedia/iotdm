@@ -47,7 +47,7 @@ void setup(){
     buzz.init(5);
     
     //-----------STEP2: Load Config
-    displed.print("Cek memoriWiFi...");
+    displed.print("Cek memoriWiFi...", 0, 0);
     config1.load(LittleFS);
     config1.print();
 
@@ -57,15 +57,18 @@ void setup(){
     //-----------STEP4: Config if needed and check wifi connection
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
-        displed.print("WiFi      tersambung");
+        String wifi = config1.get(wifi_ssid_p);
+        Serial.println(wifi);
+        wifi = wifi.substring(0,10);
+        displed.wifiCon(wifi);
         buzz.buzzbeep(500);
         delay(1500);
     }else{
         Serial.println("Wifi Not Connected");
-        displed.print("WiFi tidaktersambung");
+        displed.print("WiFi tidaktersambung", 0, 0);
         delay(2000);
         Serial.println("Starting Captive Portal...");
-        displed.print("Mengatur  WiFi...");
+        displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
         vTaskDelay(1);
@@ -84,28 +87,32 @@ void setup(){
                 Serial.println(cnt_config);
                 displed.settingWiFi(cnt_config);
                 cnt_config--;
-            }
+            }       
         }
     }
     if (cnt_config > 0){
             Serial.println("Starting Captive Portal...");
-            displed.print("Mengatur  WiFi...");
+            displed.print("Mengatur  WiFi...", 0, 0);
             buzz.buzzbeep(500);
             start_portal(config1);
             vTaskDelay(1);
     }
-    displed.print("WiFi      tersambung");
+    String wifi = config1.get(wifi_ssid_p);
+    Serial.println(wifi);
+    wifi = wifi.substring(0,10);
+    displed.wifiCon(wifi);
     buzz.buzzbeep(500);
-    delay(1500);
+    delay(500);
     config1.print();
     // config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     // config1.save(LittleFS);
 
     //-----------STEP5: Setup SIM Card
     Serial.println("Setup SIM...");
-    displed.print("MenyiapkanSIM...");
+    displed.print("MenyiapkanSIM...", 0, 0);
     sim.init();
     buzz.buzzbeep(500);
+    delay(1500);
 
     //-----------STEP6: Init Sensor
     beginsens();
@@ -134,7 +141,7 @@ void setup(){
     Serial.printf("Load Param: %f", loadconfig.get());
     Serial.println("");
 
-    displed.print("Gantung   infus !");
+    displed.print("Gantung   infus !", 0, 0);
     buzz.buzzbeep(1000);
     delay(2000);
     //-------------------------------------------------
@@ -165,9 +172,9 @@ void loop() {
         connect1.update_secure(config1, val_sample_tpm, val_sample_berat);
         delay(2500);
     }else{ //Cek bisa sim atau tidak
-        displed.print("WiFi tidaktersambung");
+        displed.print("WiFi tidaktersambung", 0, 0);
         delay(2000);
-        displed.print("Kirim datavia SIM");
+        displed.print("Kirim datavia SIM", 0, 0);
         Serial.println("KONEKSI SIM");
         vTaskDelay(1);
         sim.connect_gprs(config1, val_sample_tpm, val_sample_berat);

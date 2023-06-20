@@ -15,15 +15,27 @@ public:
         display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Address 0x3C for 128x32
     }
 
-    void print(String text)
+    void print(String text, int posx, int posy)
     {
         display.clearDisplay();
         display.setTextSize(2);
         display.setTextColor(SSD1306_WHITE);
-        display.setCursor(0,0);
+        display.setCursor(posx,posy);
         display.println(text);
         // display.setCursor(0,10);
         // display.println("Juragan");
+        display.display();
+    }
+
+    void wifiCon(String text)
+    {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0, 0);
+        display.println(text);
+        display.setCursor(0, 16);
+        display.println("tersambung");
         display.display();
     }
 

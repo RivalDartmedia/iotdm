@@ -230,13 +230,13 @@ public:
             {
               String payload = http.getString();
               Serial.println(payload);
-              displed_wifi.print("Kirim databerhasil");
+              displed_wifi.print("Kirim databerhasil", 0, 0);
             }
           }
           else
           {
             Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-            displed_wifi.print("Kirim datagagal");
+            displed_wifi.print("Kirim datagagal", 0, 0);
           }
 
           http.end();

@@ -67,7 +67,7 @@ public :
     Serial.println(F("Setup Complete!"));
 
     // Wait for operator network registration (national or roaming network)
-    displed_sim.print("Mendaftar jaringan...");
+    displed_sim.print("Mendaftar jaringan...", 0, 0);
     int cnt_sim_lim = 10, cnt_sim = 0;
     NetworkRegistration network = sim800l->getRegistrationStatus();
     while (network != REGISTERED_HOME && network != REGISTERED_ROAMING && cnt_sim < cnt_sim_lim)
@@ -80,13 +80,11 @@ public :
 
     if (cnt_sim < 10){
       Serial.println(F("Network registration OK"));
-      displed_sim.print("SIM OK");
-      delay(2000);
+      displed_sim.print("SIM OK", 0, 0);
       return true;
     }else{
       Serial.println("SIM network error");
-      displed_sim.print("No SIM /  SIM Error");
-      delay(2000);
+      displed_sim.print("No SIM /  SIM Error", 0, 0);
       return false;
     }
     delay(1000);
@@ -155,14 +153,14 @@ public :
       Serial.print(F("Received : "));
       String TS_data = sim800l->getDataReceived();
       Serial.println(TS_data);
-      displed_sim.print("Kirim databerhasil");
+      displed_sim.print("Kirim databerhasil", 0, 0);
     }
     else
     {
       // Failed...
       Serial.print(F("HTTP GET error "));
       Serial.println(rc);
-      displed_sim.print("Kirim datagagal");
+      displed_sim.print("Kirim datagagal", 0, 0);
     }
 
     // Close GPRS connectivity (5 trials)
