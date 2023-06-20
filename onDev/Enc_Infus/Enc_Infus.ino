@@ -58,7 +58,8 @@ void setup(){
     if(connect1.checkwifi()){
         Serial.println("WiFi Connected");
         displed.print("WiFi      tersambung");
-        delay(2000);
+        buzz.buzzbeep(500);
+        delay(1500);
     }else{
         Serial.println("Wifi Not Connected");
         displed.print("WiFi tidaktersambung");
@@ -93,6 +94,9 @@ void setup(){
             start_portal(config1);
             vTaskDelay(1);
     }
+    displed.print("WiFi      tersambung");
+    buzz.buzzbeep(500);
+    delay(1500);
     config1.print();
     // config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     // config1.save(LittleFS);
@@ -101,6 +105,7 @@ void setup(){
     Serial.println("Setup SIM...");
     displed.print("MenyiapkanSIM...");
     sim.init();
+    buzz.buzzbeep(500);
 
     //-----------STEP6: Init Sensor
     beginsens();
