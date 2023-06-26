@@ -91,11 +91,11 @@ void setup(){
         }
     }
     if (cnt_config > 0){
-            Serial.println("Starting Captive Portal...");
-            displed.print("Mengatur  WiFi...", 0, 0);
-            buzz.buzzbeep(500);
-            start_portal(config1);
-            vTaskDelay(1);
+        Serial.println("Starting Captive Portal...");
+        displed.print("Mengatur  WiFi...", 0, 0);
+        buzz.buzzbeep(500);
+        start_portal(config1);
+        vTaskDelay(1);
     }
     String wifi = config1.get(wifi_ssid_p);
     Serial.println(wifi);
