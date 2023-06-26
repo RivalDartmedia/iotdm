@@ -2,7 +2,6 @@
 #define koneksi_wifi_h
 
 #include "mem_set.h"
-// #include "indikator.h"
 #include "koneksi_cred.h"
 
 #include <DNSServer.h>
@@ -10,19 +9,26 @@
 #include <AsyncTCP.h>
 #include "ESPAsyncWebServer.h"
 #include <WiFiClientSecure.h>
-// #include <WiFiClient.h>
 #include <HTTPClient.h>
 #include "display_led.h"
+#include "sensorinfus.h"
+#include <esp_task_wdt.h>
 
 static const char DEFAULT_ROOT_CA[] =
 #include "certs/certloc_pem.h"
 
+#define configWiFiButton 19
+
+Button button_wifi;
 DisplayLed displed_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
 String avail_wifi, port_ssid, port_name, port_pass, port_token;
 bool portal_on;
+int setting_state;
 WiFiClient client;
+
+bool isButtonPressed = false;
 
 String processor(const String &var)
 {
@@ -50,6 +56,15 @@ public:
     request->send(LittleFS, "/edit_data.htm", String(), false, processor);
   }
 };
+
+void IRAM_ATTR buttonpressed()
+{
+  esp_task_wdt_init(1, true);
+  esp_task_wdt_add(NULL);
+  // while (true);
+  delay(10);
+  ESP.restart();
+}
 
 void checkavailnetwork()
 {
@@ -113,17 +128,19 @@ void setupServer(class InfusConfig &config)
 
 bool start_portal(InfusConfig &config)
 {
+  button_wifi.init(configWiFiButton);
+  attachInterrupt(configWiFiButton, buttonpressed, FALLING);
   // Mulai Portal
   WiFi.mode(WIFI_OFF);
   WiFi.mode(WIFI_AP_STA);
-  Serial.println(F("SSID : "));
-  // Serial.println(config.get(infus_name_p).c_str());
+  Serial.print(F("SSID AP : "));
+  Serial.println(config.get(infus_name_p).c_str());
 
   WiFi.softAP(config.get(infus_name_p).c_str());
-  Serial.println(config.get(infus_name_p).c_str());
   Serial.print("AP IP address: ");
   Serial.println(WiFi.softAPIP());
   setupServer(config);
+  Serial.println("selesai setup server");
   dnsServer.setErrorReplyCode(DNSReplyCode::NoError);
   dnsServer.start(53, "*", WiFi.softAPIP());
 
@@ -131,6 +148,9 @@ bool start_portal(InfusConfig &config)
   // more handlers...
   server.begin();
   portal_on = 1;
+  
+  Serial.println(portal_on);
+
   while (portal_on)
   {
     dnsServer.processNextRequest();
@@ -138,6 +158,7 @@ bool start_portal(InfusConfig &config)
   }
   server.end();
   // Close Server
+
   // config.edit(infus_name_p, port_name);
   config.edit(wifi_pass_p, port_pass);
   config.edit(wifi_ssid_p, port_ssid);
@@ -179,6 +200,7 @@ public:
   
   void connectWifi(InfusConfig &infusconfig)
   {
+//    attachInterrupt(digitalPinToInterrupt(configWiFiButton), buttonpressed, FALLING);
     displed_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
