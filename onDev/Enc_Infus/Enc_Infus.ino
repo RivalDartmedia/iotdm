@@ -25,7 +25,7 @@ buzzer buzz;
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19
 
-void updatetpm()
+void IRAM_ATTR updatetpm()
 {
   tpm.update();
 }
@@ -38,7 +38,7 @@ void beginsens(){
 
 void setup(){
     //-----------STEP0: begin serial communication
-    Serial.begin(9600);
+    Serial.begin(115200);
     
     //-----------STEP1: Init
     button.init(configWiFiButton);
