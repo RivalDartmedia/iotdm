@@ -42,6 +42,15 @@ public:
             // Update tpm
             tpm_val = (int) (60000 / (millis() - lastDebounceTime));
             // tpm_val = (float)(60000 / (millis() - lastDebounceTime));
+
+            int val_sample_tpm_previous = get();
+            int difference = tpm_val - val_sample_tpm_previous;
+            if (difference > 50 || difference < -50){
+                tpm_val = val_sample_tpm_previous;
+                Serial.println("selisihnya besar");
+                Serial.println(difference);
+            }
+            val_sample_tpm_previous = tpm_val;
         }
         lastReading = newReading;
     }
