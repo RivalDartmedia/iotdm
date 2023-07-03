@@ -84,7 +84,7 @@ public :
       return true;
     }else{
       Serial.println("SIM network error");
-      displed_sim.print("No SIM /  SIM Error", 0, 0);
+      displed_sim.print("No SIM /  No Signal", 0, 0);
       return false;
     }
     delay(1000);
