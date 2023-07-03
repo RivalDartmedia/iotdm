@@ -224,4 +224,42 @@ public:
     }
 };
 
+class Bat
+{
+    private:
+    int bat_pin;
+    int led_pin;
+    int ledState = LOW;
+    unsigned long previousTime = 0;
+    const long interval = 500;
+
+    public:
+    void init(int bat_pin, int led_pin)
+    {
+        this->bat_pin = bat_pin;
+        this->led_pin = led_pin;
+        pinMode(led_pin, OUTPUT);
+    }
+
+    void cek()
+    {
+        digitalWrite(led_pin, LOW);
+        float bat_volt = analogRead(bat_pin);
+        Serial.print("ADC : ");
+        Serial.println(bat_volt);
+        unsigned long currentTime = millis();
+        if (bat_volt < 2000){
+            if(currentTime - previousTime >= interval){
+                previousTime = currentTime;
+                if (ledState == LOW){
+                    ledState = HIGH;
+                } else {
+                    ledState = LOW;
+                }
+                digitalWrite(led_pin, ledState);
+            }
+        }
+    }
+};
+
 #endif

@@ -18,12 +18,15 @@ LoadCellConfig loadconfig;
 Button button;
 DisplayLed displed;
 buzzer buzz;
+Bat bat;
 
 //-----------Inisialisasi pin
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19
+#define pinBat 35
+#define pinLed 13
 
 void IRAM_ATTR updatetpm()
 {
@@ -45,6 +48,7 @@ void setup(){
     displed.init();
     init_fs();
     buzz.init(5);
+    bat.init(pinBat, pinLed);
     
     //-----------STEP2: Load Config
     displed.print("Cek memoriWiFi...", 0, 0);
@@ -151,6 +155,8 @@ void loop() {
     //State Monitoring
     
     //-----------STEP-M1: Get Sensor Data & Displaying
+    bat.cek();
+
     float val_sample_berat = weigh.get_unit();
     if (val_sample_berat < 0){
       val_sample_berat = 0;
