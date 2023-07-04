@@ -15,7 +15,7 @@ private:
     byte lastReading;
     unsigned long lastDebounceTime;
     unsigned long debounceDelay = 20;
-    unsigned long notupdatelim = 6000;
+    // unsigned long notupdatelim = 6000;
 
 public:
     void init(int sensor_pin)
@@ -30,6 +30,7 @@ public:
      */
     void update()
     {
+        int val_sample_tpm_previous = get();
         // debounce handler
         byte newReading = digitalRead(this->sensor_pin);
 
@@ -43,9 +44,9 @@ public:
             tpm_val = (int) (60000 / (millis() - lastDebounceTime));
             // tpm_val = (float)(60000 / (millis() - lastDebounceTime));
 
-            int val_sample_tpm_previous = get();
+            // int val_sample_tpm_previous = get();
             int difference = tpm_val - val_sample_tpm_previous;
-            if (difference > 50 || difference < -50){
+            if (difference > 25 || difference < -25){
                 tpm_val = val_sample_tpm_previous;
                 Serial.println("selisihnya besar");
                 Serial.println(difference);
@@ -57,11 +58,11 @@ public:
 
     int get()
     {
-        if (millis() - lastDebounceTime > notupdatelim)
-        {
-            // tpm tidak terupdate setelah notupdatelim ms, return 0
-            tpm_val = 0;
-        }
+        // if (millis() - lastDebounceTime > notupdatelim)
+        // {
+        //     // tpm tidak terupdate setelah notupdatelim ms, return 0
+        //     tpm_val = 0;
+        // }
         return tpm_val;
     }
 };
