@@ -15,7 +15,7 @@ private:
     byte lastReading;
     unsigned long lastDebounceTime;
     unsigned long debounceDelay = 20;
-    // unsigned long notupdatelim = 6000;
+    unsigned long notupdatelim = 60000;
 
 public:
     void init(int sensor_pin)
@@ -58,11 +58,11 @@ public:
 
     int get()
     {
-        // if (millis() - lastDebounceTime > notupdatelim)
-        // {
-        //     // tpm tidak terupdate setelah notupdatelim ms, return 0
-        //     tpm_val = 0;
-        // }
+        if (millis() - lastDebounceTime > notupdatelim)
+        {
+            // tpm tidak terupdate setelah notupdatelim ms, return 0
+            tpm_val = 0;
+        }
         return tpm_val;
     }
 };
