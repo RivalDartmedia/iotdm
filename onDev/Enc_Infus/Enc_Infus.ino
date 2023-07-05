@@ -50,6 +50,8 @@ void setup(){
     bat.init(pinBat);
     
     //-----------STEP2: Load Config
+    displed.print("   Mulai", 0, 0);
+    delay(1000);
     displed.print("Cek memoriWiFi...", 0, 0);
     config1.load(LittleFS);
     config1.print();
