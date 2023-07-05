@@ -76,6 +76,7 @@ void setup(){
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
+        connect1.connectWifi(config1);
         vTaskDelay(1);
     }
 
@@ -100,6 +101,7 @@ void setup(){
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
+        connect1.connectWifi(config1);
         vTaskDelay(1);
     }
     String wifi = config1.get(wifi_ssid_p);
