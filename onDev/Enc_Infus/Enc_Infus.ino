@@ -26,7 +26,6 @@ Bat bat;
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19
 #define pinBat 35
-#define pinLed 13
 
 void IRAM_ATTR updatetpm()
 {
@@ -48,7 +47,7 @@ void setup(){
     displed.init();
     init_fs();
     buzz.init(5);
-    bat.init(pinBat, pinLed);
+    bat.init(pinBat);
     
     //-----------STEP2: Load Config
     displed.print("Cek memoriWiFi...", 0, 0);
@@ -155,8 +154,6 @@ void loop() {
     //State Monitoring
     
     //-----------STEP-M1: Get Sensor Data & Displaying
-    bat.cek();
-
     float val_sample_berat = weigh.get_unit();
     if (val_sample_berat < 0){
       val_sample_berat = 0;
@@ -185,6 +182,10 @@ void loop() {
         vTaskDelay(1);
         sim.connect_gprs(config1, val_sample_tpm, val_sample_berat);
         delay(1000);
+    }
+    if (bat.cek()){
+        displed.print("Battery   Low", 0, 0);
+        buzz.buzzbeep(1000);
     }
     // delay(3000);
 }
