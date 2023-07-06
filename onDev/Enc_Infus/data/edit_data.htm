@@ -4,6 +4,11 @@
 <head>
     <title>Homepage Infus Monitor</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+          background-color: #f18407;
+        }
+      </style>
 </head>
 
 <body>
@@ -18,8 +23,14 @@
         <br>
         Pass: <br><input type="text" name="wifi_pass">
         <br><br>
-        <input type="submit" value="OK">
+        <!-- <input type="submit" value="OK"> -->
+        <button onclick="connectWiFi()">OK</button>
     </form>
+    <script>
+        function connectWiFi() {
+          alert('Data disimpan');
+        }
+      </script>
 </body>
 
 </html>
