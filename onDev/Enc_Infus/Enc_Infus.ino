@@ -77,6 +77,25 @@ void setup(){
         buzz.buzzbeep(500);
         start_portal(config1);
         connect1.connectWifi(config1);
+        if (connect1.checkwifi()){
+            Serial.println("WiFi Connected");
+            String wifi = config1.get(wifi_ssid_p);
+            Serial.println(wifi);
+            wifi = wifi.substring(0,10);
+            displed.wifiCon(wifi);
+            buzz.buzzbeep(500);
+            delay(1500);
+        } else {
+            Serial.println("Wifi Not Connected");
+            displed.print("WiFi tidaktersambung", 0, 0);
+            delay(2000);
+            displed.print("Restart...", 0, 0);
+            buzz.buzzbeep(500);
+            delay(1500);
+            esp_task_wdt_init(1, true);
+            esp_task_wdt_add(NULL);
+            ESP.restart();
+        }
         vTaskDelay(1);
     }
 
@@ -102,6 +121,25 @@ void setup(){
         buzz.buzzbeep(500);
         start_portal(config1);
         connect1.connectWifi(config1);
+        if (connect1.checkwifi()){
+            Serial.println("WiFi Connected");
+            String wifi = config1.get(wifi_ssid_p);
+            Serial.println(wifi);
+            wifi = wifi.substring(0,10);
+            displed.wifiCon(wifi);
+            buzz.buzzbeep(500);
+            delay(1500);
+        } else {
+            Serial.println("Wifi Not Connected");
+            displed.print("WiFi tidaktersambung", 0, 0);
+            delay(2000);
+            displed.print("Restart...", 0, 0);
+            buzz.buzzbeep(500);
+            delay(1500);
+            esp_task_wdt_init(1, true);
+            esp_task_wdt_add(NULL);
+            ESP.restart();
+        }
         vTaskDelay(1);
     }
     String wifi = config1.get(wifi_ssid_p);
