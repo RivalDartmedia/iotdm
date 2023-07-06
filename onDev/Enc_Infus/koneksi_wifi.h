@@ -78,7 +78,8 @@ void checkavailnetwork()
   {
     for (int i = 0; i < n; ++i)
     {
-      avail_wifi += "<option value=" + WiFi.SSID(i) + ">" + WiFi.SSID(i) + "</option><br>";
+      String nama_wifi = "'"+WiFi.SSID(i)+"'";
+      avail_wifi += "<option value=" + nama_wifi + ">" + WiFi.SSID(i) + "</option><br>";
     }
   }
   avail_wifi += "</select><br>";
