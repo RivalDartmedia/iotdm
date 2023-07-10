@@ -174,6 +174,7 @@ private:
   // get Blink Indicator server + get_p + blink_v
 
   String tokenid;
+  String infusid;
   String send_message;
   HTTPClient http;
 
@@ -223,12 +224,13 @@ public:
     // if (client)
     // {
       tokenid = infusconfig.get(tokenID_p);
+      infusid = infusconfig.get(infus_name_p);
       // client->setCACert(DEFAULT_ROOT_CA);
       {
         // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
         HTTPClient https;
         // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
-        send_message = server_dom + send_p + get_p + token + tokenid + "&text=" + "TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+        send_message = server_dom + send_p + get_p + token + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
         // send_message = "http://date.jsontest.com";
         Serial.println(send_message);
         // Serial.printf("Sending %s\n", send_message);
