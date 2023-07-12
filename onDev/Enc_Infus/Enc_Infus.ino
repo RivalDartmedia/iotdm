@@ -108,7 +108,7 @@ void setup(){
         vTaskDelay(1);
     }
 
-    int cnt_config = 10;
+    int cnt_config = 5;
     unsigned long previousMillis = 0;
     unsigned long interval = 1000;
     while(cnt_config > 0 && !button.is_push()){
