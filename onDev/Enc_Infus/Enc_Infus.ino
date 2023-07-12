@@ -26,6 +26,8 @@ Bat bat;
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19
 #define pinBat 35
+bool pauseState;
+bool pauseBeep;
 
 void IRAM_ATTR updatetpm()
 {
@@ -36,6 +38,13 @@ void beginsens(){
     tpm.init(tpm_pin);
     attachInterrupt(tpm_pin, updatetpm, FALLING);
     weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+}
+
+void pauseMonitoring(){
+    Serial.println("PAUSE");
+    detachInterrupt(configWiFiButton);
+    pauseState = HIGH;
+    pauseBeep = HIGH;
 }
 
 void setup(){
@@ -194,6 +203,7 @@ void setup(){
 
 void loop() {
     //State Monitoring
+    attachInterrupt(configWiFiButton, pauseMonitoring, FALLING);
     
     //-----------STEP-M1: Get Sensor Data & Displaying
     float val_sample_berat = weigh.get_unit();
@@ -228,6 +238,20 @@ void loop() {
     if (bat.cek()){
         displed.print("Battery   Low", 0, 0);
         buzz.buzzbeep(1000);
+    }
+    while(pauseState == HIGH){
+        displed.print("  PAUSED", 0, 0);
+        if(pauseBeep == HIGH){
+            buzz.buzzbeep(500);
+        }
+        if(pauseBeep == HIGH){
+            pauseBeep = LOW;
+        }
+        if(button.is_push()){
+            delay(1000);
+            detachInterrupt(configWiFiButton);
+            pauseState = LOW;
+        }
     }
     // delay(3000);
 }
