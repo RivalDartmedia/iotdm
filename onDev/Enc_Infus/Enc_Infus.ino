@@ -197,7 +197,7 @@ void setup(){
 
     displed.print("Gantung   infus !", 0, 0);
     buzz.buzzbeep(1000);
-    delay(2000);
+    delay(1000);
     //-------------------------------------------------
 }
 
