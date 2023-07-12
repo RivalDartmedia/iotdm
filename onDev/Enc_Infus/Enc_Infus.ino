@@ -111,12 +111,12 @@ void setup(){
     int cnt_config = 5;
     unsigned long previousMillis = 0;
     unsigned long interval = 1000;
-    while(cnt_config > 0 && !button.is_push()){
+    while(cnt_config > -1 && !button.is_push()){
         unsigned long currentMillis = millis();
         if (currentMillis - previousMillis >= interval) {
             previousMillis = currentMillis;
     
-            if (cnt_config > 0) {
+            if (cnt_config > -1) {
                 Serial.print("Setting WiFi ? ");
                 Serial.println(cnt_config);
                 displed.settingWiFi(cnt_config);
@@ -124,7 +124,7 @@ void setup(){
             }       
         }
     }
-    if (cnt_config > 0){
+    if (cnt_config > -1){
         Serial.println("Starting Captive Portal...");
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
