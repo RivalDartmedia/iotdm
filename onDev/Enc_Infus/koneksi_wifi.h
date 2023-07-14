@@ -164,6 +164,7 @@ bool start_portal(InfusConfig &config)
   // config.edit(tokenID_p, port_token);
   config.save(LittleFS);
   WiFi.mode(WIFI_OFF);
+  detachInterrupt(configWiFiButton);
   return 0;
 }
 
