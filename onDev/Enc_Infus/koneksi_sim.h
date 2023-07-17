@@ -99,7 +99,7 @@ public :
     Serial.println(F("GPRS config OK"));
   }
 
-  void connect_gprs(InfusConfig &infusconfig, double tpm, int weigh)
+  void connect_gprs(InfusConfig &infusconfig, int tpm, int weigh)
   {
     Serial.println("Mulai...");
     // Establish GPRS connectivity (5 trials)

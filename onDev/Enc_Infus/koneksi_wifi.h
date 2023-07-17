@@ -208,7 +208,7 @@ public:
   }
 
   // int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
-  int update_secure(InfusConfig &infusconfig, double tpm, int weigh)
+  int update_secure(InfusConfig &infusconfig, int tpm, int weigh)
   {
     // Mulai koneksi
     // WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
