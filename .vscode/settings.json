@@ -54,6 +54,7 @@
     "system_error": "cpp",
     "string_view": "cpp",
     "initializer_list": "cpp",
-    "cstddef": "cpp"
+    "cstddef": "cpp",
+    "atomic": "cpp"
   }
 }
