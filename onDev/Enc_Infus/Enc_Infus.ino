@@ -3,7 +3,6 @@
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
-// #include "indikator.h"
 #include "display_led.h"
 #include "buzzer.h"
 
@@ -11,7 +10,6 @@
 InfusConfig config1;
 ConnectionWiFi connect1;
 ConnectionSIM sim;
-// indi_state main_indicator;
 Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
@@ -20,14 +18,16 @@ DisplayLed displed;
 buzzer buzz;
 Bat bat;
 
-//-----------Inisialisasi pin
+//-----------Inisialisasi pin dan variabel
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
 #define configWiFiButton 19
 #define pinBat 35
+#define pinBuzz 5
 bool pauseState;
 bool pauseBeep;
+unsigned long buttonPressStartTime = 0;
 
 void IRAM_ATTR updatetpm()
 {
@@ -41,10 +41,15 @@ void beginsens(){
 }
 
 void pauseMonitoring(){
-    Serial.println("PAUSE");
-    detachInterrupt(configWiFiButton);
-    pauseState = HIGH;
-    pauseBeep = HIGH;
+    if(button.is_push()){
+        unsigned long currentTime = millis();
+        if ((currentTime - buttonPressStartTime) >= 500) {
+            Serial.println("PAUSE");
+            detachInterrupt(configWiFiButton);
+            pauseState = HIGH;
+            pauseBeep = HIGH;
+        }
+    }
 }
 
 void setup(){
@@ -55,7 +60,7 @@ void setup(){
     button.init(configWiFiButton);
     displed.init();
     init_fs();
-    buzz.init(5);
+    buzz.init(pinBuzz);
     bat.init(pinBat);
     
     //-----------STEP2: Load Config
@@ -206,14 +211,15 @@ void loop() {
     attachInterrupt(configWiFiButton, pauseMonitoring, FALLING);
     
     //-----------STEP-M1: Get Sensor Data & Displaying
-    float val_sample_berat = weigh.get_unit();
+    int val_sample_berat = weigh.get_unit();
     if (val_sample_berat < 0){
       val_sample_berat = 0;
     }
     int val_sample_tpm = tpm.get();
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
-    Serial.printf("Weigh: %3.f\n", val_sample_berat);
+    Serial.print("Weigh: ");
+    Serial.println(val_sample_berat);
     
     displed.sample(val_sample_tpm, val_sample_berat);
 
@@ -253,5 +259,4 @@ void loop() {
             pauseState = LOW;
         }
     }
-    // delay(3000);
 }
