@@ -135,15 +135,7 @@ void setup(){
         buzz.buzzbeep(500);
         start_portal(config1);
         connect1.connectWifi(config1);
-        if (connect1.checkwifi()){
-            Serial.println("WiFi Connected");
-            String wifi = config1.get(wifi_ssid_p);
-            Serial.println(wifi);
-            wifi = wifi.substring(0,10);
-            displed.wifiCon(wifi);
-            buzz.buzzbeep(500);
-            delay(1500);
-        } else {
+        if (!connect1.checkwifi()){
             Serial.println("Wifi Not Connected");
             displed.print("WiFi tidaktersambung", 0, 0);
             delay(2000);
@@ -156,6 +148,7 @@ void setup(){
         }
         vTaskDelay(1);
     }
+    Serial.println("WiFi Connected");
     String wifi = config1.get(wifi_ssid_p);
     Serial.println(wifi);
     wifi = wifi.substring(0,10);
