@@ -80,7 +80,7 @@ public :
 
     if (cnt_sim < 10){
       Serial.println(F("Network registration OK"));
-      displed_sim.print("SIM OK", 0, 0);
+      displed_sim.print("SIMCARD OK", 0, 0);
       return true;
     }else{
       Serial.println("SIM network error");
