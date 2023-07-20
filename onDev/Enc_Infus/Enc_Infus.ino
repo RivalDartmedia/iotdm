@@ -229,17 +229,25 @@ void loop() {
 
     //-----------STEP-M2: Connection Management & Send Data
     if(connect1.checkwifi()){
-        // connect1.update_secure(config1, val_sample_tpm, val_sample_berat, main_indicator);
-        connect1.update_secure(config1, val_sample_tpm, val_sample_berat);
-        delay(2500);
+        if(connect1.update_secure(config1, val_sample_tpm, val_sample_berat) != 200){
+            buzz.buzzbeep(500);
+            delay(2000);
+        } else {
+            delay(2500);
+        }
     }else{ //Cek bisa sim atau tidak
         displed.print("WiFi tidaktersambung", 0, 0);
         delay(2000);
         displed.print("Kirim datavia SIM", 0, 0);
         Serial.println("KONEKSI SIM");
         vTaskDelay(1);
-        sim.connect_gprs(config1, val_sample_tpm, val_sample_berat);
-        delay(1000);
+        if (sim.connect_gprs(config1, val_sample_tpm, val_sample_berat) != 200){
+            displed.print("Kirim datagagal", 0, 0);
+            buzz.buzzbeep(500);
+            delay(500);
+        } else {
+            delay(1000);
+        }
     }
     if (bat.cek()){
         displed.print("Battery   Low", 0, 0);

@@ -99,7 +99,7 @@ public :
     Serial.println(F("GPRS config OK"));
   }
 
-  void connect_gprs(InfusConfig &infusconfig, int tpm, int weigh)
+  int connect_gprs(InfusConfig &infusconfig, int tpm, int weigh)
   {
     Serial.println("Mulai...");
     // Establish GPRS connectivity (5 trials)
@@ -121,7 +121,7 @@ public :
       Serial.println(F("Reset the module."));
       sim800l->reset();
       setupModule();
-      return;
+      // return;
     }
 
     Serial.println(F("Start HTTP GET..."));
@@ -161,7 +161,7 @@ public :
       // Failed...
       Serial.print(F("HTTP GET error "));
       Serial.println(rc);
-      displed_sim.print("Kirim datagagal", 0, 0);
+      // displed_sim.print("Kirim datagagal", 0, 0);
     }
 
     // Close GPRS connectivity (5 trials)
@@ -181,6 +181,7 @@ public :
       Serial.println(F("GPRS still connected !"));
     }
     sim800l->reset();
+    return rc;
     delay(1000);
   }
 
