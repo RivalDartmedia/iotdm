@@ -1,7 +1,7 @@
 API key :
 https://sgp1.blynk.cloud/external/api/batch/update?token=2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX&v0=100&v1=100
 
-http://api.callmebot.com/telegram/group.php?apikey=LTk2NTgzMjA5NA&text=Hello World no ssl
+http://api.callmebot.com/telegram/group.php?apikey=LTk2NTgzMjA5NA&text=TPM = xx; weight = xx
 
 "callib_fact":57299.000000
 "tokenID1": "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX",
