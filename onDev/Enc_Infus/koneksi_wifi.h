@@ -8,7 +8,8 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include "ESPAsyncWebServer.h"
-#include <WiFiClientSecure.h>
+// #include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 #include <HTTPClient.h>
 #include "display_led.h"
 #include "sensorinfus.h"
@@ -69,7 +70,6 @@ void checkavailnetwork()
   avail_wifi = "SSID: <select name = wifi_ssid>";
 
   int n = WiFi.scanNetworks();
-  // Serial.println("scan done");
   if (n == 0)
   {
     avail_wifi += "<option value=null>No Network Available</option><br>";
@@ -102,10 +102,6 @@ void setupServer(class InfusConfig &config)
       HTTP_GET,
       [](AsyncWebServerRequest *request)
       {
-        // if (request->hasParam("infus_name"))
-        // {
-        //   port_name = request->getParam("infus_name")->value();
-        // }
         if (request->hasParam("wifi_ssid"))
         {
           port_ssid = request->getParam("wifi_ssid")->value();
@@ -114,11 +110,6 @@ void setupServer(class InfusConfig &config)
         {
           port_pass = request->getParam("wifi_pass")->value();
         }
-        // if (request->hasParam("token_id"))
-        // {
-        //   port_token = request->getParam("token_id")->value();
-        // }
-        // Mulai koneksi
         request->send(200, "text/plain", "Informasi tersimpan. Akhiri Sesi");
         portal_on = 0;
       }
@@ -129,7 +120,7 @@ bool start_portal(InfusConfig &config)
 {
   button_wifi.init(configWiFiButton);
   attachInterrupt(configWiFiButton, buttonpressed, FALLING);
-  // Mulai Portal
+
   WiFi.mode(WIFI_OFF);
   WiFi.mode(WIFI_AP_STA);
   Serial.print(F("SSID AP : "));
@@ -158,10 +149,8 @@ bool start_portal(InfusConfig &config)
   server.end();
   // Close Server
 
-  // config.edit(infus_name_p, port_name);
   config.edit(wifi_pass_p, port_pass);
   config.edit(wifi_ssid_p, port_ssid);
-  // config.edit(tokenID_p, port_token);
   config.save(LittleFS);
   WiFi.mode(WIFI_OFF);
   detachInterrupt(configWiFiButton);
@@ -171,9 +160,6 @@ bool start_portal(InfusConfig &config)
 class ConnectionWiFi
 {
 private:
-  // Update server+token+send_p+berat_v+   +tpm_v
-  // get Blink Indicator server + get_p + blink_v
-
   String tokenid;
   String infusid;
   String send_message;
@@ -187,8 +173,6 @@ public:
     {
       Serial.println("Connecting WiFi...");
       cnt ++;
-      // Serial.println("Trying to Reconnect");
-      // WiFi.begin(ssid, password);
       delay(250);
     }
     // Check koneksi
@@ -201,115 +185,60 @@ public:
   
   void connectWifi(InfusConfig &infusconfig)
   {
-//    attachInterrupt(digitalPinToInterrupt(configWiFiButton), buttonpressed, FALLING);
     displed_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
   }
 
-  // int update_secure(InfusConfig &infusconfig, double tpm, int weigh, indi_state &indi_command)
   int update_secure(InfusConfig &infusconfig, int tpm, int weigh)
   {
-    // Mulai koneksi
-    // WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
-    // do
-    // {
-    //   WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
-    //   delay(500);
-    // } while (!this->checkwifi());
-
     Serial.println("Terhubung WiFi");
 
     // WiFiClientSecure *client = new WiFiClientSecure;
     int httpCode;
-    // if (client)
-    // {
-      tokenid = infusconfig.get(tokenID_p);
-      infusid = infusconfig.get(infus_name_p);
-      // client->setCACert(DEFAULT_ROOT_CA);
-      {
-        // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
-        HTTPClient https;
-        // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
-        send_message = server_dom + send_p + get_p + token + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
-        // send_message = "http://date.jsontest.com";
-        Serial.println(send_message);
-        // Serial.printf("Sending %s\n", send_message);
-        // Serial.print("[HTTPS] begin...\n");
-        if (http.begin(client, send_message))
-        { // HTTPS
-          // Serial.print("[HTTPS] GET...\n");
-          // start connection and send HTTP header
-          httpCode = http.GET();
-          Serial.println(httpCode);
 
-          // httpCode will be negative on error
-          if (httpCode == 200)
+    tokenid = infusconfig.get(tokenID_p);
+    infusid = infusconfig.get(infus_name_p);
+    // client->setCACert(DEFAULT_ROOT_CA);
+    {
+      // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
+      HTTPClient https;
+      // BLYNK:
+      // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+      // Callmebot :
+      send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+      // API :
+      // send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
+      Serial.println(send_message);
+      if (https.begin(client, send_message))
+      { // HTTPS
+        // start connection and send HTTP header
+        httpCode = https.GET();
+        Serial.println(httpCode);
+
+        // httpCode will be negative on error
+        if (httpCode == 200)
+        {
+          // HTTP header has been send and Server response header has been handled
+          Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
+          // file found at server
+          if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
           {
-            // HTTP header has been send and Server response header has been handled
-            Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-
-            // file found at server
-            if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-            {
-              String payload = http.getString();
-              Serial.println(payload);
-              displed_wifi.print("Kirim databerhasil", 0, 0);
-            }
+            String payload = https.getString();
+            Serial.println(payload);
+            displed_wifi.print("Kirim databerhasil", 0, 0);
           }
-          else
-          {
-            Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-            displed_wifi.print("Kirim datagagal", 0, 0);
-          }
-
-          http.end();
-
-          // send_message = server_dom + get_p + token + tokenid + blink_v;
-          // // New Connect to get blink command
-          // if (https.begin(*client, send_message))
-          // { // HTTPS
-          //   // Serial.print("[HTTPS] GET...\n");
-          //   // start connection and send HTTP header
-          //   httpCode = https.GET();
-
-          //   // httpCode will be negative on error
-          //   if (httpCode > 0)
-          //   {
-          //     // HTTP header has been send and Server response header has been handled
-          //     Serial.printf("[HTTPS] GET... code: %d\n", httpCode);
-
-          //     // file found at server
-          //     if (httpCode == HTTP_CODE_OK || httpCode == HTTP_CODE_MOVED_PERMANENTLY)
-          //     {
-          //       String payload = https.getString();
-          //       // Serial.println(payload);
-          //       int payload_val = payload.toInt();
-          //       //Atur Indikator disini
-          //       // if(payload_val >= 255){
-          //       //   indi_command = blink_fast;
-          //       // }else{
-          //       //   indi_command = blink_slow;
-          //       // }
-          //     }
-          //   }
-          //   else
-          //   {
-          //     Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-          //   }
-
-          //   https.end();
-          // }
-          // else
-          // {
-          //   Serial.printf("[HTTPS] Unable to connect\n");
-          // }
-          // End extra scoping block
         }
-        // delete client;
+        else
+        {
+          Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
+          displed_wifi.print("Kirim datagagal", 0, 0);
+        }
+
+        https.end();
       }
-    // }
-    return httpCode;
+    }
+  return httpCode;
   }
 };
 

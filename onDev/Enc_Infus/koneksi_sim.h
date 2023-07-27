@@ -130,20 +130,18 @@ public :
     // WriteTS();
     String tokenid = infusconfig.get(tokenID_p);
     String infusid = infusconfig.get(infus_name_p);
-    // String address="http://date.jsontest.com/";
-    // String address=server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
-    String address = server_dom + send_p + get_p + token + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+    // BLYNK :
+    // String address = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+    // Callmebot :
+    String address = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+    // API :
+    // String address = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
     Serial.println(address);
-    // int number = random(0, 100);
-    // String numberstr;
-    // numberstr = String(number);
-    // Serial.println(numberstr);
-    // String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
-    char URL1[135];
+    char URL1[304];
 
     // Do HTTP GET communication with 10s for the timeout (read)
-    address.toCharArray(URL1, 135);
-
+    address.toCharArray(URL1, 304);
+    Serial.println(URL1);
     uint16_t rc = sim800l->doGet(URL1, 10000);
     if (rc == 200)
     {
