@@ -4,6 +4,9 @@ https://sgp1.blynk.cloud/external/api/batch/update?token=ZIjaYVCHA9Vota0HFas5xh4
 API key Callmebot :
 http://api.callmebot.com/telegram/group.php?apikey=LTk2NTgzMjA5NA&text=ID+Device+=+Infus_DM1;+TPM+=+xxx+;+Weigh+=+xxx
 
+API :
+https://<URL_API>/api/infus_iot/send-data/device?token=54720736019d2a645b8198cb2&deviceId=Infus_DM1&tpm=0&weight=0
+
 Token API BLYNK :
 ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy
 
