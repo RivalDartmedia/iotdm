@@ -15,8 +15,8 @@
 #include "sensorinfus.h"
 #include <esp_task_wdt.h>
 
-static const char DEFAULT_ROOT_CA[] =
-#include "certs/certloc_pem.h"
+// static const char DEFAULT_ROOT_CA[] =
+// #include "certs/certloc_pem.h"
 
 #define configWiFiButton 19
 
@@ -168,7 +168,7 @@ private:
 public:
   bool checkwifi()
   {
-    int limit_try = 15, cnt = 0;
+    int limit_try = 20, cnt = 0;
     while (WiFi.status() != WL_CONNECTED && cnt < limit_try)
     {
       Serial.println("Connecting WiFi...");
@@ -186,6 +186,7 @@ public:
   void connectWifi(InfusConfig &infusconfig)
   {
     displed_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
+    WiFi.mode(WIFI_STA);
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
   }
@@ -206,11 +207,12 @@ public:
       // BLYNK:
       // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
       // Callmebot :
-      send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+      // send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
       // API :
-      // send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
+      send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
       Serial.println(send_message);
       if (https.begin(client, send_message))
+      // if (https.begin(*client, send_message))
       { // HTTPS
         // start connection and send HTTP header
         httpCode = https.GET();
