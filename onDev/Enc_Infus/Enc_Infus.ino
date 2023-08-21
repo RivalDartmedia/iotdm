@@ -29,7 +29,7 @@ bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
 
-void IRAM_ATTR updatetpm()
+void updatetpm()
 {
   tpm.update();
 }
@@ -90,6 +90,7 @@ void setup(){
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
+        delay(500);
         connect1.connectWifi(config1);
         if (connect1.checkwifi()){
             Serial.println("WiFi Connected");
@@ -112,7 +113,7 @@ void setup(){
         }
         vTaskDelay(1);
     }
-
+    // Hitung mundur dari 5 untuk opsi penggantian WiFi
     int cnt_config = 5;
     unsigned long previousMillis = 0;
     unsigned long interval = 1000;
@@ -134,6 +135,7 @@ void setup(){
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
+        delay(500);
         connect1.connectWifi(config1);
         if (!connect1.checkwifi()){
             Serial.println("Wifi Not Connected");
@@ -148,6 +150,7 @@ void setup(){
         }
         vTaskDelay(1);
     }
+    // Info Wifi tersambung kemana
     Serial.println("WiFi Connected");
     String wifi = config1.get(wifi_ssid_p);
     Serial.println(wifi);
@@ -194,21 +197,25 @@ void setup(){
     Serial.println("");
 
     displed.print("Gantung   infus !", 0, 0);
-    buzz.buzzbeep(1000);
-    delay(1000);
+    buzz.buzzbeep(500);
+    delay(500);
     //-------------------------------------------------
 }
 
 void loop() {
     //State Monitoring
+
+    //Interrupt for Pause
     attachInterrupt(configWiFiButton, pauseMonitoring, FALLING);
     
     //-----------STEP-M1: Get Sensor Data & Displaying
     int val_sample_berat = weigh.get_unit();
+    // int val_sample_berat = random(0, 750);
     if (val_sample_berat < 0){
       val_sample_berat = 0;
     }
     int val_sample_tpm = tpm.get();
+    // int val_sample_tpm = random(0,100);
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.print("Weigh: ");
@@ -242,10 +249,13 @@ void loop() {
             delay(1000);
         }
     }
+    //Cek kondisi baterai
     if (bat.cek()){
         displed.print("Battery   Low", 0, 0);
         buzz.buzzbeep(1000);
     }
+    
+    //Cek tombol pause ditekan atau tidak
     while(pauseState == HIGH){
         displed.print("  PAUSED", 0, 0);
         if(pauseBeep == HIGH){
