@@ -29,7 +29,7 @@ Bat bat;
 bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
-String firmwareVersion = "V1.0";
+String firmwareVersion = "V0.0";
 
 void updatetpm()
 {
@@ -165,6 +165,10 @@ void setup(){
     // config1.edit(tokenID_p, "2nrtIgwDCHP5SF3CToAWWdWZFPGtz6oX");
     // config1.save(LittleFS);
 
+    // Cek update firmware
+    displed.print("Cek updatefirmware", 0, 0);
+    OTADRIVE.updateFirmware();
+
     //-----------STEP5: Setup SIM Card
     Serial.println("Setup SIM...");
     displed.print("MenyiapkanSIM...", 0, 0);
@@ -273,8 +277,4 @@ void loop() {
             pauseState = LOW;
         }
     }
-
-    //Cek apakah ada update firmware OTA
-    if (OTADRIVE.timeTick(10))
-        OTADRIVE.updateFirmware();
 }
