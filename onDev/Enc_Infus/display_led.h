@@ -27,6 +27,18 @@ public:
         display.display();
     }
 
+    void start(String text)
+    {
+        display.clearDisplay();
+        display.setTextSize(2);
+        display.setTextColor(SSD1306_WHITE);
+        display.setCursor(0, 0);
+        display.println("   Mulai");
+        display.setCursor(40, 16);
+        display.println(text);
+        display.display();
+    }
+
     void wifiCon(String text)
     {
         display.clearDisplay();

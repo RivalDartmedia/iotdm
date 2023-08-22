@@ -5,6 +5,7 @@
 #include "koneksi_sim.h"
 #include "display_led.h"
 #include "buzzer.h"
+#include "otadrive_esp.h"
 
 //-----------Buat object dari class
 InfusConfig config1;
@@ -28,6 +29,7 @@ Bat bat;
 bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
+String firmwareVersion = "V1.0";
 
 void updatetpm()
 {
@@ -62,9 +64,10 @@ void setup(){
     init_fs();
     buzz.init(pinBuzz);
     bat.init(pinBat);
+    OTADRIVE.setInfo("ab188fb1-8379-4d6d-a2c2-d093593cc91e", firmwareVersion);
     
     //-----------STEP2: Load Config
-    displed.print("   Mulai", 0, 0);
+    displed.start(firmwareVersion);
     delay(1000);
     displed.print("Cek memoriWiFi...", 0, 0);
     config1.load(LittleFS);
@@ -270,4 +273,8 @@ void loop() {
             pauseState = LOW;
         }
     }
+
+    //Cek apakah ada update firmware OTA
+    if (OTADRIVE.timeTick(10))
+        OTADRIVE.updateFirmware();
 }
