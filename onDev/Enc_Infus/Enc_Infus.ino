@@ -6,6 +6,7 @@
 #include "display_led.h"
 #include "buzzer.h"
 #include "otadrive_esp.h"
+#include <soc/rtc_wdt.h>
 
 //-----------Buat object dari class
 InfusConfig config1;
@@ -65,6 +66,8 @@ void setup(){
     buzz.init(pinBuzz);
     bat.init(pinBat);
     OTADRIVE.setInfo("ab188fb1-8379-4d6d-a2c2-d093593cc91e", firmwareVersion);
+    rtc_wdt_protect_off();
+    rtc_wdt_disable();
     
     //-----------STEP2: Load Config
     displed.start(firmwareVersion);
