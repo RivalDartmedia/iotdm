@@ -30,7 +30,7 @@ Bat bat;
 bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
-String firmwareVersion = "V0.0";
+String firmwareVersion = "V0.1";
 
 void updatetpm()
 {
@@ -192,14 +192,26 @@ void setup(){
     //---------------------------------------------------
 
     //-------------Load and Callibr---------------------
-    int weigh_callib_lim = 0, weigh_callib = 10;
-    while(weigh_callib > weigh_callib_lim){
-        Serial.println(weigh_callib);
-        displed.weighCallib(weigh_callib);
-        buzz.buzzbeep(500);
-        delay(500);
-        weigh_callib--;
+    // int weigh_callib_lim = 0, weigh_callib = 10;
+    // while(weigh_callib > weigh_callib_lim){
+    //     Serial.println(weigh_callib);
+    //     displed.weighCallib(weigh_callib);
+    //     buzz.buzzbeep(500);
+    //     delay(500);
+    //     weigh_callib--;
+    // }
+    displed.print("Jangan    gantung", 0, 0);
+    buzz.buzzbeep(1000);
+    displed.print("infus", 0, 0);
+    delay(1000);
+    while(!button.is_push()){
+        displed.print("Infus tak digantung?", 0, 0);
+        if(button.is_push()){
+            break;
+        }
     }
+    displed.print("Kalibrasi berat", 0, 0);
+
     loadconfig.load(LittleFS);
     Serial.println("");
     weigh.set_callib(loadconfig.get());
@@ -208,8 +220,19 @@ void setup(){
 
     displed.print("Gantung   infus !", 0, 0);
     buzz.buzzbeep(500);
-    delay(500);
+    delay(1000);
     //-------------------------------------------------
+
+    //Konfirmasi mulai monitoring
+    while(!button.is_push()){
+        displed.print("Infus     berjalan ?", 0, 0);
+        if(button.is_push()){
+            break;
+        }
+    }
+    displed.print("Monitoringdimulai",0 ,0);
+    buzz.buzzbeep(500);
+    delay(500);
 }
 
 void loop() {

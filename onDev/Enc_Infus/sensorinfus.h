@@ -15,8 +15,13 @@ private:
     byte lastReading;
     unsigned long lastDebounceTime;
     unsigned long debounceDelay = 20;
-    unsigned long notupdatelim = 120000;
+    unsigned long notupdatelim = 60000;
     int tpm_val_previous = 0;
+    int hitungan = 0;
+    int batas_hitungan = 10;
+    int ambang = 10;
+    int dif;
+    int tpm_get;
 
 public:
     void init(int sensor_pin)
@@ -42,33 +47,7 @@ public:
         {
             // Update tpm
             tpm_val = (int) (60000 / (millis() - lastDebounceTime));
-            // tpm_val = (float)(60000 / (millis() - lastDebounceTime));
-            if (tpm_val > 1000 || tpm_val == (tpm_val_previous)/2 || tpm_val == ((tpm_val_previous)/2)+1 || tpm_val == ((tpm_val_previous)/2)-1 || tpm_val == ((tpm_val_previous)/2)-2 || tpm_val == ((tpm_val_previous)/2)-3 || tpm_val == ((tpm_val_previous)/2)-4 || tpm_val == ((tpm_val_previous)/2)-5){
-                tpm_val = tpm_val_previous;
-                Serial.println("SAMA SEPERTI SEBELUMNYA");
-            // } else {
-            //     tpm_val_previous = tpm_val;
-            // }
-            }
-            tpm_val_previous = tpm_val;
-            // int threshold = 10;
-            // int dif = abs(tpm_val - tpm_val_previous);
-            // int cnt_tpm_val_lim = 5;
-            // int cnt_tpm_val;
-            // if (dif > threshold){
-            //     Serial.println("Selisih besar");
-            //     cnt_tpm_val++;
-            //     Serial.println(cnt_tpm_val);
-                // if (cnt_tpm_val > cnt_tpm_val_lim){
-                //     tpm_val = tpm_val;
-                //     cnt_tpm_val = 0;
-                //     Serial.println("Masuk IF");
-                // }else {
-                    // tpm_val = tpm_val_previous;
-                    // Serial.println("Masuk ELSE");
-                // }
-            // }
-            // tpm_val_previous = tpm_val;
+            tpm_get = tpm_val;
         }
         lastReading = newReading;
     }
@@ -79,12 +58,34 @@ public:
         {
             // tpm tidak terupdate setelah notupdatelim ms, return 0
             tpm_val = 0;
+            tpm_get = tpm_val;
         }
+        // Filtering TPM
         if ((0 < tpm_val) && (tpm_val < 1))
         {
             tpm_val = 1;
-            Serial.println("NILAI DIANTARA 0 DAN 1");
+            tpm_get = tpm_val;
         }
+        if (tpm_val > 1000 || tpm_val == (tpm_val_previous)/2 || tpm_val == ((tpm_val_previous)/2)+1 || tpm_val == ((tpm_val_previous)/2)-1){
+            tpm_val = tpm_val_previous;
+            tpm_get = tpm_val;
+        }
+        // dif = abs(tpm_val-tpm_val_previous);
+        // if (dif > ambang){
+        //     tpm_val = tpm_val_previous;
+        //     hitungan++;
+        //     Serial.print("hitungan : ");
+        //     Serial.println(hitungan);
+        //     if (hitungan == batas_hitungan){
+        //         tpm_val_previous = tpm_get;
+        //         hitungan = 0;
+        //         Serial.println("DATA DIANGGAP VALID");
+        //     }
+        // }
+        else {
+            tpm_val_previous = tpm_val;
+        }
+
         return tpm_val;
     }
 };
@@ -263,10 +264,12 @@ class Bat
         int bat_volt = analogRead(bat_pin);
         Serial.print("ADC : ");
         Serial.println(bat_volt);
-        if (bat_volt == 0){
+        if (bat_volt < 4095){
             return 1;
+            return bat_volt;
         } else {
             return 0;
+            return bat_volt;
         }
     }
 };
