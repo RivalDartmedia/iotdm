@@ -30,7 +30,7 @@ Bat bat;
 bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
-String firmwareVersion = "V0.1";
+String firmwareVersion = "0.0";
 
 void updatetpm()
 {
@@ -202,7 +202,7 @@ void setup(){
     // }
     displed.print("Jangan    gantung", 0, 0);
     buzz.buzzbeep(1000);
-    displed.print("infus", 0, 0);
+    displed.print("infus !", 0, 0);
     delay(1000);
     while(!button.is_push()){
         displed.print("Infus tak digantung?", 0, 0);
@@ -210,7 +210,7 @@ void setup(){
             break;
         }
     }
-    displed.print("Kalibrasi berat", 0, 0);
+    displed.print("Kalibrasi berat...", 0, 0);
 
     loadconfig.load(LittleFS);
     Serial.println("");

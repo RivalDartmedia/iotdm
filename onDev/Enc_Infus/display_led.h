@@ -35,6 +35,8 @@ public:
         display.setCursor(0, 0);
         display.println("   Mulai");
         display.setCursor(40, 16);
+        display.println("V");
+        display.setCursor(55, 16);
         display.println(text);
         display.display();
     }
