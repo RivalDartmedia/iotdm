@@ -1,10 +1,6 @@
 #ifndef koneksi_sim_h
 #define koneksi_sim_h
 
-// #include "mem_set.h"
-// #include "indikator.h"
-// #include "koneksi_cred.h"
-
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include "SIM800L.h"
@@ -21,11 +17,8 @@ DisplayLed displed_sim;
 class ConnectionSIM
 {
 private:
-  // Update server+token+send_p+berat_v+   +tpm_v
-  // get Blink Indicator server + get_p + blink_v
 
   const char *APN = "internet";
-//  const char *APN = "3gprs";
   SIM800L *sim800l;
   
 public : 
@@ -121,13 +114,11 @@ public :
       Serial.println(F("Reset the module."));
       sim800l->reset();
       setupModule();
-      // return;
     }
 
     Serial.println(F("Start HTTP GET..."));
 
     // Write TS Channel
-    // WriteTS();
     String tokenid = infusconfig.get(tokenID_p);
     String infusid = infusconfig.get(infus_name_p);
     // BLYNK :
@@ -159,7 +150,6 @@ public :
       // Failed...
       Serial.print(F("HTTP GET error "));
       Serial.println(rc);
-      // displed_sim.print("Kirim datagagal", 0, 0);
     }
 
     // Close GPRS connectivity (5 trials)
@@ -182,45 +172,6 @@ public :
     return rc;
     delay(1000);
   }
-
-  // void WriteTS(InfusConfig &infusconfig, double tpm, int weigh)
-  // {
-  //   String tokenid = infusconfig.get(tokenID_p);
-  //   // String address="http://date.jsontest.com/";
-  //   String address=server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
-  //   Serial.println(address);
-  //   // int number = random(0, 100);
-  //   // String numberstr;
-  //   // numberstr = String(number);
-  //   // Serial.println(numberstr);
-  //   // String address = "http://sgp1.blynk.cloud/external/api/update?token=ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy&V4=" + numberstr;
-  //   char URL1[100];
-
-  //   // Do HTTP GET communication with 10s for the timeout (read)
-  //   address.toCharArray(URL1, 100);
-
-  //   uint16_t rc = sim800l->doGet(URL1, 10000);
-  //   if (rc == 200)
-  //   {
-  //     // Success, output the data received on the serial
-  //     Serial.print(F("HTTP GET successful ("));
-  //     Serial.print(sim800l->getDataSizeReceived());
-  //     Serial.println(F(" bytes)"));
-  //     Serial.print(F("Received : "));
-  //     String TS_data = sim800l->getDataReceived();
-  //     Serial.println(TS_data);
-  //     // disp_sim.print("Send data succed");
-  //     displed_sim.print("Kirim databerhasil");
-  //   }
-  //   else
-  //   {
-  //     // Failed...
-  //     Serial.print(F("HTTP GET error "));
-  //     Serial.println(rc);
-  //     // disp_sim.print("Send data failed");
-  //     displed_sim.print("Kirim datagagal");
-  //   }
-  // }
 };
 
 #endif // !1

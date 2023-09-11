@@ -266,10 +266,8 @@ class Bat
         Serial.println(bat_volt);
         if (bat_volt < 4095){
             return 1;
-            return bat_volt;
         } else {
             return 0;
-            return bat_volt;
         }
     }
 };

@@ -10,6 +10,7 @@ Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 class DisplayLed
 {
 public:
+
     void init()
     {
         display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Address 0x3C for 128x32
@@ -22,8 +23,6 @@ public:
         display.setTextColor(SSD1306_WHITE);
         display.setCursor(posx,posy);
         display.println(text);
-        // display.setCursor(0,10);
-        // display.println("Juragan");
         display.display();
     }
 
@@ -102,16 +101,6 @@ public:
         display.println("Weigh :");
         display.setCursor(90,16);
         display.println(weigh);
-        display.display();
-    }
-
-    void print_sample(int text)
-    {
-        display.clearDisplay();
-        display.setTextSize(2);
-        display.setTextColor(SSD1306_WHITE);
-        display.setCursor(0,0);
-        display.println(text);
         display.display();
     }
 };
