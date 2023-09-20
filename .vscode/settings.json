@@ -56,5 +56,6 @@
     "initializer_list": "cpp",
     "cstddef": "cpp",
     "atomic": "cpp"
-  }
+  },
+  "cmake.sourceDirectory": "C:/Users/LENOVO/Documents/GitHub/iotdm/Lib/WiFiManager-master"
 }
