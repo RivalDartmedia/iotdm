@@ -93,16 +93,32 @@ public:
         display.clearDisplay();
         display.setTextSize(2);
         display.setTextColor(SSD1306_WHITE);
-        display.setCursor(0,0);
-        display.println("TPM   :");
-        display.setCursor(90,0);
+        display.setCursor(25,0);
         display.println(tpm);
-        display.setCursor(0,16);
-        display.println("Weigh :");
-        display.setCursor(90,16);
+        display.setCursor(70,0);
+        display.println("TPM");
+        display.setCursor(15,16);
         display.println(weigh);
+        display.setCursor(60,16);
+        display.println("gram");
         display.display();
     }
+
+    // void sample(int tpm, int weigh)
+    // {
+    //     display.clearDisplay();
+    //     display.setTextSize(2);
+    //     display.setTextColor(SSD1306_WHITE);
+    //     display.setCursor(0,0);
+    //     display.println("TPM   :");
+    //     display.setCursor(90,0);
+    //     display.println(tpm);
+    //     display.setCursor(0,16);
+    //     display.println("Weigh :");
+    //     display.setCursor(90,16);
+    //     display.println(weigh);
+    //     display.display();
+    // }
 };
 
 #endif
