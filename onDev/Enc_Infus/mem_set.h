@@ -10,6 +10,7 @@
 enum mem_par
 {
     tokenID_p,
+    tokenCallmebot_p,
     infus_name_p,
     wifi_ssid_p,
     wifi_pass_p
@@ -36,7 +37,7 @@ class InfusConfig
 {
 private:
 
-    String tokenID, infus_name, wifi_ssid, wifi_pass;
+    String tokenID, tokenCallmebot, infus_name, wifi_ssid, wifi_pass;
     const char *configDir = "/config.txt";
 
 public:
@@ -66,6 +67,7 @@ public:
         }
 
         tokenID = (const char *)doc["tokenID"];
+        tokenCallmebot = (const char *)doc["tokenCallmebot"];
         infus_name = (const char *)doc["infus_name"];
         wifi_ssid = (const char *)doc["wifi_ssid"];
         wifi_pass = (const char *)doc["wifi_pass"];
@@ -86,6 +88,11 @@ public:
         case tokenID_p:
         {
             tokenID = val_edit;
+            break;
+        }
+        case tokenCallmebot_p:
+        {
+            tokenCallmebot = val_edit;
             break;
         }
         case infus_name_p:
@@ -116,6 +123,8 @@ public:
         {
         case tokenID_p:
             return tokenID;
+        case tokenCallmebot_p:
+            return tokenCallmebot;
         case infus_name_p:
             return infus_name;
         case wifi_ssid_p:
@@ -130,6 +139,7 @@ public:
     {
         Serial.print("--------------------------\n");
         Serial.printf("Token:%s\n", tokenID.c_str());
+        Serial.printf("Token Callmebot:%s\n", tokenCallmebot.c_str());
         Serial.printf("Nama Infus:%s\n", infus_name.c_str());
         Serial.printf("SSID:%s\n", wifi_ssid.c_str());
         Serial.printf("Pass:%s\n", wifi_pass.c_str());
@@ -162,6 +172,7 @@ public:
         }
 
         doc["tokenID"] = tokenID;
+        doc["tokenCallmebot"] = tokenCallmebot;
         doc["infus_name"] = infus_name;
         doc["wifi_ssid"] = wifi_ssid;
         doc["wifi_pass"] = wifi_pass;

@@ -24,7 +24,8 @@ Button button_wifi;
 DisplayLed displed_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
-WiFiClient client;
+WiFiClientSecure *client = new WiFiClientSecure;
+// WiFiClient client;
 
 String avail_wifi, port_ssid, port_pass;
 bool portal_on;
@@ -163,6 +164,7 @@ class ConnectionWiFi
 private:
 
   String tokenid;
+  String tokencallmebot;
   String infusid;
   String send_message;
   HTTPClient http;
@@ -199,11 +201,11 @@ public:
   {
     Serial.println("Terhubung WiFi");
 
-    WiFiClientSecure *client = new WiFiClientSecure;
     int httpCode;
 
     tokenid = infusconfig.get(tokenID_p);
     infusid = infusconfig.get(infus_name_p);
+    tokencallmebot = infusconfig.get(tokenCallmebot_p);
     client->setCACert(DEFAULT_ROOT_CA);
     {
       // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
@@ -211,7 +213,7 @@ public:
       // BLYNK:
       send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
       // Callmebot :
-      // send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
+      // send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokencallmebot + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
       // API :
       // send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
       Serial.println(send_message);
