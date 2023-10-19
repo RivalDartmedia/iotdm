@@ -1,12 +1,13 @@
 #ifndef koneksi_sim_h
 #define koneksi_sim_h
 
-#include <Arduino.h>
-#include <SoftwareSerial.h>
-#include "SIM800L.h"
-#include <ArduinoJson.h>
 #include "mem_set.h"
 #include "display_led.h"
+#include "koneksi_cred.h"
+
+#include <SoftwareSerial.h>
+#include <SIM800L.h>
+#include <ArduinoJson.h>
 
 #define SIM800_TX_PIN 16
 #define SIM800_RX_PIN 17
@@ -71,11 +72,14 @@ public :
       Serial.println(cnt_sim);
     }
 
-    if (cnt_sim < 10){
+    if (cnt_sim < 10)
+    {
       Serial.println(F("Network registration OK"));
       displed_sim.print("SIMCARD OK", 0, 0);
       return true;
-    }else{
+    }
+    else
+    {
       Serial.println("SIM network error");
       displed_sim.print("No SIM /  No Signal", 0, 0);
       return false;
@@ -122,11 +126,11 @@ public :
     String tokenid = infusconfig.get(tokenID_p);
     String infusid = infusconfig.get(infus_name_p);
     // BLYNK :
-    // String address = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+    String address = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
     // Callmebot :
     // String address = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
     // API :
-    String address = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
+    // String address = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
     Serial.println(address);
     char URL1[304];
 

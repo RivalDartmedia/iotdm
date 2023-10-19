@@ -1,15 +1,11 @@
 #ifndef buzzer_h
 #define buzzer_h
 
-class buzzer
+class Buzzer
 {
   private:
 
     int buzzPin;
-    int buzzState = LOW;
-    unsigned long previousMillis = 0;
-    unsigned long buzzerStartTime;
-    int buzzerStatus = 0;
   
   public:
   

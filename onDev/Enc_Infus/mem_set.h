@@ -3,14 +3,13 @@
 
 #include <ArduinoJson.h>
 #include <LittleFS.h>
-#include "FS.h"
+#include <FS.h>
 
 #define FORMAT_LITTLEFS_IF_FAILED true
 
 enum mem_par
 {
     tokenID_p,
-    temp_p,
     infus_name_p,
     wifi_ssid_p,
     wifi_pass_p
@@ -36,10 +35,12 @@ bool init_fs()
 class InfusConfig
 {
 private:
-    String tokenID, temp_IoT, infus_name, wifi_ssid, wifi_pass;
+
+    String tokenID, infus_name, wifi_ssid, wifi_pass;
     const char *configDir = "/config.txt";
 
 public:
+
     /**
      * @brief Load configurasi tersimpan dalam ESP32
      *
@@ -65,7 +66,6 @@ public:
         }
 
         tokenID = (const char *)doc["tokenID"];
-        temp_IoT = (const char *)doc["temp_IoT"];
         infus_name = (const char *)doc["infus_name"];
         wifi_ssid = (const char *)doc["wifi_ssid"];
         wifi_pass = (const char *)doc["wifi_pass"];
@@ -86,11 +86,6 @@ public:
         case tokenID_p:
         {
             tokenID = val_edit;
-            break;
-        }
-        case temp_p:
-        {
-            temp_IoT = val_edit;
             break;
         }
         case infus_name_p:
@@ -121,8 +116,6 @@ public:
         {
         case tokenID_p:
             return tokenID;
-        case temp_p:
-            return temp_IoT;
         case infus_name_p:
             return infus_name;
         case wifi_ssid_p:
@@ -137,7 +130,6 @@ public:
     {
         Serial.print("--------------------------\n");
         Serial.printf("Token:%s\n", tokenID.c_str());
-        Serial.printf("Template:%s\n", temp_IoT.c_str());
         Serial.printf("Nama Infus:%s\n", infus_name.c_str());
         Serial.printf("SSID:%s\n", wifi_ssid.c_str());
         Serial.printf("Pass:%s\n", wifi_pass.c_str());
@@ -170,7 +162,6 @@ public:
         }
 
         doc["tokenID"] = tokenID;
-        doc["temp_IoT"] = temp_IoT;
         doc["infus_name"] = infus_name;
         doc["wifi_ssid"] = wifi_ssid;
         doc["wifi_pass"] = wifi_pass;
@@ -194,10 +185,13 @@ public:
 class LoadCellConfig
 {
 private:
+
     float scale_factor;
     const char *configDir = "/weigh.txt";
     String scale_factor_str;
+    
 public:
+
     bool load(fs::FS &fs)
     {
         // Open file for reading

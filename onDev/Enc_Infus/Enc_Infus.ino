@@ -5,7 +5,8 @@
 #include "koneksi_sim.h"
 #include "display_led.h"
 #include "buzzer.h"
-#include "otadrive_esp.h"
+
+#include <otadrive_esp.h>
 #include <soc/rtc_wdt.h>
 
 //-----------Buat object dari class
@@ -17,7 +18,7 @@ Weigh weigh;
 LoadCellConfig loadconfig;
 Button button;
 DisplayLed displed;
-buzzer buzz;
+Buzzer buzz;
 Bat bat;
 
 //-----------Inisialisasi pin dan variabel
@@ -37,16 +38,20 @@ void updatetpm()
   tpm.update();
 }
 
-void beginsens(){
+void beginsens()
+{
     tpm.init(tpm_pin);
     attachInterrupt(tpm_pin, updatetpm, FALLING);
     weigh.init(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
 }
 
-void pauseMonitoring(){
-    if(button.is_push()){
+void pauseMonitoring()
+{
+    if(button.is_push())
+    {
         unsigned long currentTime = millis();
-        if ((currentTime - buttonPressStartTime) >= 500) {
+        if ((currentTime - buttonPressStartTime) >= 500) 
+        {
             Serial.println("PAUSE");
             detachInterrupt(configWiFiButton);
             pauseState = HIGH;
@@ -55,7 +60,8 @@ void pauseMonitoring(){
     }
 }
 
-void setup(){
+void setup()
+{
     //-----------STEP0: begin serial communication
     Serial.begin(115200);
     
@@ -80,7 +86,8 @@ void setup(){
     connect1.connectWifi(config1);
 
     //-----------STEP4: Config if needed and check wifi connection
-    if(connect1.checkwifi()){
+    if(connect1.checkwifi())
+    {
         Serial.println("WiFi Connected");
         String wifi = config1.get(wifi_ssid_p);
         Serial.println(wifi);
@@ -88,7 +95,9 @@ void setup(){
         displed.wifiCon(wifi);
         buzz.buzzbeep(500);
         delay(1500);
-    }else{
+    }
+    else
+    {
         Serial.println("Wifi Not Connected");
         displed.print("WiFi tidaktersambung", 0, 0);
         delay(2000);
@@ -98,7 +107,8 @@ void setup(){
         start_portal(config1);
         delay(500);
         connect1.connectWifi(config1);
-        if (connect1.checkwifi()){
+        if (connect1.checkwifi())
+        {
             Serial.println("WiFi Connected");
             String wifi = config1.get(wifi_ssid_p);
             Serial.println(wifi);
@@ -106,7 +116,9 @@ void setup(){
             displed.wifiCon(wifi);
             buzz.buzzbeep(500);
             delay(1500);
-        } else {
+        } 
+        else 
+        {
             Serial.println("Wifi Not Connected");
             displed.print("WiFi tidaktersambung", 0, 0);
             delay(2000);
@@ -123,12 +135,15 @@ void setup(){
     int cnt_config = 5;
     unsigned long previousMillis = 0;
     unsigned long interval = 1000;
-    while(cnt_config > -1 && !button.is_push()){
+    while(cnt_config > -1 && !button.is_push())
+    {
         unsigned long currentMillis = millis();
-        if (currentMillis - previousMillis >= interval) {
+        if (currentMillis - previousMillis >= interval) 
+        {
             previousMillis = currentMillis;
     
-            if (cnt_config > -1) {
+            if (cnt_config > -1) 
+            {
                 Serial.print("Setting WiFi ? ");
                 Serial.println(cnt_config);
                 displed.settingWiFi(cnt_config);
@@ -136,14 +151,16 @@ void setup(){
             }       
         }
     }
-    if (cnt_config > -1){
+    if (cnt_config > -1)
+    {
         Serial.println("Starting Captive Portal...");
         displed.print("Mengatur  WiFi...", 0, 0);
         buzz.buzzbeep(500);
         start_portal(config1);
         delay(500);
         connect1.connectWifi(config1);
-        if (!connect1.checkwifi()){
+        if (!connect1.checkwifi())
+        {
             Serial.println("Wifi Not Connected");
             displed.print("WiFi tidaktersambung", 0, 0);
             delay(2000);
@@ -192,19 +209,12 @@ void setup(){
     //---------------------------------------------------
 
     //-------------Load and Callibr---------------------
-    // int weigh_callib_lim = 0, weigh_callib = 10;
-    // while(weigh_callib > weigh_callib_lim){
-    //     Serial.println(weigh_callib);
-    //     displed.weighCallib(weigh_callib);
-    //     buzz.buzzbeep(500);
-    //     delay(500);
-    //     weigh_callib--;
-    // }
     displed.print("Jangan    gantung", 0, 0);
     buzz.buzzbeep(1000);
     displed.print("infus !", 0, 0);
     delay(1000);
-    while(!button.is_push()){
+    while(!button.is_push())
+    {
         displed.print("Infus tak digantung?", 0, 0);
         if(button.is_push()){
             break;
@@ -224,9 +234,11 @@ void setup(){
     //-------------------------------------------------
 
     //Konfirmasi mulai monitoring
-    while(!button.is_push()){
+    while(!button.is_push())
+    {
         displed.print("Infus     berjalan ?", 0, 0);
-        if(button.is_push()){
+        if(button.is_push())
+        {
             break;
         }
     }
@@ -235,16 +247,19 @@ void setup(){
     delay(500);
 }
 
-void loop() {
+void loop() 
+{
     //State Monitoring
 
     //Interrupt for Pause
     attachInterrupt(configWiFiButton, pauseMonitoring, FALLING);
     
     //-----------STEP-M1: Get Sensor Data & Displaying
+    Serial.println("-----------------------------------");
     int val_sample_berat = weigh.get_unit();
     // int val_sample_berat = random(0, 750);
-    if (val_sample_berat < 0){
+    if (val_sample_berat < 0)
+    {
       val_sample_berat = 0;
     }
     int val_sample_tpm = tpm.get();
@@ -258,46 +273,60 @@ void loop() {
 
     delay(2000);
 
-    // connect1.connectWifi(config1);
-
     //-----------STEP-M2: Connection Management & Send Data
-    if(connect1.checkwifi()){
-        if(connect1.update_secure(config1, val_sample_tpm, val_sample_berat) != 200){
+    if(connect1.checkwifi())
+    {
+        if(connect1.update_secure(config1, val_sample_tpm, val_sample_berat) != 200)
+        {
             buzz.buzzbeep(500);
             delay(2000);
-        } else {
+        } 
+        else 
+        {
             delay(2500);
         }
-    }else{ //Cek bisa sim atau tidak
+    }
+    else
+    { 
+        //Cek bisa sim atau tidak
         displed.print("WiFi tidaktersambung", 0, 0);
         delay(2000);
         displed.print("Kirim datavia SIM", 0, 0);
         Serial.println("KONEKSI SIM");
         vTaskDelay(1);
-        if (sim.connect_gprs(config1, val_sample_tpm, val_sample_berat) != 200){
+        if (sim.connect_gprs(config1, val_sample_tpm, val_sample_berat) != 200)
+        {
             displed.print("Kirim datagagal", 0, 0);
             buzz.buzzbeep(500);
             delay(500);
-        } else {
+        } 
+        else 
+        {
             delay(1000);
         }
     }
+    
     //Cek kondisi baterai
-    if (bat.cek()){
+    if (bat.cek())
+    {
         displed.print("Battery   Low", 0, 0);
         buzz.buzzbeep(1000);
     }
     
     //Cek tombol pause ditekan atau tidak
-    while(pauseState == HIGH){
+    while(pauseState == HIGH)
+    {
         displed.print("  PAUSED", 0, 0);
-        if(pauseBeep == HIGH){
+        if(pauseBeep == HIGH)
+        {
             buzz.buzzbeep(500);
         }
-        if(pauseBeep == HIGH){
+        if(pauseBeep == HIGH)
+        {
             pauseBeep = LOW;
         }
-        if(button.is_push()){
+        if(button.is_push())
+        {
             delay(1000);
             detachInterrupt(configWiFiButton);
             pauseState = LOW;

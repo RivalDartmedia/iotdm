@@ -3,20 +3,20 @@
 
 #include "mem_set.h"
 #include "koneksi_cred.h"
+#include "display_led.h"
+#include "sensorinfus.h"
 
 #include <DNSServer.h>
 #include <WiFi.h>
 #include <AsyncTCP.h>
-#include "ESPAsyncWebServer.h"
-// #include <WiFiClientSecure.h>
-#include <WiFiClient.h>
+#include <ESPAsyncWebServer.h>
+#include <WiFiClientSecure.h>
+// #include <WiFiClient.h>
 #include <HTTPClient.h>
-#include "display_led.h"
-#include "sensorinfus.h"
 #include <esp_task_wdt.h>
 
-// static const char DEFAULT_ROOT_CA[] =
-// #include "certs/certloc_pem.h"
+static const char DEFAULT_ROOT_CA[] =
+#include "certs/certloc_pem.h"
 
 #define configWiFiButton 19
 
@@ -24,11 +24,11 @@ Button button_wifi;
 DisplayLed displed_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
-String avail_wifi, port_ssid, port_name, port_pass, port_token;
-bool portal_on;
-int setting_state;
 WiFiClient client;
 
+String avail_wifi, port_ssid, port_pass;
+bool portal_on;
+int setting_state;
 bool isButtonPressed = false;
 
 String processor(const String &var)
@@ -39,24 +39,6 @@ String processor(const String &var)
   }
   return String();
 }
-
-class CaptiveRequestHandler : public AsyncWebHandler
-{
-public:
-  CaptiveRequestHandler() {}
-  virtual ~CaptiveRequestHandler() {}
-
-  bool canHandle(AsyncWebServerRequest *request)
-  {
-    request->addInterestingHeader("Setting Infus");
-    return true;
-  }
-
-  void handleRequest(AsyncWebServerRequest *request)
-  {
-    request->send(LittleFS, "/edit_data.htm", String(), false, processor);
-  }
-};
 
 void buttonpressed()
 {
@@ -157,15 +139,36 @@ bool start_portal(InfusConfig &config)
   return 0;
 }
 
+// class CaptiveRequestHandler : public AsyncWebHandler
+// {
+// public:
+
+//   CaptiveRequestHandler() {}
+//   virtual ~CaptiveRequestHandler() {}
+
+//   bool canHandle(AsyncWebServerRequest *request)
+//   {
+//     request->addInterestingHeader("Setting Infus");
+//     return true;
+//   }
+
+//   void handleRequest(AsyncWebServerRequest *request)
+//   {
+//     request->send(LittleFS, "/edit_data.htm", String(), false, processor);
+//   }
+// };
+
 class ConnectionWiFi
 {
 private:
+
   String tokenid;
   String infusid;
   String send_message;
   HTTPClient http;
 
 public:
+
   bool checkwifi()
   {
     int limit_try = 20, cnt = 0;
@@ -176,7 +179,8 @@ public:
       delay(250);
     }
     // Check koneksi
-    if(cnt < limit_try){
+    if(cnt < limit_try)
+    {
       return 1;
     }
     // Return 0 jika tidak bisa koneksi
@@ -195,24 +199,24 @@ public:
   {
     Serial.println("Terhubung WiFi");
 
-    // WiFiClientSecure *client = new WiFiClientSecure;
+    WiFiClientSecure *client = new WiFiClientSecure;
     int httpCode;
 
     tokenid = infusconfig.get(tokenID_p);
     infusid = infusconfig.get(infus_name_p);
-    // client->setCACert(DEFAULT_ROOT_CA);
+    client->setCACert(DEFAULT_ROOT_CA);
     {
       // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
       HTTPClient https;
       // BLYNK:
-      // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+      send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
       // Callmebot :
       // send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokenid + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
       // API :
-      send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
+      // send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
       Serial.println(send_message);
-      if (https.begin(client, send_message))
-      // if (https.begin(*client, send_message))
+      // if (https.begin(client, send_message))
+      if (https.begin(*client, send_message))
       { // HTTPS
         // start connection and send HTTP header
         httpCode = https.GET();

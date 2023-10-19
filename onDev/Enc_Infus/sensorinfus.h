@@ -1,15 +1,15 @@
 #ifndef sensorinfus_h
 #define sensorinfus_h
 
-#include <Arduino.h>
 #include <HX711.h>
 #include "buzzer.h"
 
-buzzer buzzbutton;
+Buzzer buzzbutton;
 
 class Tpm
 {
 private:
+
     int sensor_pin;
     int tpm_val;
     byte lastReading;
@@ -24,6 +24,7 @@ private:
     int tpm_get;
 
 public:
+
     void init(int sensor_pin)
     {
         this->sensor_pin = sensor_pin;
@@ -82,7 +83,8 @@ public:
         //         Serial.println("DATA DIANGGAP VALID");
         //     }
         // }
-        else {
+        else 
+        {
             tpm_val_previous = tpm_val;
         }
 
@@ -93,12 +95,14 @@ public:
 class Weigh
 {
 private:
+
     // HX711 circuit wiring
     HX711 scale;
     float callib_param;
     bool callibrated = false;
 
 public:
+
     void init(int LOADCELL_DOUT_PIN, int LOADCELL_SCK_PIN)
     {
         scale.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
@@ -139,9 +143,13 @@ public:
 
                         // Tolak dataIn = 0
                         if (dataIn == 0)
+                        {
                             Serial.print(F("Berat tidak boleh 0\n"));
+                        }
                         else
+                        {
                             waitserial = 0;
+                        }
                     }
                 }
                 callib_param = (float)reading / dataIn;
@@ -157,6 +165,7 @@ public:
             delay(1000);
         }
     }
+
     void set_callib(float callib_param)
     {
         while (!scale.is_ready())
@@ -170,10 +179,12 @@ public:
         this->callib_param = callib_param;
         scale.set_scale(callib_param);
     }
+
     float get_scale()
     {
         return this->callib_param;
     }
+
     float get_unit()
     {
         return scale.get_units(5);
@@ -193,6 +204,7 @@ public:
 class Button
 {
 private:
+
     int button_pin;
     bool pushed, hold, start_hold;
     unsigned long lastDebounceTime, startHoldTime;
@@ -200,14 +212,17 @@ private:
     unsigned long holdtime = 5000, holddur = 10000;
 
 public:
+
     void init(int button_pin)
     {
         this->button_pin = button_pin;
         pinMode(button_pin, INPUT_PULLUP);
     }
+
     void print(){
         Serial.printf("IsH: %d, IsP:%d, H_pin:%d\n", is_hold(), is_push(), pushed);
     }
+
     /**
      * @brief Fungsi update dipanggil setiap interupsi.
      *
@@ -225,10 +240,13 @@ public:
             {
                 // Debouncer 
                 //Sebelumnya tidak dipush dan sekarang dipush
-                if (!pushed && !newReading){
+                if (!pushed && !newReading)
+                {
                     startHoldTime = now_t;
                     start_hold = 1;
-                }else if (!pushed){
+                }
+                else if (!pushed)
+                {
                     start_hold = 0;
                 }
                 lastReading = newReading;
@@ -242,6 +260,7 @@ public:
     {
         return start_hold && (millis() - startHoldTime > holdtime) && (millis() - startHoldTime < holddur);
     }
+
     bool is_push()
     {
         return !digitalRead(this->button_pin);
@@ -251,25 +270,30 @@ public:
 class Bat
 {
     private:
-    int bat_pin;
+
+        int bat_pin;
 
     public:
-    void init(int bat_pin)
-    {
-        this->bat_pin = bat_pin;
-    }
 
-    bool cek()
-    {
-        int bat_volt = analogRead(bat_pin);
-        Serial.print("ADC : ");
-        Serial.println(bat_volt);
-        if (bat_volt < 4095){
-            return 1;
-        } else {
-            return 0;
+        void init(int bat_pin)
+        {
+            this->bat_pin = bat_pin;
         }
-    }
+
+        bool cek()
+        {
+            int bat_volt = analogRead(bat_pin);
+            Serial.print("ADC : ");
+            Serial.println(bat_volt);
+            if (bat_volt < 4095)
+            {
+                return 1;
+            } 
+            else 
+            {
+                return 0;
+            }
+        }
 };
 
 #endif
