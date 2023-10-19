@@ -213,13 +213,13 @@ void setup()
     buzz.buzzbeep(1000);
     displed.print("infus !", 0, 0);
     delay(1000);
-    while(!button.is_push())
-    {
-        displed.print("Infus tak digantung?", 0, 0);
-        if(button.is_push()){
-            break;
-        }
-    }
+    // while(!button.is_push())
+    // {
+    //     displed.print("Infus tak digantung?", 0, 0);
+    //     if(button.is_push()){
+    //         break;
+    //     }
+    // }
     displed.print("Kalibrasi berat...", 0, 0);
 
     loadconfig.load(LittleFS);
@@ -234,14 +234,14 @@ void setup()
     //-------------------------------------------------
 
     //Konfirmasi mulai monitoring
-    while(!button.is_push())
-    {
-        displed.print("Infus     berjalan ?", 0, 0);
-        if(button.is_push())
-        {
-            break;
-        }
-    }
+    // while(!button.is_push())
+    // {
+    //     displed.print("Infus     berjalan ?", 0, 0);
+    //     if(button.is_push())
+    //     {
+    //         break;
+    //     }
+    // }
     displed.print("Monitoringdimulai",0 ,0);
     buzz.buzzbeep(500);
     delay(500);
@@ -258,10 +258,6 @@ void loop()
     Serial.println("-----------------------------------");
     int val_sample_berat = weigh.get_unit();
     // int val_sample_berat = random(0, 750);
-    if (val_sample_berat < 0)
-    {
-      val_sample_berat = 0;
-    }
     int val_sample_tpm = tpm.get();
     // int val_sample_tpm = random(0,100);
     Serial.print("TPM: ");

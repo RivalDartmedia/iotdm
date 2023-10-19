@@ -185,9 +185,14 @@ public:
         return this->callib_param;
     }
 
-    float get_unit()
+    int get_unit()
     {
-        return scale.get_units(5);
+        int weigh_unit = scale.get_units(5);
+        if (weigh_unit < 0)
+        {
+            weigh_unit = 0;
+        }
+        return weigh_unit;
     }
 
     double get_raw()
