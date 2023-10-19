@@ -1,5 +1,6 @@
 {
   "tokenID": "ZIjaYVCHA9Vota0HFas5xh49JGXrM3Zy",
+  "tokenCallmebot": "LTk2NTgzMjA5NA",
   "infus_name": "Infus_DM1",
   "wifi_ssid": "ZTE_2.4G_5yzkX4",
   "wifi_pass": "123456789"
