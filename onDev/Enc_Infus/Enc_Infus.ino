@@ -3,8 +3,7 @@
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
-#include "display_led.h"
-#include "buzzer.h"
+#include "pin_var.h"
 
 #include <otadrive_esp.h>
 #include <soc/rtc_wdt.h>
@@ -16,18 +15,14 @@ ConnectionSIM sim;
 Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
-Button button;
-DisplayLed displed;
-Buzzer buzz;
 Bat bat;
+Button button;
 
 //-----------Inisialisasi pin dan variabel
 #define tpm_pin 18
 #define LOADCELL_DOUT_PIN 4
 #define LOADCELL_SCK_PIN 2
-#define configWiFiButton 19
 #define pinBat 35
-#define pinBuzz 5
 bool pauseState;
 bool pauseBeep;
 unsigned long buttonPressStartTime = 0;
@@ -256,10 +251,10 @@ void loop()
     
     //-----------STEP-M1: Get Sensor Data & Displaying
     Serial.println("-----------------------------------");
-    int val_sample_berat = weigh.get_unit();
-    // int val_sample_berat = random(0, 750);
-    int val_sample_tpm = tpm.get();
-    // int val_sample_tpm = random(0,100);
+    // int val_sample_berat = weigh.get_unit();
+    int val_sample_berat = random(0, 750);
+    // int val_sample_tpm = tpm.get();
+    int val_sample_tpm = random(0,100);
     Serial.print("TPM: ");
     Serial.println(val_sample_tpm);
     Serial.print("Weigh: ");
@@ -303,11 +298,12 @@ void loop()
     }
     
     //Cek kondisi baterai
-    if (bat.cek())
-    {
-        displed.print("Battery   Low", 0, 0);
-        buzz.buzzbeep(1000);
-    }
+    bat.cek();
+    // if (bat.cek())
+    // {
+    //     displed.print("Battery   Low", 0, 0);
+    //     buzz.buzzbeep(1000);
+    // }
     
     //Cek tombol pause ditekan atau tidak
     while(pauseState == HIGH)

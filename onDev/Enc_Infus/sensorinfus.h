@@ -1,10 +1,9 @@
 #ifndef sensorinfus_h
 #define sensorinfus_h
 
-#include <HX711.h>
-#include "buzzer.h"
+#include "pin_var.h"
 
-Buzzer buzzbutton;
+#include <HX711.h>
 
 class Tpm
 {
@@ -285,18 +284,16 @@ class Bat
             this->bat_pin = bat_pin;
         }
 
-        bool cek()
+        void cek()
         {
+            buzz.init(pinBuzz);
             int bat_volt = analogRead(bat_pin);
             Serial.print("ADC : ");
             Serial.println(bat_volt);
             if (bat_volt < 4095)
             {
-                return 1;
-            } 
-            else 
-            {
-                return 0;
+                displed.print("Battery   Low", 0, 0);
+                buzz.buzzbeep(1000);
             }
         }
 };

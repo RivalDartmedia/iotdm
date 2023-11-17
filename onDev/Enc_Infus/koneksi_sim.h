@@ -2,8 +2,8 @@
 #define koneksi_sim_h
 
 #include "mem_set.h"
-#include "display_led.h"
-#include "koneksi_cred.h"
+// #include "koneksi_cred.h"
+#include "pin_var.h"
 
 #include <SoftwareSerial.h>
 #include <SIM800L.h>
@@ -12,8 +12,6 @@
 #define SIM800_TX_PIN 16
 #define SIM800_RX_PIN 17
 #define SIM800_RST_PIN 23
-
-DisplayLed displed_sim;
 
 class ConnectionSIM
 {
@@ -61,7 +59,7 @@ public :
     Serial.println(F("Setup Complete!"));
 
     // Wait for operator network registration (national or roaming network)
-    displed_sim.print("Mendaftar jaringan...", 0, 0);
+    displed.print("Mendaftar jaringan...", 0, 0);
     int cnt_sim_lim = 10, cnt_sim = 0;
     NetworkRegistration network = sim800l->getRegistrationStatus();
     while (network != REGISTERED_HOME && network != REGISTERED_ROAMING && cnt_sim < cnt_sim_lim)
@@ -75,13 +73,13 @@ public :
     if (cnt_sim < 10)
     {
       Serial.println(F("Network registration OK"));
-      displed_sim.print("SIMCARD OK", 0, 0);
+      displed.print("SIMCARD OK", 0, 0);
       return true;
     }
     else
     {
       Serial.println("SIM network error");
-      displed_sim.print("No SIM /  No Signal", 0, 0);
+      displed.print("No SIM /  No Signal", 0, 0);
       return false;
     }
     delay(1000);
@@ -148,7 +146,7 @@ public :
       Serial.print(F("Received : "));
       String TS_data = sim800l->getDataReceived();
       Serial.println(TS_data);
-      displed_sim.print("Kirim databerhasil", 0, 0);
+      displed.print("Kirim databerhasil", 0, 0);
     }
     else
     {

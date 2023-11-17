@@ -3,8 +3,8 @@
 
 #include "mem_set.h"
 #include "koneksi_cred.h"
-#include "display_led.h"
 #include "sensorinfus.h"
+#include "pin_var.h"
 
 #include <DNSServer.h>
 #include <WiFi.h>
@@ -18,10 +18,7 @@
 static const char DEFAULT_ROOT_CA[] =
 #include "certs/certloc_pem.h"
 
-#define configWiFiButton 19
-
 Button button_wifi;
-DisplayLed displed_wifi;
 DNSServer dnsServer;
 AsyncWebServer server(80);
 WiFiClientSecure *client = new WiFiClientSecure;
@@ -191,7 +188,7 @@ public:
   
   void connectWifi(InfusConfig &infusconfig)
   {
-    displed_wifi.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
+    displed.connectingWiFi(infusconfig.get(wifi_ssid_p).c_str());
     WiFi.mode(WIFI_STA);
     WiFi.begin(infusconfig.get(wifi_ssid_p).c_str(), infusconfig.get(wifi_pass_p).c_str());
     delay(500);
@@ -234,13 +231,13 @@ public:
           {
             String payload = https.getString();
             Serial.println(payload);
-            displed_wifi.print("Kirim databerhasil", 0, 0);
+            displed.print("Kirim databerhasil", 0, 0);
           }
         }
         else
         {
           Serial.printf("[HTTPS] GET... failed, error: %s\n", https.errorToString(httpCode).c_str());
-          displed_wifi.print("Kirim datagagal", 0, 0);
+          displed.print("Kirim datagagal", 0, 0);
         }
 
         https.end();
