@@ -10,8 +10,8 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include <WiFiClientSecure.h>
-// #include <WiFiClient.h>
+// #include <WiFiClientSecure.h>
+#include <WiFiClient.h>
 #include <HTTPClient.h>
 #include <esp_task_wdt.h>
 
@@ -20,8 +20,8 @@ static const char DEFAULT_ROOT_CA[] =
 
 DNSServer dnsServer;
 AsyncWebServer server(80);
-WiFiClientSecure *client = new WiFiClientSecure;
-// WiFiClient client;
+// WiFiClientSecure *client = new WiFiClientSecure;
+WiFiClient client;
 
 String avail_wifi, port_ssid, port_pass;
 bool portal_on;
@@ -139,21 +139,20 @@ bool start_portal(InfusConfig &config)
 
 // class CaptiveRequestHandler : public AsyncWebHandler
 // {
-// public:
+//     public:
+//         CaptiveRequestHandler() {}
+//         virtual ~CaptiveRequestHandler() {}
 
-//   CaptiveRequestHandler() {}
-//   virtual ~CaptiveRequestHandler() {}
+//         bool canHandle(AsyncWebServerRequest *request)
+//         {
+//             request->addInterestingHeader("Setting Infus");
+//             return true;
+//         }
 
-//   bool canHandle(AsyncWebServerRequest *request)
-//   {
-//     request->addInterestingHeader("Setting Infus");
-//     return true;
-//   }
-
-//   void handleRequest(AsyncWebServerRequest *request)
-//   {
-//     request->send(LittleFS, "/edit_data.htm", String(), false, processor);
-//   }
+//         void handleRequest(AsyncWebServerRequest *request)
+//         {
+//             request->send(LittleFS, "/edit_data.htm", String(), false, processor);
+//         }
 // };
 
 class ConnectionWiFi
@@ -201,19 +200,19 @@ class ConnectionWiFi
             tokenid = infusconfig.get(tokenID_p);
             infusid = infusconfig.get(infus_name_p);
             tokencallmebot = infusconfig.get(tokenCallmebot_p);
-            client->setCACert(DEFAULT_ROOT_CA);
-            {
+            // client->setCACert(DEFAULT_ROOT_CA);
+            // {
                 // Add a scoping block for HTTPClient https to make sure it is destroyed before WiFiClientSecure *client is
                 HTTPClient https;
                 // BLYNK:
-                send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
+                // send_message = server_dom + send_p + token + tokenid + berat_v + String(weigh) + tpm_v + String(tpm);
                 // Callmebot :
                 // send_message = server_dom_callmebot + send_p_callmebot + get_p_callmebot + token_callmebot + tokencallmebot + "&text=" + "ID+Device+=+" + String(infusid) + ";+TPM+=+" + String(tpm) + "+;+Weigh+=+" + String(weigh);
                 // API :
-                // send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
+                send_message = URL + prefixRoute + path + "?token=" + token_api + "&deviceId=" + String(infusid) + "&tpm=" + String(tpm) + "&weight=" + String(weigh);
                 Serial.println(send_message);
-                // if (https.begin(client, send_message))
-                if (https.begin(*client, send_message))
+                if (https.begin(client, send_message))
+                // if (https.begin(*client, send_message))
                 {
                     // start connection and send HTTP header
                     httpCode = https.GET();
@@ -240,7 +239,7 @@ class ConnectionWiFi
 
                     https.end();
                 }
-            }
+            // }
             return httpCode;
         }
 };

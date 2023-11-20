@@ -13,8 +13,8 @@ String send_p_callmebot = "telegram/";
 String get_p_callmebot = "group.php?";
 String token_callmebot = "apikey=";
 
-// String URL = "http://202.43.169.13:5001";
-String URL = "http://192.168.1.11:5001";
+String URL = "http://202.43.169.13:5001";
+// String URL = "http://192.168.1.11:5001";
 String prefixRoute = "/api/infus_iot";
 String path ="/send-data/device";
 String token_api = "54720736019d2a645b8198cb2";
