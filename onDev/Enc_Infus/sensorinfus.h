@@ -1,14 +1,14 @@
 #ifndef sensorinfus_h
 #define sensorinfus_h
 
-#include "pin_var.h"
+#include "buzzer.h"
+#include "display_led.h"
 
 #include <HX711.h>
 
 class Tpm
 {
 private:
-
     int sensor_pin;
     int tpm_val;
     byte lastReading;
@@ -23,7 +23,6 @@ private:
     int tpm_get;
 
 public:
-
     void init(int sensor_pin)
     {
         this->sensor_pin = sensor_pin;
@@ -297,5 +296,8 @@ class Bat
             }
         }
 };
+
+#define configWiFiButton 19
+Button button;
 
 #endif

@@ -3,23 +3,25 @@
 
 class Buzzer
 {
-  private:
-
-    int buzzPin;
+    private:
+        int buzzPin;
   
-  public:
-  
-    void init(int buzzPin)
-    {
-      this->buzzPin = buzzPin;
-      pinMode(buzzPin, OUTPUT);
-    }
+    public:
+        void init(int buzzPin)
+        {
+            this->buzzPin = buzzPin;
+            pinMode(buzzPin, OUTPUT);
+        }
 
-    void buzzbeep(unsigned long buzzerDuration){
-      digitalWrite(buzzPin, HIGH);
-      delay(buzzerDuration);
-      digitalWrite(buzzPin, LOW);
-    }
+        void buzzbeep(unsigned long buzzerDuration)
+        {
+            digitalWrite(buzzPin, HIGH);
+            delay(buzzerDuration);
+            digitalWrite(buzzPin, LOW);
+        }
 };
+
+#define pinBuzz 5
+Buzzer buzz;
 
 #endif

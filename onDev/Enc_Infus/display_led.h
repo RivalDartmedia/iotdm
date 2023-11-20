@@ -9,7 +9,6 @@ Adafruit_SSD1306 display = Adafruit_SSD1306(128, 32, &Wire);
 class DisplayLed
 {
 public:
-
     void init()
     {
         display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // Address 0x3C for 128x32
@@ -119,5 +118,7 @@ public:
     //     display.display();
     // }
 };
+
+DisplayLed displed;
 
 #endif

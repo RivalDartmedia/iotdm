@@ -3,7 +3,9 @@
 #include "sensorinfus.h"
 #include "koneksi_wifi.h"
 #include "koneksi_sim.h"
-#include "pin_var.h"
+#include "buzzer.h"
+#include "display_led.h"
+#include "koneksi_cred.h"
 
 #include <otadrive_esp.h>
 #include <soc/rtc_wdt.h>
@@ -16,7 +18,7 @@ Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
 Bat bat;
-Button button;
+// Button button;
 
 //-----------Inisialisasi pin dan variabel
 #define tpm_pin 18
@@ -299,11 +301,11 @@ void loop()
     
     //Cek kondisi baterai
     bat.cek();
-    // if (bat.cek())
-    // {
-    //     displed.print("Battery   Low", 0, 0);
-    //     buzz.buzzbeep(1000);
-    // }
+    if (bat.cek())
+    {
+        displed.print("Battery   Low", 0, 0);
+        buzz.buzzbeep(1000);
+    }
     
     //Cek tombol pause ditekan atau tidak
     while(pauseState == HIGH)
