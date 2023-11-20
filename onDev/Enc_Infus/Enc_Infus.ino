@@ -18,7 +18,6 @@ Tpm tpm;
 Weigh weigh;
 LoadCellConfig loadconfig;
 Bat bat;
-// Button button;
 
 //-----------Inisialisasi pin dan variabel
 #define tpm_pin 18
@@ -301,11 +300,6 @@ void loop()
     
     //Cek kondisi baterai
     bat.cek();
-    if (bat.cek())
-    {
-        displed.print("Battery   Low", 0, 0);
-        buzz.buzzbeep(1000);
-    }
     
     //Cek tombol pause ditekan atau tidak
     while(pauseState == HIGH)
